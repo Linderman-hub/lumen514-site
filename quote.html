@@ -1,0 +1,317 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="robots" content="noindex">
+<title>Your Lumen 514 Lighting Plan</title>
+<meta property="og:title" content="Your quote is ready">
+<meta property="og:description" content="Your home, your price, and the looks you can switch on from your phone. Tap to open your plan.">
+<meta property="og:image" content="https://lumen514.com/assets/og-quote.jpg">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:type" content="website">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:image" content="https://lumen514.com/assets/og-quote.jpg">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Archivo:wght@700;800;900&family=Manrope:wght@500;700;800&display=swap">
+<style>
+/* Client leave-behind: personalized recap the homeowner opens from a text. Same navy/gold brand world as the sales deck, single committed dark look. */
+:root{
+  --navy:#0B1D38;
+  --navy-2:#122A4E;
+  --panel:#16325C;
+  --ink:#F4F0E6;
+  --muted:#9FB2CE;
+  --gold:#D9A845;
+  --line:rgba(244,240,230,.14);
+  color-scheme:dark;
+}
+*{box-sizing:border-box}
+html,body{margin:0}
+body{background:var(--navy);color:var(--ink);font-family:'Manrope',system-ui,-apple-system,'Segoe UI',sans-serif;font-size:17px;line-height:1.6}
+h1,h2,h3{font-family:'Archivo',system-ui,sans-serif;text-wrap:balance}
+.wrap{max-width:880px;margin:0 auto;
+  padding-left:max(16px, env(safe-area-inset-left, 0px));
+  padding-right:max(16px, env(safe-area-inset-right, 0px));}
+header{padding-block:44px 8px;text-align:center}
+.mark{display:inline-flex;align-items:center;gap:10px;margin-bottom:18px}
+.mark b{font-family:'Archivo';font-weight:800;letter-spacing:.08em;font-size:15px}
+.kicker{color:var(--gold);font-weight:800;letter-spacing:.2em;text-transform:uppercase;font-size:12px;margin:0}
+h1{font-size:clamp(32px,7vw,52px);font-weight:900;line-height:1.05;margin:10px 0 8px}
+.for{color:var(--muted);font-size:17px;margin:0 0 24px}
+.for b{color:var(--ink)}
+.heroimg{border-radius:14px;overflow:hidden;border:1px solid var(--line)}
+.heroimg{position:relative}
+.heroimg img{display:block;width:100%}
+.heroimg .tag{position:absolute;left:14px;top:14px;background:rgba(11,29,56,.82);color:var(--ink);font:700 13px 'Manrope';padding:6px 12px;border-radius:999px;border:1px solid var(--line)}
+.heroimg .tag b{color:var(--gold)}
+.capt{color:var(--muted);font-size:14px;margin:10px 0 0;text-align:center}
+section{padding-block:46px;border-top:1px solid var(--line)}
+header + section{border-top:0}
+.eyebrow{color:var(--gold);font-weight:800;letter-spacing:.2em;text-transform:uppercase;font-size:12px;margin:0 0 8px}
+h2{font-size:clamp(24px,5vw,34px);font-weight:900;margin:0 0 10px}
+.sub{color:var(--muted);max-width:36em;margin:0 0 24px}
+/* plan card */
+.plan{background:var(--navy-2);border:1px solid var(--gold);border-radius:16px;padding:26px 24px}
+.plan svg{display:block;width:min(300px,100%);margin-bottom:12px}
+.plan .pname{font-family:'Archivo';font-weight:900;font-size:22px}
+.plan .pft{color:var(--muted);font-size:14px;margin:2px 0 14px}
+.plan .ptotal{font-family:'Archivo';font-weight:900;font-size:clamp(34px,8vw,46px);color:var(--gold);font-variant-numeric:tabular-nums;line-height:1.1}
+.plan .pwas{color:var(--muted);text-decoration:line-through;font-size:15px;font-variant-numeric:tabular-nums;min-height:1.4em}
+.plan .pdisc{color:var(--muted);font-size:13.5px}
+.plan .pblurb{color:var(--muted);font-size:15px;margin:0 0 14px;line-height:1.5}
+.plan .prate{font-size:14px;color:var(--muted);margin-top:4px;font-variant-numeric:tabular-nums}
+.plan .prate s{opacity:.7}
+.plan .prate b{color:var(--ink)}
+.plan ul{margin:16px 0 0;padding:0;list-style:none;color:var(--muted);font-size:15px}
+.plan li{padding:4px 0 4px 24px;position:relative}
+.plan li::before{content:'✓';position:absolute;left:0;color:var(--gold);font-weight:800}
+.plan .dep{margin-top:16px;border-top:1px solid var(--line);padding-top:14px;font-size:15.5px}
+.plan .dep b{color:var(--gold);font-variant-numeric:tabular-nums}
+.cta{margin-top:20px;background:var(--panel);border-radius:12px;padding:16px 18px;font-size:15.5px}
+.cta b{font-family:'Archivo'}
+.cta .num{color:var(--gold);font-family:'Archivo';font-weight:900;font-size:19px;user-select:all}
+/* looks toggle */
+.tabs{display:flex;gap:8px;flex-wrap:wrap;margin:0 0 14px}
+.tab{border:1px solid var(--line);background:none;color:var(--muted);font:700 14px 'Manrope';padding:9px 16px;border-radius:999px;cursor:pointer}
+.tab.on{background:var(--gold);border-color:var(--gold);color:var(--navy)}
+.lookimg{border-radius:14px;overflow:hidden;border:1px solid var(--line)}
+.lookimg img{display:block;width:100%;aspect-ratio:3/2;object-fit:cover}
+.looknote{color:var(--muted);font-size:14px;margin-top:10px}
+/* duo */
+.duo{display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:12px}
+.duo figure{margin:0;border-radius:12px;overflow:hidden;border:1px solid var(--line);background:var(--navy-2)}
+.duo img{display:block;width:100%;aspect-ratio:4/3;object-fit:cover;max-width:100%}
+.duo figcaption{padding:12px 14px;font-size:14px;color:var(--muted)}
+.duo figcaption b{color:var(--ink)}
+/* qr */
+.qrrow{display:flex;flex-wrap:wrap;align-items:center;gap:16px;background:var(--navy-2);border:1px solid var(--line);border-radius:14px;padding:18px}
+.qrcard{display:flex;align-items:center;gap:12px}
+.qrcard img{width:116px;height:116px;border-radius:10px;display:block}
+.qrcard div{font-size:13px;color:var(--muted)}
+.qrcard b{display:block;font-family:'Archivo';font-size:15px;color:var(--ink)}
+.store{display:block;min-width:150px;flex:1;text-decoration:none;border:1px solid var(--line);border-radius:12px;padding:12px 16px;background:var(--navy);color:var(--muted);font-size:13px}
+.store b{display:block;font-family:'Archivo';font-size:16px;color:var(--ink)}
+.qrnote{flex:1;min-width:220px;margin:0;font-size:15px;color:var(--muted)}
+.qrnote b{color:var(--gold)}
+/* steps */
+.steps{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:14px;counter-reset:st}
+.step{background:var(--navy-2);border:1px solid var(--line);border-radius:12px;padding:20px 18px}
+.step::before{counter-increment:st;content:counter(st,decimal-leading-zero);font-family:'Archivo';font-weight:900;font-size:28px;color:var(--gold);display:block;margin-bottom:6px}
+.step h3{margin:0 0 6px;font-size:16.5px}
+.step p{margin:0;color:var(--muted);font-size:14.5px}
+footer{padding:36px 0 50px;color:var(--muted);font-size:14px;text-align:center}
+footer b{color:var(--ink)}
+@media (prefers-reduced-motion:no-preference){ html{scroll-behavior:smooth} }
+</style>
+</head>
+<body>
+<header class="wrap">
+  <span class="mark">
+    <svg width="30" height="23" viewBox="0 0 26 20" aria-hidden="true"><path d="M2 13 13 2l11 11" fill="none" stroke="#F4F0E6" stroke-width="2.6"/><path d="M6 17 13 10l7 7" fill="none" stroke="#D9A845" stroke-width="2.6"/></svg>
+    <b>LUMEN 514</b>
+  </span>
+  <p class="kicker">Permanent · Professional · Smart</p>
+  <h1 id="h1">Never hang holiday lights again.</h1>
+  <p class="for" id="forline">Here's everything we talked about, in one place.</p>
+  <div class="heroimg"><span class="tag" id="herotag" hidden><b>Your house</b> · classic warm white</span><img id="hero" src="assets/hero-threezone.jpg" alt="One house shown in three lighting looks at once"></div>
+  <p class="capt" id="herocapt" hidden>A rendering of your home with the lights installed. The lights are exactly what we install; the rest is staging.</p>
+</header>
+
+<section id="plan" class="wrap" hidden>
+  <p class="eyebrow">Your plan</p>
+  <h2 id="planTitle">Your home, lit.</h2>
+  <p class="sub">The numbers from our visit, locked in writing.</p>
+  <div class="plan">
+    <div id="planSvg"></div>
+    <div class="pname" id="pname"></div>
+    <div class="pft" id="pft"></div>
+    <p class="pblurb" id="pblurb"></p>
+    <div class="pwas" id="pwas"></div>
+    <div class="ptotal" id="ptotal"></div>
+    <div class="prate" id="prate"></div>
+    <div class="pdisc" id="pdisc"></div>
+    <ul id="pfeats"></ul>
+    <div class="dep" id="pdep"></div>
+  </div>
+  <div class="cta">
+    <b>Ready to get on the install calendar?</b> Call or text us:
+    <div class="num">(404) 436-0901</div>
+    A deposit locks in your install date and this price.
+  </div>
+</section>
+
+<section class="wrap">
+  <p class="eyebrow">One house, any look</p>
+  <h2>Tap through the looks.</h2>
+  <p class="sub">One home, changed from a phone in seconds.</p>
+  <div class="tabs" id="looks">
+    <button class="tab on" data-k="warm">Every night</button>
+    <button class="tab" data-k="xmas">Christmas</button>
+    <button class="tab" data-k="hal">Halloween</button>
+  </div>
+  <div class="lookimg"><img id="lookimg" src="assets/home-accent.jpg" alt="Two-story home with warm white accent lighting under the eaves"></div>
+  <p class="looknote" id="looknote">Warm accent lighting, every single night. It reads as custom architectural lighting.</p>
+</section>
+
+<section class="wrap">
+  <p class="eyebrow">Up close</p>
+  <h2>Nearly invisible by day.</h2>
+  <p class="sub">The track is color-matched to your trim and tucked under the drip edge. Both of these homes have the lights on right now.</p>
+  <div class="duo">
+    <figure><img src="assets/stone-closeup.jpg" alt="Close-up of the lighting track under a stone gable"><figcaption><b>The detail.</b> Slim aluminum track, matched to the trim from 19 colors.</figcaption></figure>
+    <figure><img src="assets/christmas-gable.jpg" alt="Gable in red, green and white Christmas lighting"><figcaption><b>December, handled.</b> Red and green at the tap of a preset. Zero ladders.</figcaption></figure>
+  </div>
+</section>
+
+<section class="wrap">
+  <p class="eyebrow">The app</p>
+  <h2>Try it tonight, before it's even installed.</h2>
+  <p class="sub">The free Bosso Lights app has a demo mode. Download it and play with 16 million colors right now.</p>
+  <div class="qrrow">
+    <a class="store" href="https://apps.apple.com/us/app/bosso-lights/id6467633027" target="_blank" rel="noopener"><b>iPhone</b><span>App Store</span></a>
+    <a class="store" href="https://play.google.com/store/apps/details?id=com.bossolighting" target="_blank" rel="noopener"><b>Android</b><span>Google Play</span></a>
+    <p class="qrnote">Download free and open <b>demo mode</b>. Presets, schedules, music sync, the whole thing.</p>
+  </div>
+</section>
+
+<section class="wrap">
+  <p class="eyebrow">What happens next</p>
+  <h2>Three steps to forever lit.</h2>
+  <div class="steps">
+    <div class="step"><h3>Lock your date</h3><p>A deposit holds your install date and your quoted price. Call or text us to pick the day.</p></div>
+    <div class="step"><h3>Install day</h3><p>Our team installs the track and lights, usually in 1 to 2 days, and leaves your property spotless.</p></div>
+    <div class="step"><h3>The walkthrough</h3><p>We connect your app, set up your first scenes and schedules, and hand you the keys before we leave the driveway.</p></div>
+  </div>
+  <div class="duo" style="margin-top:14px">
+    <figure><img src="assets/craftsman.jpg" alt="Large craftsman home in warm white lighting"><figcaption><b>Every peak and eave.</b> Clean, even light across the whole roofline.</figcaption></figure>
+    <figure><img src="assets/ranch-amber.jpg" alt="Single-story ranch home in warm amber lighting"><figcaption><b>Every home.</b> Ranches wear it as well as estates do.</figcaption></figure>
+  </div>
+</section>
+
+<footer class="wrap">
+  <b>Lumen 514</b> · Permanent lighting · Powder Springs, GA<br>
+  (404) 436-0901 · josh@lumen514.com<br>
+  Serving Powder Springs, Kennesaw, Acworth, Dallas, Marietta, Cartersville, Woodstock &amp; Canton
+</footer>
+
+<script>
+(function(){
+  'use strict';
+  var $=function(id){return document.getElementById(id)};
+  var fmt=function(n){return '$'+Math.round(n).toLocaleString('en-US')};
+  var NAMES=['Front','Front With Peaks','Full House Wrap'];
+  var SCOPE=['Front eaves, street view','Front eaves plus every peak','Every eave and peak, all the way around'];
+  var BLURB=['Holiday cheer from the street every December, and a warm glow every other night of the year. Zero ladders, ever.',
+    'The house people slow down for. Every peak outlined, and the neighbors will know exactly what they are missing.',
+    'Lit from every angle. Backyard birthday parties, graduation cookouts, game day on the patio: the whole house shows up.'];
+  var fmtRate=function(r){return '$'+(Math.round(r*100)/100).toLocaleString('en-US')+'/ft'};
+
+  /* looks toggle */
+  var LOOKS={
+    warm:{src:'assets/home-accent.jpg',note:'Warm accent lighting, every single night. It reads as custom architectural lighting.'},
+    xmas:{src:'assets/home-xmas.jpg',note:'Classic Christmas white across every roofline, and one tap back to everyday on January 1st.'},
+    hal:{src:'assets/home-halloween.jpg',note:'Halloween purple from the same lights. Game day, birthdays, Fourth of July: any color, any night.'}
+  };
+  [].forEach.call(document.querySelectorAll('#looks .tab'),function(t){
+    t.addEventListener('click',function(){
+      [].forEach.call(document.querySelectorAll('#looks .tab'),function(x){x.classList.toggle('on',x===t)});
+      $('lookimg').src=LOOKS[t.dataset.k].src;
+      $('looknote').textContent=LOOKS[t.dataset.k].note;
+    });
+  });
+
+  function svgHouse(level){
+    var faint='stroke="rgba(244,240,230,.22)" stroke-width="1.6" fill="none" stroke-linejoin="round" stroke-linecap="round"';
+    var dim='stroke="rgba(244,240,230,.16)" stroke-width="1.6" fill="none" stroke-linecap="round"';
+    var lit='stroke="#D9A845" stroke-width="3.2" fill="none" stroke-linecap="round" stroke-linejoin="round" stroke-dasharray="0.1 6.4"';
+    var body='M10 92 V62 H18 V40 H28 L45 22 L62 40 H84 L108 8 L132 40 H134 L146 22 L158 40 H170 V92 Z';
+    var side='M170 40 L202 29 V80 L170 92';
+    var garage='M24 70 H78 V92 H24 Z M30 78 H72 M30 85 H72';
+    var porch='M116 62 H174 M122 62 V92 M166 62 V92 M94 66 V92 M90 92 H114';
+    var win='M34 46 H52 V58 H34 Z M92 46 H110 V58 H92 Z M140 46 H154 V58 H140 Z M92 70 H110 V84 H92 Z M136 70 H156 V84 H136 Z';
+    var eaves='M18 40 H170 M8 62 H84 M116 62 H174';
+    var rakes='M28 40 L45 22 L62 40 M84 40 L108 8 L132 40 M134 40 L146 22 L158 40';
+    var wrap='M170 40 L202 29 M174 62 L196 54';
+    var s='<svg viewBox="0 0 210 100" aria-hidden="true">';
+    s+='<path d="M2 92 H208" '+dim+'/>';
+    s+='<path d="'+body+'" '+faint+'/><path d="'+side+'" '+faint+'/><path d="'+garage+'" '+dim+'/><path d="'+porch+'" '+dim+'/><path d="'+win+'" '+dim+'/>';
+    s+='<path d="'+eaves+'" '+lit+'/>';
+    if(level>=1) s+='<path d="'+rakes+'" '+lit+'/>';
+    if(level>=2) s+='<path d="'+wrap+'" '+lit+'/>';
+    return s+'</svg>';
+  }
+
+  /* personalized plan from the link token.
+     q1: #q1-<opt>-<ft>-<rate x100>-<$ off>-<care/yr>-<dep %>-<name hex>
+     q2: #q2-<opt>-<ft>-<std rate x100>-<disc mode 0/1/2>-<disc value: $ off, or rate x100>-<care/yr>-<dep %>-<name hex>
+     either may end in ~<drive photo id> */
+  function hexToStr(h){
+    try{
+      if(!h||h.length%2) return '';
+      var b=[]; for(var i=0;i<h.length;i+=2) b.push(parseInt(h.substr(i,2),16));
+      return decodeURIComponent(b.map(function(c){return '%'+('0'+c.toString(16)).slice(-2)}).join(''));
+    }catch(e){ return ''; }
+  }
+  function parseTok(h){
+    var p=h.split('-'), v=p[0], q={};
+    if(v!=='q1'&&v!=='q2') return null;
+    q.opt=Math.min(2,Math.max(0,parseInt(p[1],10)||0));
+    q.ft=Math.max(0,parseInt(p[2],10)||0);
+    q.rate=(parseInt(p[3],10)||0)/100;
+    if(v==='q1'){ q.mode=(parseInt(p[4],10)||0)>0?1:0; q.val=Math.max(0,parseInt(p[4],10)||0); q.care=parseInt(p[5],10)||0; q.dep=parseInt(p[6],10)||0; q.name=hexToStr(p[7]||''); }
+    else { q.mode=Math.min(2,Math.max(0,parseInt(p[4],10)||0)); q.val=Math.max(0,parseInt(p[5],10)||0); q.care=parseInt(p[6],10)||0; q.dep=parseInt(p[7],10)||0; q.name=hexToStr(p[8]||''); }
+    q.care=Math.max(0,q.care); q.dep=Math.min(100,Math.max(0,q.dep));
+    q.gross=q.ft*q.rate; q.net=q.gross; q.netRate=q.rate;
+    if(q.mode===1&&q.val>0){ q.net=Math.max(0,q.gross-q.val); }
+    else if(q.mode===2){ var nr=q.val/100; if(nr>0&&nr<q.rate){ q.netRate=nr; q.net=q.ft*nr; } else { q.mode=0; } }
+    q.off=q.gross-q.net; if(q.off<=0) q.mode=0;
+    return q;
+  }
+  var Q=null;
+  try{
+    var h=(location.hash||'').replace(/^#/,'');
+    var ph=''; if(h.indexOf('~')>0){ ph=h.slice(h.indexOf('~')+1); h=h.slice(0,h.indexOf('~')); }
+    /* their own house if a photo was attached; otherwise the default stays */
+    if(/^[A-Za-z0-9_-]{20,}$/.test(ph)){
+      var hero=$('hero'), fb=hero.src;
+      hero.onerror=function(){ hero.onerror=null; hero.src=fb; $('herotag').hidden=true; $('herocapt').hidden=true; $('h1').textContent='Never hang holiday lights again.'; };
+      hero.src='https://lh3.googleusercontent.com/d/'+ph+'=w1600'; hero.alt='Your home at dusk with warm white lights along every peak and eave';
+      $('herotag').hidden=false; $('herocapt').hidden=false; $('h1').textContent='Your home, this Christmas.';
+    }
+    Q=parseTok(h);
+    if(Q&&Q.ft>0&&Q.rate>0){
+      $('plan').hidden=false;
+      if(Q.name){ $('forline').innerHTML='Prepared for <b></b>. Everything we talked about, in one place.'; $('forline').querySelector('b').textContent=Q.name; }
+      $('planSvg').innerHTML=svgHouse(Q.opt);
+      $('pname').textContent=NAMES[Q.opt];
+      $('pft').textContent=Q.ft+' linear ft · '+SCOPE[Q.opt];
+      $('pblurb').textContent=BLURB[Q.opt];
+      if(Q.mode===1){ $('pwas').textContent=fmt(Q.gross); $('pdisc').textContent='Includes your '+fmt(Q.off)+' discount, locked in with this quote.'; }
+      if(Q.mode===2){ $('pwas').textContent=fmt(Q.gross); $('prate').innerHTML='<s>'+fmtRate(Q.rate)+'</s> &rarr; <b>'+fmtRate(Q.netRate)+'</b>'; $('pdisc').textContent='Your rate of '+fmtRate(Q.netRate)+' saves you '+fmt(Q.off)+', locked in with this quote.'; }
+      $('ptotal').textContent=fmt(Q.net);
+      var feats=['Custom lighting design for your exact roofline','Hardware, professional install & app setup','5-yr product warranty on lights, track & accessories'];
+      if(Q.care>0) feats.push('Lumen Care Plan: '+fmt(Q.care)+'/yr, renews annually');
+      $('pfeats').innerHTML='<li>'+feats.join('</li><li>')+'</li>';
+      var depAmt=Math.round(Q.net*Q.dep/100);
+      $('pdep').innerHTML = Q.dep>0
+        ? Q.dep+'% down to schedule: <b>'+fmt(depAmt)+'</b> · balance on completion: <b>'+fmt(Q.net-depAmt)+'</b>'
+        : 'Payment details in your written quote.';
+    }
+  }catch(e){}
+  /* tell Lumen 514 when this quote is opened (skipped on the owner's own devices) */
+  try{
+    var qs=new URLSearchParams(location.search);
+    if(qs.has('me')){ try{localStorage.setItem('l514-owner','1')}catch(e){} }
+    var owner=false; try{owner=localStorage.getItem('l514-owner')==='1'}catch(e){}
+    var tok=(location.hash||'').replace(/^#/,'').split('~')[0];
+    if(!owner && Q && Q.ft>0){
+      var ua=navigator.userAgent, dev=/iPhone|iPad/.test(ua)?'iPhone/iPad':/Android/.test(ua)?'Android':'Computer';
+      fetch('https://script.google.com/macros/s/AKfycbx5_22g8v4v8OkC-sIbJKRcuO0enCNSxCIoPz1XXlC49U6nJj7DEttLR42hohW01HsMuQ/exec',{method:'POST',keepalive:true,
+        body:JSON.stringify({type:'view',token:tok.slice(0,200),name:Q.name,plan:NAMES[Q.opt]+' · '+Q.ft+' ft',total:Q.net,device:dev})}).catch(function(){});
+    }
+  }catch(e){}
+})();
+</script>
+</body>
+</html>

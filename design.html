@@ -1,0 +1,393 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Design Your Lights | Lumen 514</title>
+<meta name="description" content="Design permanent roofline lighting for your home. Pick your looks, tell us about your house, and we'll price your design three ways.">
+<meta property="og:title" content="Let's design your home's lighting">
+<meta property="og:description" content="Every night, Christmas, game day, any color from your phone. Takes about 2 minutes.">
+<meta property="og:image" content="https://lumen514.com/assets/mh-accent.jpg">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Archivo:wght@700;800;900&family=Manrope:wght@500;600;700;800&display=swap">
+<style>
+:root{
+  --navy:#0B1D38; --navy-2:#122A4E; --panel:#16325C;
+  --ink:#F4F0E6; --muted:#A9BAD3; --gold:#D9A845; --gold-hi:#F0C870; --line:rgba(244,240,230,.14);
+  --bad:#FF8A7A; color-scheme:dark;
+}
+*{box-sizing:border-box}
+html,body{margin:0;background:var(--navy);color:var(--ink);font-family:'Manrope',system-ui,-apple-system,'Segoe UI',sans-serif;font-size:17px;line-height:1.55}
+h1,h2,h3{font-family:'Archivo',system-ui,sans-serif;text-wrap:balance;margin:0}
+img{max-width:100%;display:block}
+button{font:inherit}
+.wrap{max-width:720px;margin:0 auto;padding-left:max(18px,env(safe-area-inset-left,0px));padding-right:max(18px,env(safe-area-inset-right,0px))}
+/* top bar */
+.top{position:sticky;top:0;z-index:20;background:rgba(11,29,56,.94);backdrop-filter:blur(8px);border-bottom:1px solid var(--line);padding-top:env(safe-area-inset-top,0px)}
+.top .wrap{display:flex;align-items:center;gap:12px;padding-block:12px}
+.logo{display:flex;align-items:center;gap:9px;text-decoration:none;color:var(--ink);margin-right:auto}
+.logo b{font-family:'Archivo';font-weight:800;letter-spacing:.07em;font-size:15px}
+.stepnum{font-size:12.5px;font-weight:800;letter-spacing:.12em;text-transform:uppercase;color:var(--muted)}
+.bar{height:3px;background:var(--line)}
+.bar i{display:block;height:100%;width:0;background:linear-gradient(90deg,var(--gold),var(--gold-hi));transition:width .45s ease}
+/* hero */
+.hero{position:relative;overflow:hidden;border-radius:0 0 22px 22px}
+.hero .slides{position:relative;aspect-ratio:3/2;max-height:62vh;width:100%}
+.hero .slides img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;opacity:0;transition:opacity 1.1s ease}
+.hero .slides img.on{opacity:1}
+.hero .veil{position:absolute;inset:0;background:linear-gradient(180deg,rgba(11,29,56,.15) 40%,rgba(11,29,56,.92) 100%)}
+.hero .look{position:absolute;left:18px;top:16px;background:rgba(11,29,56,.82);border:1px solid var(--line);border-radius:999px;padding:6px 14px;font-weight:800;font-size:13.5px;letter-spacing:.02em}
+.hero .look::before{content:'';display:inline-block;width:8px;height:8px;border-radius:50%;background:var(--gold);margin-right:8px;vertical-align:1px;box-shadow:0 0 10px var(--gold)}
+.intro{padding-block:26px 40px}
+.kicker{color:var(--gold);font-weight:800;letter-spacing:.2em;text-transform:uppercase;font-size:12px;margin:0 0 8px}
+.intro h1{font-size:clamp(32px,7vw,48px);font-weight:900;line-height:1.04;margin-bottom:12px}
+.intro p{color:var(--muted);margin:0 0 22px;max-width:34em}
+.owner{display:flex;gap:10px;align-items:flex-start;background:var(--navy-2);border:1px solid var(--line);border-radius:14px;padding:14px 16px;margin:22px 0 0;font-size:14.5px;color:var(--muted)}
+.owner b{color:var(--ink)}
+.ticks{display:flex;flex-wrap:wrap;gap:8px 16px;margin:18px 0 0;padding:0;list-style:none;font-size:14px;font-weight:700;color:var(--muted)}
+.ticks li::before{content:'✓ ';color:var(--gold)}
+.offer{display:none;align-items:center;gap:12px;margin:18px 0 0;padding:14px 16px;border:1px solid var(--gold);border-radius:14px;background:linear-gradient(135deg,rgba(217,168,69,.16),rgba(217,168,69,.04))}
+.offer.on{display:flex}
+.offer b{font-family:'Archivo';font-weight:900;font-size:26px;color:var(--gold);letter-spacing:-.01em;white-space:nowrap}
+.offer span{font-size:14px;color:var(--muted)}
+.offer span em{color:var(--ink);font-style:normal;font-weight:800}
+/* steps */
+.step{display:none;padding-block:28px 120px}
+.step.on{display:block;animation:in .45s ease both}
+@keyframes in{from{opacity:0;transform:translateY(14px)}to{opacity:1;transform:none}}
+.step h2{font-size:clamp(26px,5.6vw,36px);font-weight:900;line-height:1.08;margin-bottom:8px}
+.step .sub{color:var(--muted);margin:0 0 22px}
+/* look tiles */
+.tiles{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}
+.tile{position:relative;border:2px solid var(--line);border-radius:14px;overflow:hidden;cursor:pointer;background:var(--navy-2);padding:0;text-align:left;color:var(--ink);transition:border-color .2s,transform .2s}
+.tile img{width:100%;aspect-ratio:3/2;object-fit:cover;filter:saturate(.85) brightness(.85);transition:filter .3s}
+.tile span{display:block;padding:10px 12px 12px;font-weight:800;font-size:15px;line-height:1.25}
+.tile small{display:block;font-weight:600;color:var(--muted);font-size:12.5px;margin-top:2px}
+.tile::after{content:'';position:absolute;top:10px;right:10px;width:26px;height:26px;border-radius:50%;border:2px solid rgba(244,240,230,.7);background:rgba(11,29,56,.6)}
+.tile[aria-pressed="true"]{border-color:var(--gold)}
+.tile[aria-pressed="true"] img{filter:none}
+.tile[aria-pressed="true"]::after{background:var(--gold) url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Cpath d='M5 12.5l4.5 4.5L19 7.5' fill='none' stroke='%230B1D38' stroke-width='3.2' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E") center/16px no-repeat;border-color:var(--gold)}
+.tile:active{transform:scale(.98)}
+/* chips */
+.q{margin:0 0 26px}
+.q > .lab{display:block;font-weight:800;font-size:15px;margin:0 0 10px}
+.q > .lab i{color:var(--gold);font-style:normal}
+.chips{display:flex;flex-wrap:wrap;gap:10px}
+.chip{border:2px solid var(--line);background:var(--navy-2);color:var(--ink);border-radius:12px;padding:12px 16px;font-weight:700;font-size:15px;cursor:pointer;transition:border-color .2s,background .2s}
+.chip[aria-pressed="true"]{border-color:var(--gold);background:rgba(217,168,69,.14)}
+.chip .em{display:block;font-size:12.5px;color:var(--muted);font-weight:600}
+.note{font-size:14px;color:var(--muted);background:var(--navy-2);border-left:3px solid var(--gold);border-radius:8px;padding:10px 14px;margin-top:4px}
+/* fields */
+.grid2{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.grid3{display:grid;grid-template-columns:2fr 1fr;gap:12px}
+@media (max-width:440px){.grid2{grid-template-columns:1fr}}
+.f{display:block;margin:0 0 14px}
+.f span{display:block;font-size:13px;font-weight:800;color:var(--muted);margin:0 0 6px;letter-spacing:.02em}
+.f span i{color:var(--gold);font-style:normal}
+input[type=text],input[type=tel],input[type=email],textarea{width:100%;background:var(--navy-2);border:2px solid var(--line);border-radius:12px;color:var(--ink);font:600 16px 'Manrope',sans-serif;padding:13px 14px;min-width:0}
+textarea{min-height:84px;resize:vertical}
+input:focus,textarea:focus,.chip:focus-visible,.tile:focus-visible,.btn:focus-visible{outline:none;border-color:var(--gold);box-shadow:0 0 0 3px rgba(217,168,69,.25)}
+.consent{display:flex;gap:12px;align-items:flex-start;font-size:12.5px;line-height:1.5;color:var(--muted);background:var(--navy-2);border:1px solid var(--line);border-radius:12px;padding:12px 14px;margin:6px 0 4px}
+.consent input{width:22px;height:22px;flex:none;margin-top:1px;accent-color:var(--gold)}
+.consent a{color:var(--gold)}
+.hp{position:absolute;left:-9999px;width:1px;height:1px;overflow:hidden}
+/* nav */
+.nav{position:fixed;left:0;right:0;bottom:0;z-index:30;background:rgba(11,29,56,.96);backdrop-filter:blur(8px);border-top:1px solid var(--line);padding:12px max(16px,env(safe-area-inset-right,0px)) calc(12px + env(safe-area-inset-bottom,0px)) max(16px,env(safe-area-inset-left,0px))}
+.nav .wrap{display:flex;gap:10px;padding:0}
+.btn{flex:1;border:2px solid var(--gold);background:var(--gold);color:var(--navy);font:800 16px 'Archivo',sans-serif;letter-spacing:.02em;padding:15px 18px;border-radius:12px;cursor:pointer;text-align:center;text-decoration:none}
+.btn.ghost{flex:0 0 auto;background:none;color:var(--gold)}
+.btn[disabled]{opacity:.6;cursor:wait}
+.err{display:none;color:var(--bad);font-weight:700;font-size:14.5px;margin:10px 0 0}
+.err.on{display:block}
+/* done */
+.done h2{font-size:clamp(30px,6.4vw,42px)}
+.next{list-style:none;padding:0;margin:22px 0;display:grid;gap:12px;counter-reset:n}
+.next li{display:grid;grid-template-columns:42px 1fr;gap:12px;align-items:start;background:var(--navy-2);border:1px solid var(--line);border-radius:14px;padding:14px}
+.next li::before{counter-increment:n;content:counter(n);width:42px;height:42px;border-radius:50%;display:grid;place-items:center;background:rgba(217,168,69,.15);color:var(--gold);font:900 18px 'Archivo'}
+.next b{display:block}
+.next span{color:var(--muted);font-size:14.5px}
+.apps{display:flex;gap:10px;flex-wrap:wrap;margin-top:6px}
+.apps a{flex:1;min-width:150px;text-align:center;border:1px solid var(--line);border-radius:12px;padding:12px;color:var(--ink);text-decoration:none;font-weight:800;background:var(--navy-2)}
+.collage{border-radius:14px;overflow:hidden;border:1px solid var(--line);margin-top:22px}
+@media (prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
+</style>
+</head>
+<body>
+
+<div class="top">
+  <div class="wrap">
+    <a class="logo" href="/">
+      <svg width="26" height="20" viewBox="0 0 26 20" aria-hidden="true"><path d="M2 13 13 2l11 11" fill="none" stroke="#F4F0E6" stroke-width="2.6"/><path d="M6 17 13 10l7 7" fill="none" stroke="#D9A845" stroke-width="2.6"/></svg>
+      <b>LUMEN 514</b>
+    </a>
+    <span class="stepnum" id="stepnum"></span>
+  </div>
+  <div class="bar"><i id="bar"></i></div>
+</div>
+
+<main>
+<!-- STEP 0: intro -->
+<section class="step on" data-step="0">
+  <div class="hero">
+    <div class="slides" id="slides">
+      <img class="on" src="assets/mh-accent.jpg" alt="Two-story home with warm white accent lighting under every eave" data-look="Everyday accent">
+      <img src="assets/mh-xmas.jpg" alt="The same home outlined in classic warm white for Christmas" data-look="Christmas" loading="lazy">
+      <img src="assets/mh-game.jpg" alt="The same home in red and white for game day" data-look="Game day" loading="lazy">
+      <img src="assets/mh-rwb.jpg" alt="The same home in red, white and blue" data-look="Red, white &amp; blue" loading="lazy">
+      <img src="assets/mh-purple.jpg" alt="The same home glowing purple" data-look="Party colors" loading="lazy">
+      <img src="assets/mh-fall.jpg" alt="The same home in warm orange for fall" data-look="Fall" loading="lazy">
+    </div>
+    <div class="veil"></div>
+    <div class="look" id="lookname">Everyday accent</div>
+  </div>
+  <div class="wrap intro">
+    <p class="kicker">Your free lighting design</p>
+    <h1>Let's design your home's lighting.</h1>
+    <p>Permanent lights tucked under your roofline, almost invisible by day. At night, any look you want from your phone. Answer a few quick questions and our team will design your roofline and price it three ways.</p>
+    <ul class="ticks"><li>About 2 minutes</li><li>No obligation</li><li>Priced around your actual roofline</li></ul>
+    <div class="offer" id="offer"><b>$300 off</b><span><em>Your card offer is attached to this request.</em> It's applied to your design automatically. Nothing to remember, nothing to enter.</span></div>
+    <div class="owner"><span aria-hidden="true">✦</span><span><b>One home, six looks.</b> Every photo here is the same installed system, changed from the app in seconds.</span></div>
+  </div>
+</section>
+
+<!-- STEP 1: looks -->
+<section class="step" data-step="1">
+  <div class="wrap">
+    <p class="kicker">Step 1 of 4</p>
+    <h2>What should your house light up for?</h2>
+    <p class="sub">Tap everything that gets you excited. You'll get all of it, this just tells us what to show you first.</p>
+    <div class="tiles" id="looks">
+      <button type="button" class="tile" aria-pressed="false" data-v="Everyday accent lighting"><img src="assets/mh-accent.jpg" alt="" loading="lazy"><span>Every night<small>Warm accent lighting, 365 days</small></span></button>
+      <button type="button" class="tile" aria-pressed="false" data-v="Christmas and holidays"><img src="assets/mh-xmas.jpg" alt="" loading="lazy"><span>Christmas<small>No ladders, no tangles, ever</small></span></button>
+      <button type="button" class="tile" aria-pressed="false" data-v="Game days"><img src="assets/mh-game.jpg" alt="" loading="lazy"><span>Game day<small>Your team's colors, every Saturday</small></span></button>
+      <button type="button" class="tile" aria-pressed="false" data-v="Fourth of July"><img src="assets/mh-rwb.jpg" alt="" loading="lazy"><span>Fourth of July<small>Red, white &amp; blue on demand</small></span></button>
+      <button type="button" class="tile" aria-pressed="false" data-v="Birthdays and celebrations"><img src="assets/mh-purple.jpg" alt="" loading="lazy"><span>Birthdays &amp; parties<small>Graduations, gender reveals, any color</small></span></button>
+      <button type="button" class="tile" aria-pressed="false" data-v="Fall colors"><img src="assets/mh-fall.jpg" alt="" loading="lazy"><span>Fall colors<small>Warm amber for the season</small></span></button>
+    </div>
+    <p class="err" id="err1"></p>
+  </div>
+</section>
+
+<!-- STEP 2: home -->
+<section class="step" data-step="2">
+  <div class="wrap">
+    <p class="kicker">Step 2 of 4</p>
+    <h2>Tell us about your home.</h2>
+    <p class="sub">Rough answers are fine. We confirm everything before you see a price.</p>
+    <div class="q">
+      <span class="lab">Do you own or rent? <i>*</i></span>
+      <div class="chips" data-name="own" data-one="1">
+        <button type="button" class="chip" aria-pressed="false" data-v="Own">Own</button>
+        <button type="button" class="chip" aria-pressed="false" data-v="Rent">Rent</button>
+      </div>
+    </div>
+    <div class="q">
+      <span class="lab">How tall is your home? <i>*</i></span>
+      <div class="chips" data-name="stories" data-one="1">
+        <button type="button" class="chip" aria-pressed="false" data-v="One story">One story</button>
+        <button type="button" class="chip" aria-pressed="false" data-v="Two story">Two story</button>
+        <button type="button" class="chip" aria-pressed="false" data-v="Three story">Three story</button>
+        <button type="button" class="chip" aria-pressed="false" data-v="Not sure">Not sure</button>
+      </div>
+    </div>
+    <div class="q">
+      <span class="lab">Where do you picture the lights?</span>
+      <div class="chips" data-name="areas">
+        <button type="button" class="chip" aria-pressed="false" data-v="Front of house">Front of house<span class="em">Most popular</span></button>
+        <button type="button" class="chip" aria-pressed="false" data-v="Entire house">Entire house</button>
+        <button type="button" class="chip" aria-pressed="false" data-v="Garage">Garage</button>
+        <button type="button" class="chip" aria-pressed="false" data-v="Back of house">Back of house</button>
+        <button type="button" class="chip" aria-pressed="false" data-v="Not sure, help me decide">Help me decide</button>
+      </div>
+    </div>
+    <p class="err" id="err2"></p>
+  </div>
+</section>
+
+<!-- STEP 3: timing -->
+<section class="step" data-step="3">
+  <div class="wrap">
+    <p class="kicker">Step 3 of 4</p>
+    <h2>When do you want it lit?</h2>
+    <p class="sub">Pick the ones closest to your plans.</p>
+    <div class="q">
+      <span class="lab">How do you handle holiday lights now? <i>*</i></span>
+      <div class="chips" data-name="hang" data-one="1">
+        <button type="button" class="chip" aria-pressed="false" data-v="I hang them myself">I hang them myself</button>
+        <button type="button" class="chip" aria-pressed="false" data-v="I pay someone every year">I pay someone every year</button>
+        <button type="button" class="chip" aria-pressed="false" data-v="We skip it, too much work">We skip it, too much work</button>
+        <button type="button" class="chip" aria-pressed="false" data-v="First time looking into this">First time looking into this</button>
+      </div>
+    </div>
+    <div class="q">
+      <span class="lab">When do you want it lit? <i>*</i></span>
+      <div class="chips" data-name="timeline" data-one="1">
+        <button type="button" class="chip" aria-pressed="false" data-v="Before Thanksgiving">Before Thanksgiving</button>
+        <button type="button" class="chip" aria-pressed="false" data-v="Before Christmas">Before Christmas</button>
+        <button type="button" class="chip" aria-pressed="false" data-v="After the holidays">After the holidays</button>
+        <button type="button" class="chip" aria-pressed="false" data-v="Just getting prices">Just exploring prices</button>
+      </div>
+    </div>
+    <p class="note">Holiday install dates fill first come, first served. Most homes take 1 to 2 days to install.</p>
+    <p class="err" id="err3"></p>
+  </div>
+</section>
+
+<!-- STEP 4: contact -->
+<section class="step" data-step="4">
+  <form class="wrap" id="f" novalidate>
+    <p class="kicker">Step 4 of 4</p>
+    <h2>Where should we send your design?</h2>
+    <p class="sub">Our team will text you to go over it. Your info stays with Lumen 514.</p>
+    <div class="grid2">
+      <label class="f"><span>First name <i>*</i></span><input type="text" id="first" autocomplete="given-name"></label>
+      <label class="f"><span>Last name <i>*</i></span><input type="text" id="last" autocomplete="family-name"></label>
+    </div>
+    <div class="grid2">
+      <label class="f"><span>Mobile phone <i>*</i></span><input type="tel" id="phone" autocomplete="tel" inputmode="tel" placeholder="(404) 555-0123"></label>
+      <label class="f"><span>Email <i>*</i></span><input type="email" id="email" autocomplete="email"></label>
+    </div>
+    <label class="f"><span>Street address <i>*</i></span><input type="text" id="street" autocomplete="address-line1" placeholder="So we can design around your exact roofline"></label>
+    <div class="grid3">
+      <label class="f"><span>City <i>*</i></span><input type="text" id="city" autocomplete="address-level2"></label>
+      <label class="f"><span>ZIP <i>*</i></span><input type="text" id="zip" autocomplete="postal-code" inputmode="numeric" maxlength="5"></label>
+    </div>
+    <div class="q">
+      <span class="lab">How did you hear about us? <i>*</i></span>
+      <div class="chips" data-name="source" data-one="1">
+        <button type="button" class="chip" aria-pressed="false" data-v="Facebook or Instagram">Facebook</button>
+        <button type="button" class="chip" aria-pressed="false" data-v="Friend or neighbor">Friend or neighbor</button>
+        <button type="button" class="chip" aria-pressed="false" data-v="Saw a house we lit">Saw a lit house</button>
+        <button type="button" class="chip" aria-pressed="false" data-v="Google">Google</button>
+        <button type="button" class="chip" aria-pressed="false" data-v="Other">Other</button>
+      </div>
+    </div>
+    <label class="f"><span>Anything we should know? (optional)</span><textarea id="notes" placeholder="Favorite team, a celebration coming up, HOA rules, gate code..."></textarea></label>
+    <div class="hp" aria-hidden="true"><input type="text" id="website" tabindex="-1" autocomplete="off"></div>
+    <label class="consent"><input type="checkbox" id="consent"><span>By checking this box, I agree that Lumen 514 LLC (Lumen 514 Permanent Lighting) may call and text me at the mobile number I entered above about my quote, scheduling, and special offers, including calls and texts sent with automated technology and prerecorded messages. Consent is not a condition of purchase. You can call us instead at (404) 436-0901. Message frequency varies. Message and data rates may apply. Reply STOP to opt out or HELP for help. I have read the <a href="/privacy" target="_blank" rel="noopener">Privacy Policy</a>. Checking this box and clicking Submit is my electronic signature.</span></label>
+    <p class="err" id="err4"></p>
+  </form>
+</section>
+
+<!-- DONE -->
+<section class="step done" data-step="5">
+  <div class="wrap">
+    <p class="kicker">Design request received</p>
+    <h2 id="doneH">Your design is in motion.</h2>
+    <p class="sub">Here's exactly what happens next.</p>
+    <ol class="next">
+      <li><div><b>We text you today</b><span>From (404) 436-0901, to confirm a few details about your home.</span></div></li>
+      <li><div><b>Your roofline gets designed</b><span>Priced three ways so you pick the coverage. Some homes we price from aerial imagery, others get a quick visit.</span></div></li>
+      <li><div><b>Install in 1 to 2 days</b><span>Color-matched track, and we set up the app with you before we leave.</span></div></li>
+    </ol>
+    <p class="kicker" style="margin-top:28px">Play with it tonight</p>
+    <p class="sub" style="margin-bottom:12px">Download the free Bosso app and try demo mode while you wait.</p>
+    <div class="apps">
+      <a href="https://apps.apple.com/us/app/bosso-lights/id6467633027" target="_blank" rel="noopener">App Store</a>
+      <a href="https://play.google.com/store/apps/details?id=com.bossolighting" target="_blank" rel="noopener">Google Play</a>
+    </div>
+    <div class="collage"><img src="assets/mh-game.jpg" alt="A Lumen 514 home in game day red and white" loading="lazy"></div>
+  </div>
+</section>
+</main>
+
+<div class="nav" id="nav">
+  <div class="wrap">
+    <button type="button" class="btn ghost" id="back" hidden>Back</button>
+    <button type="button" class="btn" id="next">Start my design</button>
+  </div>
+</div>
+
+<script>
+(function(){
+'use strict';
+var ENDPOINT='https://script.google.com/macros/s/AKfycbx5_22g8v4v8OkC-sIbJKRcuO0enCNSxCIoPz1XXlC49U6nJj7DEttLR42hohW01HsMuQ/exec';
+var params=new URLSearchParams(location.search);
+var SRC=(params.get('src')||'design').slice(0,40);
+var $=function(id){return document.getElementById(id)};
+var steps=[].slice.call(document.querySelectorAll('.step'));
+var cur=0, LAST=4;
+var NEXT_LABEL=['Start my design','Next','Next','Almost done','Send me my design'];
+
+/* hero slideshow */
+var slides=[].slice.call(document.querySelectorAll('#slides img')), si=0;
+var reduce=window.matchMedia&&window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+if(!reduce) setInterval(function(){
+  if(cur!==0) return;
+  slides[si].classList.remove('on'); si=(si+1)%slides.length; slides[si].classList.add('on');
+  $('lookname').textContent=slides[si].getAttribute('data-look');
+},2600);
+
+/* toggles */
+document.addEventListener('click',function(e){
+  var t=e.target.closest('.tile,.chip'); if(!t) return;
+  var group=t.parentElement, one=group.getAttribute('data-one');
+  if(one){ [].forEach.call(group.children,function(c){c.setAttribute('aria-pressed','false')}); t.setAttribute('aria-pressed','true'); }
+  else t.setAttribute('aria-pressed', t.getAttribute('aria-pressed')==='true'?'false':'true');
+  var err=t.closest('.step').querySelector('.err'); if(err) err.classList.remove('on');
+});
+function picked(name){
+  var g=document.querySelector('.chips[data-name="'+name+'"]'); if(!g) return [];
+  return [].slice.call(g.querySelectorAll('[aria-pressed="true"]')).map(function(b){return b.getAttribute('data-v')});
+}
+function looks(){return [].slice.call(document.querySelectorAll('#looks [aria-pressed="true"]')).map(function(b){return b.getAttribute('data-v')})}
+if(/^card/i.test(SRC)){ document.getElementById('offer').classList.add('on'); }
+/* preselect source from the link */
+if(/^(fb|facebook|ig|insta)/i.test(SRC)){var fb=document.querySelector('[data-name="source"] [data-v="Facebook or Instagram"]'); if(fb) fb.setAttribute('aria-pressed','true');}
+
+function fail(n,msg,focusEl){var e=$('err'+n); e.textContent=msg; e.classList.add('on'); if(focusEl) focusEl.focus(); else e.scrollIntoView({behavior:'smooth',block:'center'}); return false;}
+function valid(n){
+  if(n===1 && !looks().length) return fail(1,'Pick at least one look so we know what to show you.');
+  if(n===2 && !picked('own').length) return fail(2,'Let us know if you own or rent.');
+  if(n===2 && !picked('stories').length) return fail(2,'Pick how tall your home is.');
+  if(n===3 && !picked('hang').length) return fail(3,'Tell us how you handle holiday lights now.');
+  if(n===3 && !picked('timeline').length) return fail(3,'Pick when you want it lit.');
+  return true;
+}
+function show(n){
+  steps.forEach(function(s){s.classList.toggle('on', +s.getAttribute('data-step')===n)});
+  cur=n;
+  $('bar').style.width=(n===0?4:n>LAST?100:Math.round(n/(LAST+1)*100+10))+'%';
+  $('stepnum').textContent=(n>=1&&n<=LAST)?('Step '+n+' of '+LAST):'';
+  $('back').hidden=!(n>=1&&n<=LAST);
+  $('nav').hidden=n>LAST;
+  if(n<=LAST) $('next').textContent=NEXT_LABEL[n];
+  window.scrollTo({top:0,behavior:reduce?'auto':'smooth'});
+  try{history.replaceState(null,'',location.pathname+location.search+(n?('#step'+n):''))}catch(e){}
+}
+$('back').addEventListener('click',function(){ if(cur>0) show(cur-1); });
+$('next').addEventListener('click',function(){
+  if(cur<LAST){ if(cur===0||valid(cur)) show(cur+1); return; }
+  submit();
+});
+
+function submit(){
+  var v=function(id){return $(id).value.trim()};
+  var req=['first','last','phone','email','street','city','zip'];
+  for(var i=0;i<req.length;i++) if(!v(req[i])) return fail(4,'Please fill in every field marked with *.',$(req[i]));
+  var digits=v('phone').replace(/\D/g,'').replace(/^1(?=\d{10}$)/,'');
+  if(digits.length!==10) return fail(4,'Please enter a 10-digit mobile number.',$('phone'));
+  if(!/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(v('email'))) return fail(4,'Please enter a valid email.',$('email'));
+  if(!picked('source').length) return fail(4,'Tell us how you heard about us.');
+  if(!$('consent').checked) return fail(4,'Check the consent box so we can text you your design.');
+  var d={first:v('first'),last:v('last'),phone:v('phone'),email:v('email'),street:v('street'),city:v('city'),zip:v('zip'),
+    own:picked('own')[0],hang:picked('hang')[0],stories:picked('stories')[0],areas:picked('areas'),interests:looks(),timeline:picked('timeline')[0],source:picked('source')[0],
+    notes:v('notes'),website:$('website').value,consent:true,src:SRC};
+  var btn=$('next'); btn.disabled=true; btn.textContent='Sending...';
+  fetch(ENDPOINT,{method:'POST',body:JSON.stringify(d)})
+    .then(function(r){return r.json()})
+    .then(function(r){
+      if(!r||!r.ok) throw new Error((r&&r.error)||'');
+      $('doneH').textContent='Your design is in motion, '+(r.first||d.first)+'.';
+      try{ if(window.fbq) fbq('track','Lead',{content_name:'design_form'}); }catch(e){}
+      show(5);
+    })
+    .catch(function(x){
+      btn.disabled=false; btn.textContent=NEXT_LABEL[LAST];
+      fail(4,(x&&x.message)?x.message:'That didn\'t go through. Try again, or call or text us at (404) 436-0901.');
+    });
+}
+show(0);
+})();
+</script>
+</body>
+</html>

@@ -1,0 +1,24 @@
+# Lumen 514 site. Static files at the repo root, published as-is.
+[build]
+  publish = "."
+  command = ""
+
+[[redirects]]
+  from = "/design"
+  to = "/design.html"
+  status = 200
+
+[[redirects]]
+  from = "/quote"
+  to = "/quote.html"
+  status = 200
+
+[[redirects]]
+  from = "/pro"
+  to = "/pro.html"
+  status = 200
+
+[[redirects]]
+  from = "/privacy"
+  to = "/privacy.html"
+  status = 200

@@ -1,0 +1,786 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="robots" content="noindex, nofollow">
+<title>Lumen 514 Home Presentation</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Archivo:wght@500;700;800;900&family=Manrope:wght@500;700;800&display=swap">
+<style>
+/* Layout: dark navy one-page presentation deck — sticky section nav, full-bleed photo sections, option-close calculator at the end. Single committed dark look (living-room presentation tool). */
+:root{
+  --navy:#0B1D38;
+  --navy-2:#122A4E;
+  --panel:#16325C;
+  --ink:#F4F0E6;
+  --muted:#9FB2CE;
+  --gold:#D9A845;
+  --gold-deep:#B8860B;
+  --line:rgba(244,240,230,.14);
+  --ok:#7FC98B;
+  color-scheme:dark;
+}
+*{box-sizing:border-box}
+html,body{margin:0}
+body{
+  background:var(--navy);
+  color:var(--ink);
+  font-family:'Manrope',system-ui,-apple-system,'Segoe UI',sans-serif;
+  font-size:16.5px;
+  line-height:1.6;
+}
+h1,h2,h3,h4,.disp{font-family:'Archivo',system-ui,sans-serif;text-wrap:balance}
+.wrap{
+  max-width:1060px;margin:0 auto;
+  padding-left:max(16px, env(safe-area-inset-left, 0px));
+  padding-right:max(16px, env(safe-area-inset-right, 0px));
+}
+/* ---- nav ---- */
+nav{
+  position:sticky;top:env(safe-area-inset-top, 0px);z-index:50;
+  background:rgba(11,29,56,.92);backdrop-filter:blur(8px);
+  border-bottom:1px solid var(--line);
+}
+nav .wrap{display:flex;align-items:center;gap:10px;overflow-x:auto;padding-block:10px;scrollbar-width:none}
+nav .wrap::-webkit-scrollbar{display:none}
+.navlogo{display:flex;align-items:center;gap:8px;flex:none;margin-right:6px}
+.navlogo svg{display:block}
+.navlogo b{font-family:'Archivo';font-weight:800;letter-spacing:.06em;font-size:14px;white-space:nowrap}
+nav a{
+  flex:none;color:var(--muted);text-decoration:none;font-weight:700;font-size:12.5px;
+  letter-spacing:.09em;text-transform:uppercase;padding:7px 11px;border-radius:999px;
+}
+nav a.gold{color:var(--navy);background:var(--gold)}
+nav a:not(.gold):hover{color:var(--ink)}
+/* ---- hero ---- */
+header.hero{padding-block:46px 10px}
+.kicker{color:var(--gold);font-weight:800;letter-spacing:.22em;text-transform:uppercase;font-size:12px}
+h1{font-size:clamp(34px,6vw,58px);font-weight:900;line-height:1.04;margin:10px 0 14px}
+.hero p.lead{color:var(--muted);max-width:34em;font-size:18px;margin:0 0 22px}
+.heroimg{border-radius:14px;overflow:hidden;border:1px solid var(--line);margin-top:8px}
+.heroimg img{display:block;width:100%}
+.caption{font-size:13px;color:var(--muted);margin-top:8px}
+/* ---- stats ---- */
+.stats{display:grid;grid-template-columns:repeat(auto-fit,minmax(130px,1fr));gap:1px;background:var(--line);border-block:1px solid var(--line);margin-top:30px}
+.stat{background:var(--navy);padding:18px 14px;text-align:center}
+.stat b{display:block;font-family:'Archivo';font-size:26px;font-weight:900;color:var(--gold);font-variant-numeric:tabular-nums}
+.stat span{font-size:12.5px;color:var(--muted);letter-spacing:.04em}
+/* ---- sections ---- */
+section{padding-block:58px;border-top:1px solid var(--line)}
+.eyebrow{color:var(--gold);font-weight:800;letter-spacing:.2em;text-transform:uppercase;font-size:12px;margin:0 0 8px}
+h2{font-size:clamp(26px,4.4vw,40px);font-weight:900;line-height:1.1;margin:0 0 10px}
+.sub{color:var(--muted);max-width:36em;margin:0 0 28px;font-size:17px}
+/* compare table */
+.vs{width:100%;border-collapse:collapse;font-size:15.5px}
+.vs th,.vs td{padding:13px 14px;text-align:left;border-top:1px solid var(--line);vertical-align:top}
+.vs th{font-family:'Archivo';font-size:13px;letter-spacing:.08em;text-transform:uppercase}
+.vs th:nth-child(2){color:var(--muted)}
+.vs th:nth-child(3){color:var(--gold)}
+.vs td:first-child{font-weight:800;white-space:nowrap;width:1%}
+.vs td:nth-child(2){color:var(--muted)}
+.vs tbody tr:nth-child(odd) td{background:rgba(255,255,255,.025)}
+.tablewrap{overflow-x:auto;border:1px solid var(--line);border-radius:12px}
+/* feature grid */
+.feats{display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:14px;margin-top:6px}
+.feat{background:var(--navy-2);border:1px solid var(--line);border-radius:12px;padding:18px}
+.feat h3{margin:0 0 6px;font-size:16.5px;font-weight:800}
+.feat h3 em{color:var(--gold);font-style:normal}
+.feat p{margin:0;color:var(--muted);font-size:14.5px;line-height:1.55}
+/* steps */
+.steps{display:grid;grid-template-columns:repeat(auto-fit,minmax(230px,1fr));gap:14px;counter-reset:st}
+.step{background:var(--navy-2);border:1px solid var(--line);border-radius:12px;padding:20px 18px;position:relative}
+.step::before{counter-increment:st;content:counter(st,decimal-leading-zero);font-family:'Archivo';font-weight:900;font-size:30px;color:var(--gold);display:block;margin-bottom:6px}
+.step h3{margin:0 0 6px;font-size:17px}
+.step p{margin:0;color:var(--muted);font-size:14.5px}
+/* trio */
+.trio{display:grid;grid-template-columns:repeat(auto-fit,minmax(230px,1fr));gap:12px;margin-top:22px}
+.trio figure{margin:0;border-radius:12px;overflow:hidden;border:1px solid var(--line);background:var(--navy-2)}
+.trio img{display:block;width:100%;aspect-ratio:3/2;object-fit:cover;max-width:100%}
+.trio figcaption{padding:10px 14px;font-size:13.5px;color:var(--muted)}
+.trio figcaption b{color:var(--ink)}
+/* gallery */
+.chips{display:flex;flex-wrap:wrap;gap:8px;margin:0 0 18px}
+.chip{border:1px solid var(--line);background:none;color:var(--muted);font:700 13px 'Manrope';padding:8px 14px;border-radius:999px;cursor:pointer}
+.chip.on{background:var(--gold);border-color:var(--gold);color:var(--navy)}
+.gal{display:grid;grid-template-columns:repeat(auto-fill,minmax(250px,1fr));gap:12px}
+.gal figure{margin:0;border-radius:12px;overflow:hidden;border:1px solid var(--line);position:relative}
+.gal img{display:block;width:100%;aspect-ratio:4/3;object-fit:cover}
+.gal figcaption{position:absolute;left:0;right:0;bottom:0;padding:22px 12px 9px;font-size:12.5px;font-weight:700;letter-spacing:.05em;background:linear-gradient(transparent,rgba(5,13,27,.85))}
+/* faq */
+details{border-top:1px solid var(--line)}
+details:last-of-type{border-bottom:1px solid var(--line)}
+summary{cursor:pointer;padding:16px 4px;font-family:'Archivo';font-weight:800;font-size:17px;list-style:none;display:flex;justify-content:space-between;gap:12px;align-items:center}
+summary::after{content:'+';color:var(--gold);font-size:22px;font-weight:600;flex:none}
+details[open] summary::after{content:'–'}
+details p{margin:0 0 16px;color:var(--muted);padding-inline:4px;max-width:46em}
+/* ---- calculator ---- */
+#price .calcgrid{display:grid;grid-template-columns:300px 1fr;gap:22px;align-items:start}
+@media (max-width:820px){#price .calcgrid{grid-template-columns:1fr}}
+.inputs{background:var(--navy-2);border:1px solid var(--line);border-radius:14px;padding:20px}
+.inputs h3{margin:0 0 4px;font-size:15px;letter-spacing:.1em;text-transform:uppercase;color:var(--gold)}
+.inputs p.note{margin:0 0 14px;font-size:13px;color:var(--muted)}
+.field{margin-bottom:14px}
+.field label{display:block;font-size:13px;font-weight:800;letter-spacing:.04em;margin-bottom:5px}
+.field input,.field select{width:100%;background:var(--navy);border:1px solid var(--line);border-radius:9px;color:var(--ink);font:700 18px 'Manrope';padding:10px 12px;font-variant-numeric:tabular-nums}
+.field input:focus,.field select:focus{outline:2px solid var(--gold);outline-offset:1px}
+.care{margin-top:14px;border:1px dashed var(--gold-deep);background:var(--navy-2);border-radius:14px;padding:16px 18px;display:flex;gap:16px;align-items:center;flex-wrap:wrap}
+.care h3{margin:0 0 4px;font-size:16px}
+.care p{margin:0;font-size:13.5px;color:var(--muted);max-width:40em}
+.caretext{flex:1;min-width:230px}
+.carebtn{border:1px solid var(--gold);background:none;color:var(--gold);font:800 14px 'Archivo';padding:11px 16px;border-radius:10px;cursor:pointer;white-space:nowrap}
+.carebtn.on{background:var(--gold);color:var(--navy)}
+.opt svg{display:block;width:100%;height:auto;margin-bottom:10px}
+.qact{display:flex;gap:10px;margin-top:16px;flex-wrap:wrap;align-items:center}
+.qbtn{border:1px solid var(--gold);background:none;color:var(--gold);font:800 14px 'Archivo';padding:11px 18px;border-radius:10px;cursor:pointer}
+.dep{margin-top:10px;font-size:15px}
+.dep b{color:var(--gold);font-variant-numeric:tabular-nums}
+.qmsg{font-size:13px;color:var(--ok)}
+.opts{display:grid;grid-template-columns:repeat(auto-fit,minmax(215px,1fr));gap:12px}
+.opt{border:1px solid var(--line);background:var(--navy-2);border-radius:14px;padding:20px 18px;cursor:pointer;text-align:left;color:var(--ink);font-family:'Manrope'}
+.opt .oname{font-family:'Archivo';font-weight:900;font-size:17px;letter-spacing:.02em}
+.opt .oft{font-size:13px;color:var(--muted);margin:2px 0 10px;font-variant-numeric:tabular-nums}
+.opt .ototal{font-family:'Archivo';font-weight:900;font-size:30px;color:var(--gold);font-variant-numeric:tabular-nums;line-height:1.1}
+.opt .owas{font-size:13.5px;color:var(--muted);text-decoration:line-through;font-variant-numeric:tabular-nums;min-height:1.3em}
+.opt .omo{font-size:14px;margin-top:6px;font-variant-numeric:tabular-nums}
+.opt .omo b{color:var(--ink)}
+.opt ul{margin:12px 0 0;padding:0;list-style:none;font-size:13.5px;color:var(--muted)}
+.opt li{padding:3px 0 3px 20px;position:relative}
+.opt li::before{content:'✓';position:absolute;left:0;color:var(--gold);font-weight:800}
+.opt.pick{border-color:var(--gold);box-shadow:0 0 0 1px var(--gold)}
+.opt .oblurb{font-size:13.5px;color:var(--muted);margin:6px 0 10px;line-height:1.45}
+.opt .orate{font-size:13px;color:var(--muted);font-variant-numeric:tabular-nums}
+.opt .orate s{opacity:.7}
+.opt .orate b{color:var(--ink)}
+.photofield{display:grid;gap:8px}
+.photofield .qmsg{display:block}
+#photoPrev{width:100%;border-radius:9px;border:1px solid var(--line)}
+.deal{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.seg{display:flex;gap:6px}
+.seg button{flex:1;border:1px solid var(--line);background:var(--navy);color:var(--muted);font:800 14px 'Manrope';padding:11px 8px;border-radius:9px;cursor:pointer}
+.seg button.on{background:var(--gold);border-color:var(--gold);color:var(--navy)}
+.field textarea{width:100%;background:var(--navy);border:1px solid var(--line);border-radius:9px;color:var(--ink);font:600 15px 'Manrope';padding:10px 12px;min-height:72px;resize:vertical}
+.field textarea:focus{outline:2px solid var(--gold);outline-offset:1px}
+.qbtn.ghost{border-color:var(--line);color:var(--muted)}
+.opt .tag{display:inline-block;font-size:11px;font-weight:800;letter-spacing:.12em;text-transform:uppercase;background:var(--gold);color:var(--navy);border-radius:999px;padding:3px 9px;margin-bottom:8px}
+.closer{margin-top:20px;background:var(--panel);border:1px solid var(--gold);border-radius:14px;padding:20px;display:none}
+.closer.show{display:block}
+.closer .big{font-family:'Archivo';font-weight:900;font-size:clamp(20px,3.5vw,28px);margin:0 0 6px}
+.closer .big b{color:var(--gold);font-variant-numeric:tabular-nums}
+.closer p{margin:0;color:var(--muted);font-size:14.5px}
+.finePrint{font-size:12.5px;color:var(--muted);margin-top:16px;max-width:52em}
+/* settings */
+.gear{position:fixed;right:max(14px, env(safe-area-inset-right, 0px));bottom:calc(14px + env(safe-area-inset-bottom, 0px));z-index:60;width:44px;height:44px;border-radius:50%;border:1px solid var(--line);background:var(--navy-2);color:var(--muted);font-size:19px;cursor:pointer}
+.sheet{position:fixed;inset:auto 0 0 0;z-index:70;background:var(--navy-2);border-top:2px solid var(--gold);padding:22px max(16px, env(safe-area-inset-left, 0px)) calc(22px + env(safe-area-inset-bottom, 0px)) max(16px, env(safe-area-inset-right, 0px));max-height:80vh;overflow-y:auto}
+.sheet h3{margin:0 0 2px;font-size:18px}
+.sheet .note{font-size:13px;color:var(--muted);margin:0 0 16px}
+.sheet h4{margin:0 0 10px;font-size:12px;letter-spacing:.16em;text-transform:uppercase;color:var(--gold)}
+.sheet .field{margin-bottom:0}
+.sheet .photofield{margin-top:12px;max-width:420px}
+.sheet .actions{align-items:center;flex-wrap:wrap}
+.sheet .actions .qmsg{flex-basis:100%}
+.sheet{max-height:88vh}
+.sheet .grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:12px;max-width:760px}
+.sheet .actions{margin-top:18px;display:flex;gap:10px}
+.btn{border:0;border-radius:10px;font:800 15px 'Archivo';padding:12px 20px;cursor:pointer}
+.btn.gold{background:var(--gold);color:var(--navy)}
+.btn.ghost{background:none;border:1px solid var(--line);color:var(--muted)}
+/* app QR codes */
+.qrrow{display:flex;flex-wrap:wrap;align-items:center;gap:16px;margin-top:22px;background:var(--navy-2);border:1px solid var(--line);border-radius:14px;padding:18px}
+.qrcard{display:flex;align-items:center;gap:12px}
+.qrcard img{width:112px;height:112px;border-radius:10px;display:block}
+.qrcard div{font-size:13px;color:var(--muted)}
+.qrcard b{display:block;font-family:'Archivo';font-size:15px;color:var(--ink)}
+.qrnote{flex:1;min-width:220px;margin:0;font-size:14.5px;color:var(--muted)}
+.qrnote b{color:var(--gold)}
+/* pin gate */
+.gate{position:fixed;inset:0;z-index:100;background:var(--navy);display:grid;place-items:center;padding:24px}
+.gate form{width:min(360px,100%);text-align:center}
+.gate h2{font-size:22px;margin:14px 0 6px}
+.gate p{color:var(--muted);font-size:14px;margin:0 0 18px}
+.gate input{width:100%;text-align:center;letter-spacing:.5em;font:800 28px 'Archivo';background:var(--navy-2);border:1px solid var(--line);border-radius:12px;color:var(--ink);padding:14px}
+.gate input:focus{outline:2px solid var(--gold)}
+.gate .btn{width:100%;margin-top:12px}
+.gate .err{color:#FF8A7A;font-size:13px;min-height:1.2em;margin-top:8px}
+footer{padding:34px 0 46px;color:var(--muted);font-size:13.5px}
+footer b{color:var(--ink)}
+@media (prefers-reduced-motion:no-preference){
+  html{scroll-behavior:smooth}
+}
+</style>
+</head>
+<body>
+<div class="gate" id="gate">
+  <form id="gateForm">
+    <svg width="34" height="26" viewBox="0 0 26 20" aria-hidden="true"><path d="M2 13 13 2l11 11" fill="none" stroke="#F4F0E6" stroke-width="2.6"/><path d="M6 17 13 10l7 7" fill="none" stroke="#D9A845" stroke-width="2.6"/></svg>
+    <h2>Lumen 514 team</h2>
+    <p>Enter your PIN to open the presentation.</p>
+    <input id="pin" type="password" inputmode="numeric" autocomplete="off" maxlength="6" aria-label="PIN">
+    <button class="btn gold" type="submit">Open</button>
+    <div class="err" id="pinErr"></div>
+  </form>
+</div>
+<nav><div class="wrap">
+  <span class="navlogo">
+    <svg width="26" height="20" viewBox="0 0 26 20" aria-hidden="true"><path d="M2 13 13 2l11 11" fill="none" stroke="#F4F0E6" stroke-width="2.6"/><path d="M6 17 13 10l7 7" fill="none" stroke="#D9A845" stroke-width="2.6"/></svg>
+    <b>LUMEN 514</b>
+  </span>
+  <a href="#why">Why</a><a href="#app">App</a><a href="#install">Install</a><a href="#warranty">Warranty</a><a href="#gallery">Gallery</a><a href="#faq">FAQ</a><a class="gold" href="#price">Your Price</a>
+</div></nav>
+
+<header class="hero"><div class="wrap">
+  <p class="kicker">Permanent · Professional · Smart</p>
+  <h1>Never hang holiday lights again.</h1>
+  <p class="lead">An LED system installed inside a slim aluminum track along your roofline, color-matched to your home. Nearly invisible by day. Any look you want at night, from your phone.</p>
+  <div class="heroimg"><img src="assets/hero-threezone.jpg" alt="One house shown in three lighting looks at once: warm white, red white and blue, and bright white"></div>
+  <p class="caption">One home, three looks at the same time: warm white every night, team or holiday colors, bright white when you want it. Every zone is independent.</p>
+  <div class="stats">
+    <div class="stat"><b>1&times;</b><span>install, forever lit</span></div>
+    <div class="stat"><b>16M</b><span>colors + true white</span></div>
+    <div class="stat"><b>1&ndash;2</b><span>install days</span></div>
+    <div class="stat"><b>50,000+</b><span>hour LEDs</span></div>
+    <div class="stat"><b>19</b><span>track colors</span></div>
+    <div class="stat"><b>UL</b><span>rated components</span></div>
+  </div>
+</div></header>
+
+<section id="why"><div class="wrap">
+  <p class="eyebrow">Why permanent</p>
+  <h2>The last time anyone climbs a ladder for lights.</h2>
+  <p class="sub">Here is what changes the day the track goes up.</p>
+  <div class="tablewrap"><table class="vs">
+    <thead><tr><th></th><th>Traditional holiday lights</th><th>Lumen 514 permanent lighting</th></tr></thead>
+    <tbody>
+      <tr><td>Ladders</td><td>Climbing in freezing weather, every season</td><td>Never touch a ladder again</td></tr>
+      <tr><td>Storage</td><td>Boxes of tangled strands 11 months a year</td><td>Nothing to store. It lives on your roofline</td></tr>
+      <tr><td>Daytime look</td><td>Visible wires, clips, sagging strands</td><td>Low-profile track, color-matched, nearly invisible</td></tr>
+      <tr><td>Durability</td><td>Cheap strands that fail and get replaced</td><td>Commercial-grade LEDs rated 50,000+ hours</td></tr>
+      <tr><td>Colors</td><td>One fixed look per strand</td><td>16 million colors plus true white, changed in seconds</td></tr>
+      <tr><td>Control</td><td>Wall timers and extension cords</td><td>App, voice, schedules, music sync, smart home</td></tr>
+      <tr><td>Cost</td><td>$500&ndash;$2,000 every single year for install and takedown</td><td>One install. No annual bill, ever again</td></tr>
+    </tbody>
+  </table></div>
+  <div class="trio">
+    <figure><img src="assets/warm-stone.jpg" alt="Stone house in warm white lighting at dusk"><figcaption><b>Every night.</b> Warm white that reads as custom architectural lighting.</figcaption></figure>
+    <figure><img src="assets/patriotic-stone.jpg" alt="Same house in red, white and blue"><figcaption><b>Any occasion.</b> Same house, ten seconds later: July 4th.</figcaption></figure>
+    <figure><img src="assets/cool-stone.jpg" alt="Same house in bright white security lighting"><figcaption><b>Security.</b> Bright white floods the walls on demand.</figcaption></figure>
+  </div>
+</div></section>
+
+<section id="app"><div class="wrap">
+  <p class="eyebrow">The app</p>
+  <h2>Your whole home, from the couch.</h2>
+  <p class="sub">Free on Apple and Android. If you can send a text, you can run your lights.</p>
+  <div class="feats">
+    <div class="feat"><h3><em>400+</em> presets</h3><p>Christmas, Halloween, game day, and more built in, plus 15+ animations. Save unlimited custom looks and apply them with one tap.</p></div>
+    <div class="feat"><h3><em>16M</em> colors</h3><p>Full color wheel with per-zone brightness, saturation, and warmth. Every light is individually addressable, with a true white, which most competitors can't render.</p></div>
+    <div class="feat"><h3>Set-and-forget <em>schedules</em></h3><p>Sunset to midnight, holidays on a calendar, weekday and weekend modes. Set it once and never touch a switch.</p></div>
+    <div class="feat"><h3>Smart <em>home</em></h3><p>Alexa, Google, Siri, and Control4. Geofencing turns the lights on when you pull into the driveway.</p></div>
+    <div class="feat"><h3>Music <em>sync</em></h3><p>Lights move with your music for parties and tailgates.</p></div>
+    <div class="feat"><h3>Control from <em>anywhere</em></h3><p>Cloud-based. Driveway or vacation, if your phone has service, you have your lights. Remote troubleshooting included.</p></div>
+  </div>
+  <div class="qrrow">
+    <div class="qrcard">
+      <img src="assets/qr-appstore.png" alt="QR code for the Bosso Lights app on the Apple App Store">
+      <div><b>iPhone</b><span>App Store</span></div>
+    </div>
+    <div class="qrcard">
+      <img src="assets/qr-googleplay.png" alt="QR code for the Bosso Lights app on Google Play">
+      <div><b>Android</b><span>Google Play</span></div>
+    </div>
+    <p class="qrnote">Scan to download the free Bosso Lights app and try <b>demo mode</b> right now, before your lights are even installed.</p>
+  </div>
+</div></section>
+
+<section id="install"><div class="wrap">
+  <p class="eyebrow">The install</p>
+  <h2>From design to forever lit in 1&ndash;2 days.</h2>
+  <p class="sub">Every install is run by Lumen 514, veteran owned and certified on the Bosso system.</p>
+  <div class="steps">
+    <div class="step"><h3>The design</h3><p>A free custom lighting plan for your exact roofline, peaks, and columns. You approve everything before work starts.</p></div>
+    <div class="step"><h3>The install</h3><p>Aluminum track color-matched to your trim from 19 colors, tucked under the drip edge. No visible wires, no mess left behind.</p></div>
+    <div class="step"><h3>Walkthrough &amp; handoff</h3><p>App connected, your first scenes and schedules set up, everything demonstrated before we leave the driveway.</p></div>
+  </div>
+  <div class="trio">
+    <figure><img src="assets/stone-closeup.jpg" alt="Close-up of lighting track tucked under a stone gable roofline"><figcaption><b>Up close.</b> The track sits under the drip edge, matched to the trim. This house has lights on in this photo.</figcaption></figure>
+    <figure><img src="assets/ranch-amber.jpg" alt="Single-story ranch home with warm lighting"><figcaption><b>Every home.</b> Ranches and craftsmans wear it as well as estates do.</figcaption></figure>
+    <figure><img src="assets/craftsman.jpg" alt="Large craftsman home in warm white"><figcaption><b>The result.</b> Clean, even light across every peak and eave.</figcaption></figure>
+  </div>
+</div></section>
+
+<section id="warranty"><div class="wrap">
+  <p class="eyebrow">Quality &amp; warranty</p>
+  <h2>Built for decades, not seasons.</h2>
+  <p class="sub">Commercial-grade hardware with a manufacturer warranty, installed by a local owner who answers his own phone.</p>
+  <div class="feats">
+    <div class="feat"><h3><em>5-year</em> warranty on lights, track &amp; accessories</h3><p>Bosso's manufacturer warranty covers the LEDs, aluminum track, and connectors for five years. Controllers and power supplies carry three.</p></div>
+    <div class="feat"><h3>All-weather, <em>IP68</em> sealed</h3><p>Fully sealed against rain, snow, and Georgia summers. Rated for -25&deg;C to +60&deg;C.</p></div>
+    <div class="feat"><h3>Serviceable by <em>section</em></h3><p>Every light is individually addressable, so a single point can be serviced without redoing the system.</p></div>
+    <div class="feat"><h3><em>Certified</em> &amp; safe</h3><p>UL, RoHS, and CE rated components, independently tested. Draws about as much power as five light bulbs.</p></div>
+    <div class="feat"><h3>Local <em>accountability</em></h3><p>Lumen 514 stands behind the workmanship of your install. You call Josh, not a call center.</p></div>
+  </div>
+</div></section>
+
+<section id="gallery"><div class="wrap">
+  <p class="eyebrow">The gallery</p>
+  <h2>Real homes. Every occasion.</h2>
+  <div class="chips" id="galchips">
+    <button class="chip on" data-f="all">All</button>
+    <button class="chip" data-f="everyday">Everyday</button>
+    <button class="chip" data-f="holiday">Holiday</button>
+    <button class="chip" data-f="gameday">Game day</button>
+    <button class="chip" data-f="security">Security</button>
+  </div>
+  <div class="gal" id="gal">
+    <figure data-f="everyday"><img src="assets/craftsman.jpg" alt="Craftsman home in warm white"><figcaption>Warm white, every night</figcaption></figure>
+    <figure data-f="holiday"><img src="assets/christmas-gable.jpg" alt="Gable in red, green and white Christmas lights"><figcaption>Christmas</figcaption></figure>
+    <figure data-f="holiday"><img src="assets/patriotic-stone.jpg" alt="Stone home in red white and blue"><figcaption>July 4th</figcaption></figure>
+    <figure data-f="everyday"><img src="assets/ranch-amber.jpg" alt="Ranch in warm amber"><figcaption>Warm amber accent</figcaption></figure>
+    <figure data-f="security"><img src="assets/farmhouse-white.jpg" alt="Farmhouse in bright true white"><figcaption>True white</figcaption></figure>
+    <figure data-f="gameday"><img src="assets/green-estate.jpg" alt="Estate lit in green"><figcaption>Game day green</figcaption></figure>
+    <figure data-f="security"><img src="assets/ranch-cool.jpg" alt="Ranch with cool white accents"><figcaption>Security accents</figcaption></figure>
+    <figure data-f="everyday"><img src="assets/stone-closeup.jpg" alt="Warm white close-up on stone gables"><figcaption>Architectural detail</figcaption></figure>
+    <figure data-f="everyday"><img src="assets/warm-stone.jpg" alt="Stone home in warm white at dusk"><figcaption>Warm white at dusk</figcaption></figure>
+  </div>
+</div></section>
+
+<section id="faq"><div class="wrap">
+  <p class="eyebrow">FAQ</p>
+  <h2>Asked and answered.</h2>
+  <details><summary>Can you see the lights during the day?</summary><p>Barely. The low-profile track is color-matched to your roofline from 19 colors and tucks under the drip edge. From the street your home looks unchanged until dark.</p></details>
+  <details><summary>How long do the lights last?</summary><p>Commercial-grade LEDs rated for 50,000+ hours, which is decades of normal use, built for sun, snow, wind, and rain, and covered by the warranty.</p></details>
+  <details><summary>Is the app hard to use?</summary><p>If you can send a text, you can run your lights. Pick a color, tap a preset, or set a schedule once and never think about it again. We set up your first scenes before we leave.</p></details>
+  <details><summary>Can I make my own patterns?</summary><p>Yes. Unlimited custom presets, per-zone colors and brightness, animations, and one-tap looks for any occasion.</p></details>
+  <details><summary>What if something goes wrong?</summary><p>Most issues are fixed remotely through the app's cloud access. If hardware ever fails, it's warrantied and serviceable by section, and you deal directly with the owner.</p></details>
+  <details><summary>How much does it cost?</summary><p>It depends on your roofline, which is why the next section prices your exact home, right now, three ways.</p></details>
+</div></section>
+
+<section id="price"><div class="wrap">
+  <p class="eyebrow">Your price</p>
+  <h2>Three ways to light your home. Tonight's numbers.</h2>
+  <p class="sub">Measured from your actual roofline while we talked. Pick the coverage that fits.</p>
+  <div class="calcgrid">
+    <div class="inputs">
+      <h3>Your roofline</h3>
+      <p class="note">Measured linear feet per coverage level.</p>
+      <div class="field"><label for="ftA">Front (ft)</label><input id="ftA" type="number" inputmode="decimal" min="0" step="1" value="80"></div>
+      <div class="field"><label for="ftB">Front With Peaks (ft)</label><input id="ftB" type="number" inputmode="decimal" min="0" step="1" value="140"></div>
+      <div class="field"><label for="ftC">Full House Wrap (ft)</label><input id="ftC" type="number" inputmode="decimal" min="0" step="1" value="210"></div>
+      <h3 style="margin-top:18px">Customer</h3>
+      <div class="field"><label for="cName">Name</label><input id="cName" type="text" autocomplete="off"></div>
+      <div class="field"><label for="cPhone">Phone</label><input id="cPhone" type="tel" inputmode="tel" autocomplete="off"></div>
+      <div class="field"><label for="cAddr">Address</label><input id="cAddr" type="text" autocomplete="off"></div>
+    </div>
+    <div>
+      <div class="opts" id="opts"></div>
+      <div class="care">
+        <div class="caretext">
+          <h3 id="careName">Lumen Care Plan</h3>
+          <p>A yearly visit from Lumen 514: we check every bulb, the housings, the controller, your app configuration, and the track itself, with workmanship &amp; parts covered and priority scheduling all year. Renews yearly.</p>
+        </div>
+        <button class="carebtn" id="careBtn">Add</button>
+      </div>
+      <div class="closer" id="closer">
+        <p class="big" id="closerline"></p>
+        <p class="dep" id="depline"></p>
+        <p id="closersub">A signed agreement and deposit lock in your install date and tonight's price.</p>
+        <div class="qact">
+          <button class="qbtn" id="copyQ">Copy quote</button>
+          <button class="qbtn" id="linkQ">Copy client link</button>
+          <button class="qbtn" id="pdfQ" hidden>Download PDF</button>
+          <span class="qmsg" id="qmsg"></span>
+        </div>
+      </div>
+      <p class="finePrint" id="fine"></p>
+    </div>
+  </div>
+</div></section>
+
+<footer><div class="wrap">
+  <b>Lumen 514</b> · Veteran-owned permanent lighting · Powder Springs, GA<br>
+  (404) 436-0901 · josh@lumen514.com · Serving Powder Springs, Kennesaw, Acworth, Dallas, Marietta, Cartersville, Woodstock &amp; Canton
+</div></footer>
+
+<button class="gear" id="gear" aria-label="Rep settings">&#9881;</button>
+<div class="sheet" id="sheet" hidden>
+  <h3>Under the hood</h3>
+  <p class="note">The customer never sees this panel. Everything here saves on this device.</p>
+
+  <h4>This quote</h4>
+  <div class="grid">
+    <div class="field"><label>Measured</label><div class="seg" id="measure"><button type="button" data-m="Virtual">Virtual</button><button type="button" data-m="In person">In person</button></div></div>
+    <div class="field"><label for="dMode">Discount</label><select id="dMode"><option value="0">None</option><option value="1">$ off</option><option value="2">$ per ft</option></select></div>
+    <div class="field" id="dAmtField"><label for="dAmt" id="dAmtLabel">Amount off ($)</label><input id="dAmt" type="number" inputmode="decimal" min="0" step="1" value="300"></div>
+  </div>
+  <div class="field" style="margin-top:12px"><label for="cNotes">Notes for follow-up</label><textarea id="cNotes" placeholder="Decision makers, objections, trim color, what they got excited about..."></textarea></div>
+  <div class="field photofield"><label>Their house, lit (optional)</label><input id="cPhoto" type="file" accept="image/*" hidden><button type="button" class="qbtn" id="photoBtn">Add photo</button><span class="qmsg" id="photoMsg">No photo yet. The quote page shows our default house until you add one.</span><img id="photoPrev" alt="" hidden></div>
+  <div class="actions">
+    <button class="btn gold" id="saveQ">Save quote</button>
+    <button class="btn ghost" id="newQ">New quote</button>
+    <span class="qmsg" id="smsg"></span>
+  </div>
+
+  <h4 style="margin-top:26px">Rates &amp; defaults</h4>
+  <div class="grid">
+    <div class="field"><label for="sRateA">Front $/ft</label><input id="sRateA" type="number" min="15" step="0.5" value="33"></div>
+    <div class="field"><label for="sRateB">Front With Peaks $/ft</label><input id="sRateB" type="number" min="15" step="0.5" value="29"></div>
+    <div class="field"><label for="sRateC">Full House Wrap $/ft</label><input id="sRateC" type="number" min="15" step="0.5" value="25"></div>
+    <div class="field"><label for="sDep">Deposit (%)</label><input id="sDep" type="number" min="0" max="100" step="5" value="50"></div>
+    <div class="field"><label for="sTerms">Payment terms line</label><input id="sTerms" type="text" value="Balance due on completion of install"></div>
+    <div class="field"><label for="sDiscLabel">Discount name (shown to customer)</label><input id="sDiscLabel" type="text" value="Preferred Pricing"></div>
+    <div class="field"><label for="sCareName">Care plan name</label><input id="sCareName" type="text" value="Lumen Care Plan"></div>
+    <div class="field"><label for="sCare">Care plan ($/yr)</label><input id="sCare" type="number" min="0" step="50" value="500"></div>
+    <div class="field"><label for="sMo">Financing months</label><input id="sMo" type="number" min="12" step="12" value="60"></div>
+  </div>
+  <div class="actions">
+    <button class="btn gold" id="saveSet">Save defaults</button>
+    <button class="btn ghost" id="closeSet">Close</button>
+  </div>
+</div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+<script>
+(function(){
+  'use strict';
+  var DEF={rA:33,rB:29,rC:25,care:500,careName:'Lumen Care Plan',discMode:0,discLabel:'Preferred Pricing',discAmt:300,discRate:24,mo:60,dep:50,terms:'Balance due on completion of install'};
+  var S={};
+  try{ S=Object.assign({},DEF,JSON.parse(localStorage.getItem('l514set4')||'{}')); }catch(e){ S=Object.assign({},DEF); }
+  ['rA','rB','rC'].forEach(function(k){ if(!(S[k]>=15)) S[k]=Math.max(15,DEF[k]); });
+  var careOn=false, picked=-1, photoId='', measure='', quoteId=newId(), lastLink='';
+  function newId(){ return 'Q'+Date.now().toString(36).toUpperCase()+Math.random().toString(36).slice(2,5).toUpperCase(); }
+  var SCRIPT_URL='https://script.google.com/macros/s/AKfycbx5_22g8v4v8OkC-sIbJKRcuO0enCNSxCIoPz1XXlC49U6nJj7DEttLR42hohW01HsMuQ/exec';
+  if(window.jspdf) document.getElementById('pdfQ').hidden=false;
+  function svgHouse(level){
+    var faint='stroke="rgba(244,240,230,.22)" stroke-width="1.6" fill="none" stroke-linejoin="round" stroke-linecap="round"';
+    var dim='stroke="rgba(244,240,230,.16)" stroke-width="1.6" fill="none" stroke-linecap="round"';
+    var lit='stroke="#D9A845" stroke-width="3.2" fill="none" stroke-linecap="round" stroke-linejoin="round" stroke-dasharray="0.1 6.4"';
+    /* Traced from a real two-story front elevation: garage left with a dormer gable, tall center gable, small right gable, porch at right. The right wall recedes so the wrap can be shown. The roof ridge is never drawn: it is not a lit line. */
+    var body='M10 92 V62 H18 V40 H28 L45 22 L62 40 H84 L108 8 L132 40 H134 L146 22 L158 40 H170 V92 Z';
+    var side='M170 40 L202 29 V80 L170 92';
+    var garage='M24 70 H78 V92 H24 Z M30 78 H72 M30 85 H72';
+    var porch='M116 62 H174 M122 62 V92 M166 62 V92 M94 66 V92 M90 92 H114';
+    var win='M34 46 H52 V58 H34 Z M92 46 H110 V58 H92 Z M140 46 H154 V58 H140 Z M92 70 H110 V84 H92 Z M136 70 H156 V84 H136 Z';
+    var eaves='M18 40 H170 M8 62 H84 M116 62 H174';
+    var rakes='M28 40 L45 22 L62 40 M84 40 L108 8 L132 40 M134 40 L146 22 L158 40';
+    var wrap='M170 40 L202 29 M174 62 L196 54';
+    var s='<svg viewBox="0 0 210 100" aria-hidden="true">';
+    s+='<path d="M2 92 H208" '+dim+'/>';
+    s+='<path d="'+body+'" '+faint+'/><path d="'+side+'" '+faint+'/><path d="'+garage+'" '+dim+'/><path d="'+porch+'" '+dim+'/><path d="'+win+'" '+dim+'/>';
+    s+='<path d="'+eaves+'" '+lit+'/>';
+    if(level>=1) s+='<path d="'+rakes+'" '+lit+'/>';
+    if(level>=2) s+='<path d="'+wrap+'" '+lit+'/>';
+    return s+'</svg>';
+  }
+  var NAMES=['Front','Front With Peaks','Full House Wrap'];
+  var SCOPE=['Front eaves, street view','Front eaves plus every peak','Every eave and peak, all the way around'];
+  var BLURB=['Holiday cheer from the street, every December, and a warm glow every other night of the year. Zero ladders.',
+    'The house people slow down for. Every peak outlined, and the neighbors will know exactly what they are missing.',
+    'Lit from every angle. Backyard birthday parties, graduation cookouts, game day on the patio: the whole house shows up.'];
+  function rates(){ return [S.rA,S.rB,S.rC]; }
+  function feet(){ return [+($('ftA').value)||0, +($('ftB').value)||0, +($('ftC').value)||0]; }
+  /* discMode: 0 none · 1 flat $ off · 2 lower $/ft (applies wherever it beats the standard rate) */
+  function priceOf(i){
+    var f=feet()[i], r=rates()[i], g=f*r, net=g, rate=r, off=0, on=false;
+    if(S.discMode===1 && S.discAmt>0){ net=Math.max(0,g-S.discAmt); off=g-net; on=off>0; }
+    else if(S.discMode===2 && S.discRate>0 && S.discRate<r){ rate=S.discRate; net=f*rate; off=g-net; on=f>0; }
+    return {gross:g, net:net, rate:rate, stdRate:r, off:off, on:on};
+  }
+  function fmtRate(r){ return '$'+(Math.round(r*100)/100).toLocaleString('en-US')+'/ft'; }
+  var $=function(id){return document.getElementById(id)};
+  var fmt=function(n){return '$'+Math.round(n).toLocaleString('en-US')};
+
+  function calc(){
+    var FEATS=['Custom design & clean install','5-yr product warranty','App setup & walkthrough'];
+    var html='';
+    for(var i=0;i<3;i++){
+      var p=priceOf(i);
+      var mo=S.mo>0? p.net/S.mo : 0;
+      var feats=FEATS.slice();
+      if(careOn) feats.push(S.careName+' — '+fmt(S.care)+'/yr');
+      html+='<button class="opt'+(picked===i?' pick':'')+'" data-i="'+i+'">'
+        +(i===1?'<span class="tag">Most chosen</span>':'')
+        +svgHouse(i)
+        +'<div class="oname">'+NAMES[i]+'</div>'
+        +'<div class="oft">'+feet()[i]+' ft · '+SCOPE[i]+'</div>'
+        +'<div class="oblurb">'+BLURB[i]+'</div>'
+        +'<div class="owas">'+(p.on?fmt(p.gross):'')+'</div>'
+        +'<div class="ototal">'+fmt(p.net)+'</div>'
+        +(p.on&&S.discMode===2?'<div class="orate"><s>'+fmtRate(p.stdRate)+'</s> &rarr; <b>'+fmtRate(p.rate)+'</b></div>':'')
+        +'<div class="omo">as low as <b>'+fmt(Math.ceil(mo/5)*5)+'/mo</b>*</div>'
+        +'<ul><li>'+feats.join('</li><li>')+'</li></ul>'
+        +'</button>';
+    }
+    $('opts').innerHTML=html;
+    [].forEach.call(document.querySelectorAll('.opt'),function(b){
+      b.addEventListener('click',function(){ picked=+b.dataset.i; calc(); });
+    });
+    $('careName').textContent=S.careName;
+    var cb=$('careBtn');
+    cb.textContent=(careOn?'Added ✓ ':'Add ')+'— '+fmt(S.care)+'/yr';
+    cb.classList.toggle('on',careOn);
+    var cl=$('closer');
+    if(picked>=0){
+      var p2=priceOf(picked);
+      cl.classList.add('show');
+      $('closerline').innerHTML=NAMES[picked]+' — <b>'+fmt(p2.net)+'</b>'
+        +(careOn? ' + '+S.careName+' <b>'+fmt(S.care)+'/yr</b>':'')
+        +(p2.on? ' <span style="font-size:.6em;color:var(--muted)">'+S.discLabel+(S.discMode===2?' at '+fmtRate(p2.rate):'')+' applied</span>':'');
+      var depAmt=Math.round(p2.net*S.dep/100);
+      $('depline').innerHTML = S.dep>0
+        ? S.dep+'% down today: <b>'+fmt(depAmt)+'</b> &nbsp;·&nbsp; '+S.terms+': <b>'+fmt(p2.net-depAmt)+'</b>'
+        : S.terms;
+    } else { cl.classList.remove('show'); }
+    $('fine').textContent='Prices include design, hardware, installation, app setup, and the manufacturer product warranty: 5 years on lights, track and accessories, 3 years on controllers and power. '
+      +(S.discMode===1&&S.discAmt>0? S.discLabel+': '+fmt(S.discAmt)+' off, already applied above. ':'')
+      +(S.discMode===2&&S.discRate>0? S.discLabel+': '+fmtRate(S.discRate)+' wherever it beats the standard rate, already applied above. ':'')
+      +(careOn? S.careName+' renews annually: a yearly visit to check bulbs, housings, controller, app configuration and tracking, with workmanship and parts covered and priority scheduling. ':'')
+      +'*Monthly figure is an example over '+S.mo+' months with approved third-party financing; terms and approval vary.';
+  }
+
+  function quoteText(){
+    var p=priceOf(picked), depAmt=Math.round(p.net*S.dep/100);
+    var nm=($('cName').value||'').trim(), ad=($('cAddr').value||'').trim();
+    var L=['LUMEN 514 — Lighting Proposal',
+      new Date().toLocaleDateString('en-US',{year:'numeric',month:'long',day:'numeric'})];
+    if(nm) L.push('Prepared for: '+nm);
+    if(ad) L.push(ad);
+    L.push('');
+    L.push('Selected: '+NAMES[picked]+' — '+feet()[picked]+' linear ft');
+    if(p.on&&S.discMode===1){ L.push('Project price: '+fmt(p.gross)); L.push(S.discLabel+': -'+fmt(p.off)); }
+    if(p.on&&S.discMode===2){ L.push('Standard price: '+fmt(p.gross)+' ('+fmtRate(p.stdRate)+')'); L.push(S.discLabel+': '+fmtRate(p.rate)+' (saves '+fmt(p.off)+')'); }
+    L.push('Total: '+fmt(p.net));
+    if(careOn) L.push(S.careName+': '+fmt(S.care)+'/yr, renews annually');
+    if(S.dep>0){ L.push(S.dep+'% deposit to schedule: '+fmt(depAmt)); L.push(S.terms+': '+fmt(p.net-depAmt)); } else { L.push(S.terms); }
+    L.push('');
+    L.push('Includes custom design, hardware, professional installation, app setup, and the manufacturer product warranty (5 yr lights/track/accessories, 3 yr controllers/power). Quote valid 14 days.');
+    L.push('');
+    L.push('Lumen 514 · Veteran-owned · (404) 436-0901 · josh@lumen514.com');
+    return L.join('\n');
+  }
+
+  /* measured: virtual or in person */
+  [].forEach.call(document.querySelectorAll('#measure button'),function(b){
+    b.addEventListener('click',function(){ measure=b.dataset.m; [].forEach.call(document.querySelectorAll('#measure button'),function(x){x.classList.toggle('on',x===b)}); });
+  });
+
+  /* save to the Quotes tab (Save quote, Copy client link and Download PDF all do this) */
+  function quotePayload(){
+    var p=priceOf(picked), depAmt=Math.round(p.net*S.dep/100);
+    var disc = !p.on ? 'None' : (S.discMode===2 ? S.discLabel+' ($/ft)' : S.discLabel+' ($ off)');
+    return {type:'quote', id:quoteId, name:($('cName').value||'').trim(), phone:($('cPhone').value||'').trim(), address:($('cAddr').value||'').trim(),
+      measure:measure, pkg:NAMES[picked], feet:feet()[picked], stdRate:p.stdRate, discount:disc, discValue:(p.on?(S.discMode===2?p.rate:p.off):0),
+      gross:p.gross, total:p.net, dep:S.dep, depAmt:depAmt, care:(careOn?S.care:0), photoId:photoId, link:lastLink, token:(lastLink.split('#')[1]||'').split('~')[0], notes:($('cNotes').value||'').trim()};
+  }
+  function saveQuote(quiet){
+    if(picked<0){ $('smsg').textContent='Pick an option on the quote first'; return; }
+    if(!measure){ $('smsg').textContent='Tap Virtual or In person first'; return; }
+    if(!lastLink) lastLink=buildLink();
+    if(!quiet) $('smsg').textContent='Saving…';
+    fetch(SCRIPT_URL,{method:'POST',body:JSON.stringify(quotePayload())}).then(function(r){return r.json()}).then(function(j){
+      if(j&&j.ok){ if(!quiet) $('smsg').textContent='Saved to the Quotes sheet'+(j.updated?' (updated).':'.'); }
+      else if(!quiet){ $('smsg').textContent='Save failed. Try again.'; }
+    }).catch(function(){ if(!quiet) $('smsg').textContent='Save failed. Check signal and try again.'; });
+  }
+  $('saveQ').addEventListener('click',function(){ saveQuote(false); });
+
+  /* start fresh for the next customer; rates and settings stay */
+  $('newQ').addEventListener('click',function(){
+    ['cName','cPhone','cAddr','cNotes'].forEach(function(id){ $(id).value=''; });
+    $('ftA').value=80; $('ftB').value=140; $('ftC').value=210;
+    picked=-1; careOn=false; photoId=''; measure=''; lastLink=''; quoteId=newId();
+    $('cPhoto').value=''; $('photoPrev').hidden=true; $('photoPrev').removeAttribute('src');
+    $('photoMsg').textContent='No photo yet. The quote page shows our default house until you add one.';
+    [].forEach.call(document.querySelectorAll('#measure button'),function(x){x.classList.remove('on')});
+    S.discMode=0; saveS(); loadDeal(); calc();
+    $('smsg').textContent=''; $('qmsg').textContent='';
+    $('sheet').hidden=true;
+    document.getElementById('price').scrollIntoView({behavior:'smooth'});
+  });
+
+  $('copyQ').addEventListener('click',function(){
+    if(picked<0){ $('qmsg').textContent='Pick an option first'; return; }
+    var t=quoteText();
+    var ok=function(){ $('qmsg').textContent='Copied.'; };
+    var fail=function(){ $('qmsg').textContent='Copy blocked here. Use the PDF instead.'; };
+    if(navigator.clipboard&&navigator.clipboard.writeText){ navigator.clipboard.writeText(t).then(ok,fail); } else { fail(); }
+  });
+
+  var CLIENT_URL='https://lumen514.com/quote';
+  function strToHex(s){ var e=unescape(encodeURIComponent(s)),h=''; for(var i=0;i<e.length;i++){ h+=('0'+e.charCodeAt(i).toString(16)).slice(-2); } return h; }
+  function buildLink(){
+    var nm=($('cName').value||'').trim();
+    var p=priceOf(picked);
+    /* #q2-<opt>-<ft>-<std rate x100>-<disc mode>-<disc value: $ or rate x100>-<care/yr>-<dep %>-<name hex>~<photo id> */
+    var dv=p.on? (S.discMode===2? Math.round(p.rate*100) : Math.round(p.off)) : 0;
+    var tok=['q2',picked,feet()[picked],Math.round(p.stdRate*100),(p.on?S.discMode:0),dv,(careOn?S.care:0),S.dep,(nm?strToHex(nm):'')];
+    return CLIENT_URL+'#'+tok.join('-')+(photoId?'~'+photoId:'');
+  }
+  $('linkQ').addEventListener('click',function(){
+    if(picked<0){ $('qmsg').textContent='Pick an option first'; return; }
+    var url=lastLink=buildLink();
+    if(measure) saveQuote(true);
+    var ok=function(){ $('qmsg').textContent='Client link copied.'+(measure?'':' (Set Virtual or In person under the gear to log it.)'); };
+    var fail=function(){ $('qmsg').textContent='Copy blocked here.'; };
+    if(navigator.clipboard&&navigator.clipboard.writeText){ navigator.clipboard.writeText(url).then(ok,fail); } else { fail(); }
+  });
+
+  $('pdfQ').addEventListener('click',function(){
+    if(picked<0){ $('qmsg').textContent='Pick an option first'; return; }
+    if(!window.jspdf){ $('qmsg').textContent='PDF unavailable here.'; return; }
+    try{
+      var p=priceOf(picked), depAmt=Math.round(p.net*S.dep/100);
+      var nm=($('cName').value||'').trim(), ad=($('cAddr').value||'').trim();
+      var doc=new window.jspdf.jsPDF({unit:'pt',format:'letter'});
+      var W=612, M=54, y;
+      doc.setFillColor(15,39,72); doc.rect(0,0,W,110,'F');
+      doc.setDrawColor(244,240,230); doc.setLineWidth(4.5);
+      doc.line(M,72,M+26,44); doc.line(M+26,44,M+52,72);
+      doc.setDrawColor(217,168,69); doc.setLineWidth(4);
+      doc.line(M+10,80,M+26,62); doc.line(M+26,62,M+42,80);
+      doc.setTextColor(255,255,255); doc.setFont('helvetica','bold'); doc.setFontSize(22);
+      doc.text('LUMEN 514',M+72,64);
+      doc.setFontSize(8.5); doc.setTextColor(217,168,69);
+      doc.text('P E R M A N E N T   L I G H T I N G',M+72,80);
+      doc.setFontSize(12); doc.setTextColor(255,255,255);
+      doc.text('Lighting Proposal',W-M,58,{align:'right'});
+      doc.setFontSize(9.5); doc.setTextColor(190,202,220);
+      doc.text(new Date().toLocaleDateString('en-US',{year:'numeric',month:'long',day:'numeric'}),W-M,74,{align:'right'});
+      y=152;
+      doc.setFont('helvetica','bold'); doc.setFontSize(9); doc.setTextColor(120,130,145);
+      doc.text('PREPARED FOR',M,y);
+      doc.setFontSize(13); doc.setTextColor(25,32,44);
+      y+=18; doc.text(nm||'Homeowner',M,y);
+      if(ad){ y+=16; doc.setFont('helvetica','normal'); doc.setFontSize(11); doc.text(ad,M,y); }
+      /* their house, when a photo was added */
+      var pv=$('photoPrev');
+      if(!pv.hidden && pv.naturalWidth>0 && /^data:image\/jpeg/.test(pv.src)){
+        var maxW=W-2*M, maxH=250, sc=Math.min(maxW/pv.naturalWidth, maxH/pv.naturalHeight);
+        var iw=pv.naturalWidth*sc, ih=pv.naturalHeight*sc;
+        y+=18; doc.addImage(pv.src,'JPEG',M+(maxW-iw)/2,y,iw,ih); y+=ih;
+        doc.setFont('helvetica','normal'); doc.setFontSize(9); doc.setTextColor(120,130,145);
+        doc.text('A rendering of your home with the lights installed. The lights are exactly what we install; the rest is staging.',W/2,y+13,{align:'center'});
+        y+=14;
+      }
+      y+=32;
+      doc.setDrawColor(222,224,230); doc.setLineWidth(1); doc.line(M,y,W-M,y);
+      y+=26;
+      doc.setFont('helvetica','bold'); doc.setFontSize(13); doc.setTextColor(25,32,44);
+      doc.text(NAMES[picked],M,y);
+      doc.text(fmt(p.gross),W-M,y,{align:'right'});
+      doc.setFont('helvetica','normal'); doc.setFontSize(10.5); doc.setTextColor(120,130,145);
+      doc.text(feet()[picked]+' linear ft of permanent roofline lighting',M,y+15);
+      y+=38;
+      doc.setFontSize(11); doc.setTextColor(25,32,44);
+      if(p.on&&S.discMode===1){ doc.text(S.discLabel,M,y); doc.text('-'+fmt(p.off),W-M,y,{align:'right'}); y+=20; }
+      if(p.on&&S.discMode===2){ doc.text(S.discLabel+': '+fmtRate(p.rate)+' instead of '+fmtRate(p.stdRate),M,y); doc.text('-'+fmt(p.off),W-M,y,{align:'right'}); y+=20; }
+      if(careOn){ doc.text(S.careName+' (renews annually)',M,y); doc.text(fmt(S.care)+'/yr',W-M,y,{align:'right'}); y+=20; }
+      y+=4; doc.line(M,y,W-M,y); y+=28;
+      doc.setFont('helvetica','bold'); doc.setFontSize(15);
+      doc.text('Project total',M,y);
+      doc.setTextColor(184,134,11);
+      doc.text(fmt(p.net)+(careOn? '  +  '+fmt(S.care)+'/yr':''),W-M,y,{align:'right'});
+      y+=30;
+      doc.setTextColor(25,32,44); doc.setFont('helvetica','normal'); doc.setFontSize(11);
+      if(S.dep>0){ doc.text(S.dep+'% deposit to schedule: '+fmt(depAmt),M,y); y+=16; doc.text(S.terms+': '+fmt(p.net-depAmt),M,y); y+=30; }
+      else { doc.text(S.terms,M,y); y+=30; }
+      var inc='Includes custom lighting design, hardware, professional installation, app setup and walkthrough, and the manufacturer product warranty: 5 years on lights, track and accessories; 3 years on controllers and power supplies. Quote valid for 14 days.';
+      var lines=doc.splitTextToSize(inc,W-2*M);
+      doc.setFontSize(10); doc.setTextColor(120,130,145);
+      doc.text(lines,M,y);
+      doc.setFillColor(15,39,72); doc.rect(0,742,W,50,'F');
+      doc.setTextColor(255,255,255); doc.setFontSize(9.5);
+      doc.text('Lumen 514 · Veteran-owned permanent lighting · Powder Springs, GA',M,762);
+      doc.text('(404) 436-0901 · josh@lumen514.com',M,776);
+      var fn='Lumen514-Proposal'+(nm?'-'+nm.replace(/[^A-Za-z0-9]+/g,'-'):'')+'.pdf';
+      doc.save(fn); $('qmsg').textContent='PDF saved to your downloads.';
+      if(measure){ if(!lastLink) lastLink=buildLink(); saveQuote(true); }
+    }catch(e){ $('qmsg').textContent='PDF failed.'; }
+  });
+
+  ['ftA','ftB','ftC'].forEach(function(id){ $(id).addEventListener('input',calc); });
+
+  /* discount controls (main panel) */
+  function loadDeal(){
+    $('dMode').value=String(S.discMode||0);
+    var f=$('dAmtField'); f.hidden=!(S.discMode>0);
+    $('dAmtLabel').textContent = S.discMode===2 ? 'Their price per ft ($)' : 'Amount off ($)';
+    $('dAmt').value = S.discMode===2 ? S.discRate : S.discAmt;
+    $('dAmt').step = S.discMode===2 ? '0.5' : '1';
+  }
+  function saveS(){ try{ localStorage.setItem('l514set4',JSON.stringify(S)); }catch(e){} }
+  $('dMode').addEventListener('change',function(){ S.discMode=+$('dMode').value||0; loadDeal(); saveS(); calc(); });
+  $('dAmt').addEventListener('input',function(){ var v=Math.max(0,+($('dAmt').value)||0); if(S.discMode===2) S.discRate=v; else S.discAmt=v; saveS(); calc(); });
+  loadDeal();
+
+  /* their house photo: resized on the phone, saved to Drive through the form script, referenced by id in the client link */
+  $('photoBtn').addEventListener('click',function(){ $('cPhoto').click(); });
+  $('cPhoto').addEventListener('change',function(){
+    var file=$('cPhoto').files&&$('cPhoto').files[0]; if(!file) return;
+    $('photoMsg').textContent='Uploading…';
+    var img=new Image(), url=URL.createObjectURL(file);
+    img.onload=function(){
+      try{
+        var max=1400, sc=Math.min(1,max/Math.max(img.width,img.height));
+        var c=document.createElement('canvas'); c.width=Math.round(img.width*sc); c.height=Math.round(img.height*sc);
+        c.getContext('2d').drawImage(img,0,0,c.width,c.height);
+        var data=c.toDataURL('image/jpeg',0.82);
+        $('photoPrev').src=data; $('photoPrev').hidden=false;
+        fetch(SCRIPT_URL,{method:'POST',body:JSON.stringify({type:'photo',name:($('cName').value||'').trim()||'customer',data:data})})
+          .then(function(r){return r.json()}).then(function(j){
+            if(j&&j.id){ photoId=j.id; $('photoMsg').textContent='Photo attached. It shows at the top of their quote page.'; }
+            else { photoId=''; $('photoMsg').textContent='Upload failed. The quote will show the default house.'; }
+          }).catch(function(){ photoId=''; $('photoMsg').textContent='Upload failed. The quote will show the default house.'; });
+      }catch(e){ $('photoMsg').textContent='Could not read that photo.'; }
+      URL.revokeObjectURL(url);
+    };
+    img.src=url;
+  });
+  $('careBtn').addEventListener('click',function(){ careOn=!careOn; calc(); });
+
+  /* gallery filter */
+  [].forEach.call(document.querySelectorAll('#galchips .chip'),function(c){
+    c.addEventListener('click',function(){
+      [].forEach.call(document.querySelectorAll('#galchips .chip'),function(x){x.classList.toggle('on',x===c)});
+      var f=c.dataset.f;
+      [].forEach.call(document.querySelectorAll('#gal figure'),function(fig){
+        fig.hidden = (f!=='all' && fig.dataset.f!==f);
+      });
+    });
+  });
+
+  /* settings sheet */
+  function loadSheet(){ $('sRateA').value=S.rA; $('sRateB').value=S.rB; $('sRateC').value=S.rC; $('sDiscLabel').value=S.discLabel; $('sCareName').value=S.careName; $('sCare').value=S.care; $('sDep').value=S.dep; $('sTerms').value=S.terms; $('sMo').value=S.mo; }
+  $('gear').addEventListener('click',function(){ loadSheet(); $('sheet').hidden=false; });
+  $('closeSet').addEventListener('click',function(){ $('sheet').hidden=true; });
+  $('saveSet').addEventListener('click',function(){
+    S.rA=Math.max(15, +($('sRateA').value)||DEF.rA);
+    S.rB=Math.max(15, +($('sRateB').value)||DEF.rB);
+    S.rC=Math.max(15, +($('sRateC').value)||DEF.rC);
+    S.discLabel=($('sDiscLabel').value||'').trim()||DEF.discLabel;
+    S.careName=($('sCareName').value||'').trim()||DEF.careName;
+    S.care=Math.max(0, +($('sCare').value)||0);
+    S.dep=Math.min(100, Math.max(0, +($('sDep').value)||0));
+    S.terms=($('sTerms').value||'').trim()||DEF.terms;
+    S.mo=Math.max(1, +($('sMo').value)||DEF.mo);
+    saveS();
+    $('sheet').hidden=true;
+    loadDeal(); calc();
+  });
+
+
+  /* PIN gate: change PIN here. Remembered on this device for 30 days. */
+  var PIN='2245';
+  (function(){
+    var ok=false; try{ ok=(+localStorage.getItem('l514pro')||0)>Date.now(); }catch(e){}
+    if(ok){ $('gate').remove(); return; }
+    $('gateForm').addEventListener('submit',function(e){
+      e.preventDefault();
+      if($('pin').value===PIN){ try{localStorage.setItem('l514pro',String(Date.now()+30*864e5))}catch(err){} $('gate').remove(); }
+      else { $('pinErr').textContent='That PIN is incorrect.'; $('pin').value=''; $('pin').focus(); }
+    });
+    setTimeout(function(){ $('pin').focus(); },100);
+  })();
+  calc();
+})();
+</script>
+</body>
+</html>
