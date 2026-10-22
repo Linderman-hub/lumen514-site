@@ -714,7 +714,7 @@ footer b{color:var(--ink)}
   /* share card: their house behind "Your quote is ready", built here on the phone, saved to Drive,
      and referenced by ?c= in the client link so the text-message preview shows their home */
   function buildCard(img){
-    var nm=($('cName').value||'').trim()||'customer';
+    var nm=quoteId;
     var go=function(){
       try{
         var W=1200,H=630,c=document.createElement('canvas'); c.width=W; c.height=H; var x=c.getContext('2d');
@@ -768,7 +768,7 @@ footer b{color:var(--ink)}
         c.getContext('2d').drawImage(img,0,0,c.width,c.height);
         var data=c.toDataURL('image/jpeg',0.82);
         $('photoPrev').src=data; $('photoPrev').hidden=false;
-        fetch(SCRIPT_URL,{method:'POST',body:JSON.stringify({type:'photo',name:($('cName').value||'').trim()||'customer',data:data})})
+        fetch(SCRIPT_URL,{method:'POST',body:JSON.stringify({type:'photo',name:quoteId+' house',data:data})})
           .then(function(r){return r.json()}).then(function(j){
             if(j&&j.id){ photoId=j.id; $('photoMsg').textContent='Photo attached. Building their share card…'; buildCard(img); }
             else { photoId=''; $('photoMsg').textContent='Upload failed. The quote will show the default house.'; }
