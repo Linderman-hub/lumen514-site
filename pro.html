@@ -445,7 +445,7 @@ footer b{color:var(--ink)}
   var S={};
   try{ S=Object.assign({},DEF,JSON.parse(localStorage.getItem('l514set4')||'{}')); }catch(e){ S=Object.assign({},DEF); }
   ['rA','rB','rC'].forEach(function(k){ if(!(S[k]>=15)) S[k]=Math.max(15,DEF[k]); });
-  var careOn=false, picked=-1, photoId='', measure='', quoteId=newId(), lastLink='';
+  var careOn=false, picked=-1, photoId='', cardId='', measure='', quoteId=newId(), lastLink='';
   function newId(){ return 'Q'+Date.now().toString(36).toUpperCase()+Math.random().toString(36).slice(2,5).toUpperCase(); }
   var SCRIPT_URL='https://script.google.com/macros/s/AKfycbx5_22g8v4v8OkC-sIbJKRcuO0enCNSxCIoPz1XXlC49U6nJj7DEttLR42hohW01HsMuQ/exec';
   if(window.jspdf) document.getElementById('pdfQ').hidden=false;
@@ -586,7 +586,7 @@ footer b{color:var(--ink)}
   $('newQ').addEventListener('click',function(){
     ['cName','cPhone','cAddr','cNotes'].forEach(function(id){ $(id).value=''; });
     $('ftA').value=80; $('ftB').value=140; $('ftC').value=210;
-    picked=-1; careOn=false; photoId=''; measure=''; lastLink=''; quoteId=newId();
+    picked=-1; careOn=false; photoId=''; cardId=''; measure=''; lastLink=''; quoteId=newId();
     $('cPhoto').value=''; $('photoPrev').hidden=true; $('photoPrev').removeAttribute('src');
     $('photoMsg').textContent='No photo yet. The quote page shows our default house until you add one.';
     [].forEach.call(document.querySelectorAll('#measure button'),function(x){x.classList.remove('on')});
@@ -612,7 +612,7 @@ footer b{color:var(--ink)}
     /* #q2-<opt>-<ft>-<std rate x100>-<disc mode>-<disc value: $ or rate x100>-<care/yr>-<dep %>-<name hex>~<photo id> */
     var dv=p.on? (S.discMode===2? Math.round(p.rate*100) : Math.round(p.off)) : 0;
     var tok=['q2',picked,feet()[picked],Math.round(p.stdRate*100),(p.on?S.discMode:0),dv,(careOn?S.care:0),S.dep,(nm?strToHex(nm):'')];
-    return CLIENT_URL+'#'+tok.join('-')+(photoId?'~'+photoId:'');
+    return CLIENT_URL+(cardId?'?c='+cardId:'')+'#'+tok.join('-')+(photoId?'~'+photoId:'');
   }
   $('linkQ').addEventListener('click',function(){
     if(picked<0){ $('qmsg').textContent='Pick an option first'; return; }
@@ -711,6 +711,50 @@ footer b{color:var(--ink)}
   $('dAmt').addEventListener('input',function(){ var v=Math.max(0,+($('dAmt').value)||0); if(S.discMode===2) S.discRate=v; else S.discAmt=v; saveS(); calc(); });
   loadDeal();
 
+  /* share card: their house behind "Your quote is ready", built here on the phone, saved to Drive,
+     and referenced by ?c= in the client link so the text-message preview shows their home */
+  function buildCard(img){
+    var nm=($('cName').value||'').trim()||'customer';
+    var go=function(){
+      try{
+        var W=1200,H=630,c=document.createElement('canvas'); c.width=W; c.height=H; var x=c.getContext('2d');
+        var sc=Math.max(W/img.width,H/img.height), iw=img.width*sc, ih=img.height*sc;
+        x.drawImage(img,(W-iw)/2,(H-ih)*0.38,iw,ih);
+        var g=x.createLinearGradient(0,0,W,0);
+        g.addColorStop(0,'rgba(11,29,56,.96)'); g.addColorStop(.38,'rgba(11,29,56,.90)'); g.addColorStop(.70,'rgba(11,29,56,.22)'); g.addColorStop(1,'rgba(11,29,56,.06)');
+        x.fillStyle=g; x.fillRect(0,0,W,H);
+        var g2=x.createLinearGradient(0,0,0,H);
+        g2.addColorStop(0,'rgba(11,29,56,.1)'); g2.addColorStop(.4,'rgba(11,29,56,0)'); g2.addColorStop(1,'rgba(11,29,56,.55)');
+        x.fillStyle=g2; x.fillRect(0,0,W,H);
+        /* mark */
+        x.lineWidth=5.4; x.lineCap='butt'; x.lineJoin='miter';
+        x.strokeStyle='#F4F0E6'; x.beginPath(); x.moveTo(76,128); x.lineTo(99,105); x.lineTo(122,128); x.stroke();
+        x.strokeStyle='#D9A845'; x.beginPath(); x.moveTo(84,136); x.lineTo(99,121); x.lineTo(114,136); x.stroke();
+        x.fillStyle='#F4F0E6'; x.font='800 26px Archivo, Inter, Arial, sans-serif'; x.textBaseline='middle';
+        x.save(); x.letterSpacing='4px'; x.fillText('LUMEN 514',142,121); x.restore();
+        x.fillStyle='#D9A845'; x.font='800 18px Manrope, Arial, sans-serif';
+        x.save(); x.letterSpacing='5px'; x.fillText('PERMANENT LIGHTING',72,190); x.restore();
+        x.font='900 78px Archivo, Inter, Arial, sans-serif'; x.textBaseline='alphabetic';
+        x.fillStyle='#F4F0E6'; x.fillText('Your quote',72,282);
+        x.fillText('is ',72,362); var w=x.measureText('is ').width;
+        x.fillStyle='#D9A845'; x.fillText('ready.',72+w,362);
+        x.fillStyle='#C9D4E6'; x.font='500 25px Manrope, Arial, sans-serif';
+        x.fillText('Your home, your price, and the looks you can',72,418);
+        x.fillText('switch on from your phone. All inside.',72,452);
+        x.fillStyle='#D9A845'; var bw=312,bh=56,bx=72,by=486,r=28;
+        x.beginPath(); x.moveTo(bx+r,by); x.lineTo(bx+bw-r,by); x.arc(bx+bw-r,by+bh/2,r,-Math.PI/2,Math.PI/2); x.lineTo(bx+r,by+bh); x.arc(bx+r,by+bh/2,r,Math.PI/2,Math.PI*1.5); x.closePath(); x.fill();
+        x.fillStyle='#0B1D38'; x.font='800 22px Manrope, Arial, sans-serif'; x.textBaseline='middle'; x.fillText('Tap to open your plan \u2192',bx+30,by+bh/2+1);
+        var data=c.toDataURL('image/jpeg',0.86);
+        fetch(SCRIPT_URL,{method:'POST',body:JSON.stringify({type:'photo',name:nm+' share card',data:data})})
+          .then(function(r){return r.json()}).then(function(j){
+            if(j&&j.id){ cardId=j.id; lastLink=''; $('photoMsg').textContent='Photo attached. Their house shows on the quote page and on the text preview.'; }
+            else { cardId=''; $('photoMsg').textContent='Photo attached (quote page only; the text preview will use the default card).'; }
+          }).catch(function(){ cardId=''; $('photoMsg').textContent='Photo attached (quote page only; the text preview will use the default card).'; });
+      }catch(e){ cardId=''; $('photoMsg').textContent='Photo attached. It shows at the top of their quote page.'; }
+    };
+    if(document.fonts&&document.fonts.load){ Promise.all([document.fonts.load('900 78px Archivo'),document.fonts.load('800 22px Manrope')]).then(go,go); } else { go(); }
+  }
+
   /* their house photo: resized on the phone, saved to Drive through the form script, referenced by id in the client link */
   $('photoBtn').addEventListener('click',function(){ $('cPhoto').click(); });
   $('cPhoto').addEventListener('change',function(){
@@ -726,7 +770,7 @@ footer b{color:var(--ink)}
         $('photoPrev').src=data; $('photoPrev').hidden=false;
         fetch(SCRIPT_URL,{method:'POST',body:JSON.stringify({type:'photo',name:($('cName').value||'').trim()||'customer',data:data})})
           .then(function(r){return r.json()}).then(function(j){
-            if(j&&j.id){ photoId=j.id; $('photoMsg').textContent='Photo attached. It shows at the top of their quote page.'; }
+            if(j&&j.id){ photoId=j.id; $('photoMsg').textContent='Photo attached. Building their share card…'; buildCard(img); }
             else { photoId=''; $('photoMsg').textContent='Upload failed. The quote will show the default house.'; }
           }).catch(function(){ photoId=''; $('photoMsg').textContent='Upload failed. The quote will show the default house.'; });
       }catch(e){ $('photoMsg').textContent='Could not read that photo.'; }

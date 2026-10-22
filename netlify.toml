@@ -22,3 +22,5 @@
   from = "/privacy"
   to = "/privacy.html"
   status = 200
+
+# Edge functions live in netlify/edge-functions and declare their own paths.
