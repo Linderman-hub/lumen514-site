@@ -1,0 +1,417 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="robots" content="noindex">
+<title>Lumen 514 Order Calculator</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Archivo:wght@600;800;900&family=Manrope:wght@500;600;700;800&family=IBM+Plex+Mono:wght@500;600&display=swap">
+<style>
+/* Layout: job runs on the left, the order sheet on the right; stacks to one column on phones */
+:root{
+  --bg:#F3F5F9; --panel:#FFFFFF; --ink:#0B1D38; --muted:#5A6B85; --line:#DCE2EC;
+  --accent:#B5862A; --accent-ink:#FFFFFF; --soft:#EEF2F8; --good:#1F7A4D; --warn:#A1661B;
+  --f-display:'Archivo',system-ui,sans-serif; --f-body:'Manrope',system-ui,sans-serif; --f-mono:'IBM Plex Mono',ui-monospace,Menlo,monospace;
+}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){
+  --bg:#0B1D38; --panel:#122A4E; --ink:#F4F0E6; --muted:#9FB2CE; --line:rgba(244,240,230,.14);
+  --accent:#D9A845; --accent-ink:#0B1D38; --soft:#16325C; --good:#5CC48E; --warn:#E3B062; color-scheme:dark}}
+:root[data-theme="dark"]{
+  --bg:#0B1D38; --panel:#122A4E; --ink:#F4F0E6; --muted:#9FB2CE; --line:rgba(244,240,230,.14);
+  --accent:#D9A845; --accent-ink:#0B1D38; --soft:#16325C; --good:#5CC48E; --warn:#E3B062; color-scheme:dark}
+*{box-sizing:border-box}
+body{background:var(--bg);color:var(--ink);font-family:var(--f-body);font-size:15px;line-height:1.5}
+.wrap{max-width:1180px;margin:0 auto;padding-block:20px 48px;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px))}
+header{display:flex;align-items:flex-end;justify-content:space-between;gap:12px;flex-wrap:wrap;margin-bottom:18px}
+.brand{display:flex;align-items:center;gap:10px}
+.brand b{font-family:var(--f-display);font-weight:900;letter-spacing:.06em;font-size:15px}
+h1{font-family:var(--f-display);font-weight:800;font-size:clamp(24px,4vw,32px);margin:6px 0 0;text-wrap:balance;line-height:1.1}
+.sub{color:var(--muted);margin:4px 0 0;font-size:14px}
+.grid{display:grid;grid-template-columns:minmax(0,1.05fr) minmax(0,.95fr);gap:16px;align-items:start}
+@media (max-width:860px){.grid{grid-template-columns:1fr}}
+.card{background:var(--panel);border:1px solid var(--line);border-radius:12px;padding:16px}
+.card h2{font-family:var(--f-display);font-size:15px;letter-spacing:.08em;text-transform:uppercase;margin:0 0 10px;color:var(--muted);font-weight:800}
+.stack{display:grid;gap:16px;min-width:0}
+label{font-size:12px;font-weight:700;color:var(--muted);letter-spacing:.04em;text-transform:uppercase;display:block;margin-bottom:4px}
+input,select{font:600 15px var(--f-body);color:var(--ink);background:var(--bg);border:1px solid var(--line);border-radius:8px;padding:9px 10px;width:100%;min-width:0}
+input:focus-visible,select:focus-visible,button:focus-visible{outline:2px solid var(--accent);outline-offset:1px}
+input[type=number]{font-family:var(--f-mono);font-variant-numeric:tabular-nums}
+.row2{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.runs{display:grid;gap:10px}
+.run{display:grid;grid-template-columns:minmax(0,1.3fr) minmax(0,1fr) minmax(0,1.2fr) 86px 34px;gap:8px;align-items:end;padding-bottom:10px;border-bottom:1px dashed var(--line)}
+.run:last-child{border-bottom:0;padding-bottom:0}
+@media (max-width:560px){.run{grid-template-columns:1fr 1fr}.run .f-name{grid-column:1/-1}.run .f-del{grid-column:2;justify-self:end}}
+.x{width:34px;height:38px;border:1px solid var(--line);background:none;border-radius:8px;color:var(--muted);font-size:18px;cursor:pointer}
+.x:hover{color:var(--ink);border-color:var(--muted)}
+.btn{font:800 14px var(--f-display);letter-spacing:.03em;padding:10px 14px;border-radius:9px;border:1px solid var(--accent);background:var(--accent);color:var(--accent-ink);cursor:pointer}
+.btn.ghost{background:none;color:var(--accent)}
+.btns{display:flex;gap:8px;flex-wrap:wrap;margin-top:12px}
+.tag{display:inline-block;font-size:11px;font-weight:800;letter-spacing:.08em;text-transform:uppercase;color:var(--warn);border:1px solid currentColor;border-radius:999px;padding:2px 8px;margin-left:8px;vertical-align:middle}
+.ext{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px}
+.hint{color:var(--muted);font-size:13px;margin:8px 0 0}
+/* order sheet */
+.sheet{position:sticky;top:calc(env(safe-area-inset-top,0px) + 12px)}
+@media (max-width:860px){.sheet{position:static}}
+.total{display:flex;justify-content:space-between;align-items:baseline;gap:10px;flex-wrap:wrap;border-bottom:2px solid var(--ink);padding-bottom:10px;margin-bottom:6px}
+.total .big{font-family:var(--f-mono);font-weight:600;font-size:clamp(28px,5vw,36px);font-variant-numeric:tabular-nums}
+.total small{color:var(--muted);font-size:13px;display:block}
+.tablewrap{overflow-x:auto}
+table{width:100%;border-collapse:collapse;font-size:14px}
+th{text-align:left;font-size:11px;letter-spacing:.08em;text-transform:uppercase;color:var(--muted);padding:8px 6px;border-bottom:1px solid var(--line)}
+td{padding:9px 6px;border-bottom:1px solid var(--line);vertical-align:top}
+td.n,th.n{text-align:right;font-family:var(--f-mono);font-variant-numeric:tabular-nums;white-space:nowrap}
+td .why{display:block;color:var(--muted);font-size:12px;margin-top:2px}
+tr.grp td{background:var(--soft);font-weight:800;font-size:11px;letter-spacing:.08em;text-transform:uppercase;color:var(--muted);padding:6px}
+.stats{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px;margin-top:14px}
+.stat{background:var(--soft);border-radius:10px;padding:10px 12px}
+.stat span{display:block;font-size:11px;font-weight:800;letter-spacing:.08em;text-transform:uppercase;color:var(--muted)}
+.stat b{font-family:var(--f-mono);font-size:18px;font-weight:600;font-variant-numeric:tabular-nums}
+.stat b.good{color:var(--good)} .stat b.warn{color:var(--warn)}
+.notes{margin:12px 0 0;padding-left:18px;color:var(--muted);font-size:13px}
+.notes li{margin:3px 0}
+details.prices{margin-top:0}
+details.prices summary{cursor:pointer;font-family:var(--f-display);font-weight:800;font-size:15px;letter-spacing:.08em;text-transform:uppercase;color:var(--muted);list-style:none}
+details.prices summary::after{content:' +';color:var(--accent)}
+details.prices[open] summary::after{content:' –'}
+.pgrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(210px,1fr));gap:10px;margin-top:12px}
+.toast{color:var(--good);font-weight:700;font-size:13px;align-self:center}
+@media (prefers-reduced-motion:reduce){*{transition:none!important}}
+</style>
+</head>
+<body>
+
+<div class="wrap">
+  <header>
+    <div>
+      <div class="brand">
+        <svg width="26" height="20" viewBox="0 0 26 20" aria-hidden="true"><path d="M2 13 13 2l11 11" fill="none" stroke="currentColor" stroke-width="2.6"/><path d="M6 17 13 10l7 7" fill="none" stroke="var(--accent)" stroke-width="2.6"/></svg>
+        <b>LUMEN 514</b>
+      </div>
+      <h1>Bosso Order Calculator</h1>
+      <p class="sub">Enter each roofline run. The order sheet builds itself with the cheapest pack mix and the Bosso dealer formulas.</p>
+    </div>
+  </header>
+
+  <div class="grid">
+    <div class="stack">
+      <section class="card">
+        <h2>Job</h2>
+        <div style="margin-bottom:10px"><label for="jobPick">Saved quote</label><select id="jobPick"></select></div>
+        <div class="row2">
+          <div><label for="jobName">Job name</label><input id="jobName" value="3630 Clubwood Trail · soffit down lights"></div>
+          <div><label for="sellRate">Sell rate ($/ft)</label><input id="sellRate" type="number" min="0" step="0.5" value="33"></div>
+        </div>
+      </section>
+
+      <section class="card">
+        <h2>Roofline runs <span class="tag" id="exTag">Clubwood · Oct 19</span></h2>
+        <div class="runs" id="runs"></div>
+        <div class="btns">
+          <button class="btn ghost" id="addRun" type="button">+ Add run</button>
+          <button class="btn ghost" id="clearRuns" type="button">Start a new job</button>
+        </div>
+        <p class="hint">Track per type and color: footage ÷ 6.666 × 1.2 (20% for miscuts). Lights: footage ÷ 0.6666 × 1.2. Power cable: footage × 1.5. All from the Bosso Product Ordering Rules. U = deeper fascia, Flap = shallow fascia with metal/vinyl soffit, Back = flat walls, no eaves.</p>
+      </section>
+
+      <section class="card">
+        <h2>Extensions (Flex Link 10-packs)</h2>
+        <div class="ext">
+          <div><label for="fl2">2 ft packs</label><input id="fl2" type="number" min="0" step="1" value="1"></div>
+          <div><label for="fl5">5 ft packs</label><input id="fl5" type="number" min="0" step="1" value="1"></div>
+          <div><label for="fl10">10 ft packs</label><input id="fl10" type="number" min="0" step="1" value="4"></div>
+        </div>
+        <p class="hint">Extensions depend on transitions and distance to the controller. Add one booster light after every 30 ft of extension; spares from the light packs cover it.</p>
+      </section>
+
+      <section class="card">
+        <h2>Job costs for margin</h2>
+        <div class="ext">
+          <div><label for="instRate">Installer $/ft</label><input id="instRate" type="number" min="0" step="0.25" value="4"></div>
+          <div><label for="qcRate">QC bonus $/ft</label><input id="qcRate" type="number" min="0" step="0.05" value="0.25"></div>
+          <div><label for="resRate">Callback reserve $/ft</label><input id="resRate" type="number" min="0" step="0.05" value="0.5"></div>
+          <div><label for="shipPct">Shipping % of materials</label><input id="shipPct" type="number" min="0" step="0.5" value="5"></div>
+          <div><label for="cardPct">Card fee % of sale</label><input id="cardPct" type="number" min="0" step="0.5" value="3"></div>
+        </div>
+        <p class="hint">Same starting numbers as the unit economics sheet. Shipping, card fee and reserve are guesses until you have real invoices. Margin here is before sales commission and ads.</p>
+      </section>
+
+      <section class="card">
+        <details class="prices" id="priceBox">
+          <summary>Dealer prices</summary>
+          <p class="hint">Captured from bossoshop.com on Oct 18, 2026. Edit any price here when Bosso changes it; your edits save on this device.</p>
+          <div class="pgrid" id="pgrid"></div>
+          <div class="btns"><button class="btn ghost" id="resetPrices" type="button">Reset to Oct 18 prices</button></div>
+        </details>
+      </section>
+    </div>
+
+    <aside class="card sheet" aria-live="polite">
+      <h2>Order sheet</h2>
+      <div class="total">
+        <div><small id="sumJob">Example job</small><span class="big" id="sumTotal">$0.00</span></div>
+        <div style="text-align:right"><small>Materials per foot</small><span class="big" style="font-size:22px" id="sumPerFt">$0.00</span></div>
+      </div>
+      <div class="tablewrap"><table>
+        <thead><tr><th>Item</th><th class="n">Qty</th><th class="n">Cost</th></tr></thead>
+        <tbody id="lines"></tbody>
+      </table></div>
+      <div class="stats">
+        <div class="stat"><span>Total footage</span><b id="stFt">0 ft</b></div>
+        <div class="stat"><span>Lights (8" spacing)</span><b id="stLights">0</b></div>
+        <div class="stat"><span>Job revenue</span><b id="stRev">$0</b></div>
+        <div class="stat"><span>Materials share</span><b id="stPct">0%</b></div>
+      </div>
+      <h2 style="margin-top:18px">Margin</h2>
+      <div class="tablewrap"><table><tbody id="mlines"></tbody></table></div>
+      <div class="stats">
+        <div class="stat"><span>Margin $</span><b id="stMar">$0</b></div>
+        <div class="stat"><span>Margin %</span><b id="stMarPct">0%</b></div>
+        <div class="stat"><span>Margin per foot</span><b id="stMarFt">$0.00</b></div>
+        <div class="stat"><span>Break-even $/ft</span><b id="stBE">$0.00</b></div>
+      </div>
+      <ul class="notes" id="notes"></ul>
+      <div class="btns">
+        <button class="btn" id="copyOrder" type="button">Copy order list</button>
+        <span class="toast" id="toast" hidden>Copied</span>
+      </div>
+      <textarea id="fallback" readonly hidden style="width:100%;height:160px;margin-top:10px;font:13px var(--f-mono);background:var(--bg);color:var(--ink);border:1px solid var(--line);border-radius:8px;padding:8px"></textarea>
+    </aside>
+  </div>
+</div>
+
+<script>
+(function(){
+'use strict';
+var COLORS=['White','Black','Dark Bronze','Terra Bronze','Musket Brown','Pebblestone Clay','Wicker','Desert Sand','Charcoal Grey','Harbor Grey','Classic Cream','Almond','Victorian Grey','Cameo','Linen','Sandstone','Royal Brown','Russet Red','Evergreen'];
+var TYPES={U:{name:'Track Flow U V01',packs:[16,30,100]},F:{name:'Track Flow Flap V01',packs:[15,100]} /* 30PK out of stock Oct 19, 2026: add 30 back when it returns */,B:{name:'Track Flow Back V01',packs:[10,40]}};
+var DEF_PRICES={
+  U16:206.16,U30:386.55,U100:1288.50,
+  F15:193.27,F30:386.54,F100:1288.47,
+  B10:168.48,B40:673.92,
+  lights:134.65,combo:251.95,hub:188.11,module:63.36,
+  cab100:66.33,cab500:175.00,
+  fl2:16.43,fl5:29.55,fl10:49.72,splitT:49.72
+};
+var PLABEL={U16:'U track 16PK',U30:'U track 30PK',U100:'U track 100PK',F15:'Flap track 15PK',F30:'Flap track 30PK',F100:'Flap track 100PK',B10:'Back track 10PK',B40:'Back track 40PK',lights:'Lights, pack of 50',combo:'Power Hub + Command Module',hub:'Power Hub',module:'Command Module',cab100:'Power cable 100 ft',cab500:'Power cable 500 ft',fl2:'Flex Link 2 ft 10PK',fl5:'Flex Link 5 ft 10PK',fl10:'Flex Link 10 ft 10PK',splitT:'Split Link T 10PK'};
+var EXAMPLE=[
+  {name:'Front eaves, porch + both bay cornices',type:'F',color:'Classic Cream',ft:71},
+  {name:'Garage side eave',type:'F',color:'Classic Cream',ft:81},
+  {name:'Garage dormers D1 + D2',type:'F',color:'Classic Cream',ft:48},
+  {name:'Back eaves, wings + porch roof',type:'F',color:'Classic Cream',ft:96},
+  {name:'Left side eaves',type:'F',color:'Classic Cream',ft:62},
+  {name:'Front gable peaks G1 to G4',type:'B',color:'Classic Cream',ft:136}];
+var JOBS=[
+  {id:'alder',label:'11 Alder Landing N · 177 ft · Oct 22',tag:'Alder · Oct 22',name:'11 Alder Landing N · front + garage side',rate:33,fl:[0,1,1],runs:[
+    {name:'Garage gable rakes + twin gables G2/G3 + porch gable (Back Track)',type:'B',color:'White',ft:89},
+    {name:'Garage eave 22 + garage side 10 + upper eaves 8 + 18 (Flap)',type:'F',color:'White',ft:58},
+    {name:'Porch eave 22 + right return 8 (Flap)',type:'F',color:'White',ft:30}]},
+  {id:'twostory',label:'White two-story · full front 118 ft · Oct 20',tag:'Two-story · Oct 20',name:'White two-story · full front',rate:33,fl:[0,1,1],runs:[
+    {name:'Peaks, front gable + back gable (measured)',type:'F',color:'White',ft:47},
+    {name:'2nd floor eaves, left + under the front gable (measured)',type:'F',color:'White',ft:34},
+    {name:'1st floor eave, porch + garage (measured)',type:'F',color:'White',ft:37}]},
+  {id:'ranch',label:'Dark ranch · 170 ft per plans · Oct 20',tag:'Ranch · Oct 20',name:'Dark ranch · plans say 170 ft',rate:33,fl:[0,1,1],runs:[
+    {name:'Front eaves, left 23 + right 37 (measured)',type:'F',color:'Black',ft:60},
+    {name:'Front porch gable, both rakes (measured)',type:'F',color:'Black',ft:30},
+    {name:'Rest of the 170 per plans (back eave or gable ends, confirm)',type:'F',color:'Black',ft:80}]},
+  {id:'clubwood',label:'3630 Clubwood Trail · 494 ft · Oct 19',tag:'Clubwood · Oct 19',name:'3630 Clubwood Trail · soffit down lights',rate:33,fl:[1,1,4],runs:EXAMPLE}
+];
+var P=Object.assign({},DEF_PRICES), runs=JOBS[0].runs.map(function(r){return Object.assign({},r)}), isExample=true;
+try{var sp=JSON.parse(localStorage.getItem('l514-prices')||'null'); if(sp) P=Object.assign({},DEF_PRICES,sp);}catch(e){}
+
+var $=function(id){return document.getElementById(id)};
+var money=function(n){return '$'+n.toLocaleString('en-US',{minimumFractionDigits:2,maximumFractionDigits:2})};
+var money0=function(n){return '$'+Math.round(n).toLocaleString('en-US')};
+function esc(s){return String(s).replace(/[&<>"]/g,function(c){return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]})}
+
+/* cheapest pack mix covering N sections; ties go to fewer leftover sections, then fewer packs */
+function packMix(type,N){
+  var sizes=TYPES[type].packs, best=null;
+  function price(s){return P[type+s]}
+  function rec(i,cur,secs,cost,cnt){
+    if(i===sizes.length){
+      if(secs<N) return;
+      var cand={cur:cur.slice(),secs:secs,cost:cost,cnt:cnt};
+      if(!best||cost<best.cost-0.005||(Math.abs(cost-best.cost)<0.005&&(secs<best.secs||(secs===best.secs&&cnt<best.cnt)))) best=cand;
+      return;
+    }
+    var s=sizes[i], max=Math.ceil(Math.max(0,N-secs)/s);
+    for(var k=0;k<=max;k++){cur.push(k);rec(i+1,cur,secs+k*s,cost+k*price(s),cnt+k);cur.pop();}
+  }
+  rec(0,[],0,0,0);
+  return best?sizes.map(function(s,i){return {size:s,qty:best.cur[i],price:price(s)}}).filter(function(x){return x.qty>0}).concat([{secs:best.secs,cost:best.cost}]):[];
+}
+function cableMix(feet){
+  var best=null;
+  for(var b5=0;b5<=Math.ceil(feet/500);b5++){
+    var b1=Math.max(0,Math.ceil((feet-b5*500)/100));
+    var c=b5*P.cab500+b1*P.cab100;
+    if(!best||c<best.c-0.005) best={b5:b5,b1:b1,c:c};
+  }
+  return best;
+}
+
+function renderRuns(){
+  var html=runs.map(function(r,i){
+    var typeOpts=Object.keys(TYPES).map(function(k){return '<option value="'+k+'"'+(r.type===k?' selected':'')+'>'+({U:'U track',F:'Flap track',B:'Back track'})[k]+'</option>'}).join('');
+    var colOpts=COLORS.map(function(c){return '<option'+(r.color===c?' selected':'')+'>'+c+'</option>'}).join('');
+    return '<div class="run" data-i="'+i+'">'+
+      '<div class="f-name"><label for="rn'+i+'">Run</label><input id="rn'+i+'" data-k="name" value="'+esc(r.name)+'"></div>'+
+      '<div><label for="rt'+i+'">Track</label><select id="rt'+i+'" data-k="type">'+typeOpts+'</select></div>'+
+      '<div><label for="rc'+i+'">Color</label><select id="rc'+i+'" data-k="color">'+colOpts+'</select></div>'+
+      '<div><label for="rf'+i+'">Feet</label><input id="rf'+i+'" data-k="ft" type="number" min="0" step="1" value="'+r.ft+'"></div>'+
+      '<div class="f-del"><button class="x" type="button" data-del="'+i+'" aria-label="Remove run">×</button></div>'+
+    '</div>';
+  }).join('');
+  $('runs').innerHTML=html||'<p class="hint" style="margin:0">No runs yet. Add the first roofline run to start the order.</p>';
+  $('exTag').hidden=!isExample;
+}
+function renderPrices(){
+  $('pgrid').innerHTML=Object.keys(DEF_PRICES).map(function(k){
+    return '<div><label for="p_'+k+'">'+PLABEL[k]+'</label><input id="p_'+k+'" data-p="'+k+'" type="number" min="0" step="0.01" value="'+P[k].toFixed(2)+'"></div>';
+  }).join('');
+}
+
+var lastText='';
+function calc(){
+  var lines=[], text=[], notes=[], total=0;
+  var job=$('jobName').value.trim()||'Untitled job';
+  var ft=runs.reduce(function(a,r){return a+(+r.ft||0)},0);
+  function add(group,item,qty,cost,why){lines.push({group:group,item:item,qty:qty,cost:cost,why:why});total+=cost;}
+
+  /* track grouped by type + color */
+  var groups={};
+  runs.forEach(function(r){if(!(+r.ft>0))return;var key=r.type+'|'+r.color;groups[key]=(groups[key]||0)+(+r.ft);});
+  Object.keys(groups).forEach(function(key){
+    var t=key.split('|')[0], color=key.split('|')[1], gft=groups[key];
+    var need=Math.ceil(gft/6.666*1.2), mix=packMix(t,need);
+    if(!mix.length) return;
+    var meta=mix.pop();
+    mix.forEach(function(m){
+      add('Track',TYPES[t].name+' · '+m.size+'PK · '+color,m.qty,m.qty*m.price,null);
+    });
+    lines[lines.length-1].why=gft+' ft needs '+need+' sections; ordering '+meta.secs+' ('+(meta.secs-need)+' extra)';
+  });
+
+  if(ft>0){
+    var lightsNeed=Math.ceil(ft*1.5), lightsOrder=Math.ceil(ft/0.6666*1.2), lp=Math.ceil(lightsOrder/50);
+    add('Lights','Standard Lights, pack of 50',lp,lp*P.lights,ft+' ft ÷ 0.6666 × 1.2 = '+lightsOrder+' lights → '+(lp*50)+' ordered, about '+(lp*50-lightsNeed)+' spare for boosters, misses and repairs');
+
+    var ctl=Math.max(1,Math.ceil(lightsNeed/2400));
+    var comboCheaper=P.combo<=P.hub+P.module;
+    add('Control',comboCheaper?'Power Hub + Command Module':'Power Hub + Command Module (bought separately)',ctl,ctl*(comboCheaper?P.combo:P.hub+P.module),ctl>1?'over 2,400 lights: split across '+ctl+' controllers':'1 controller handles up to 2,400 lights comfortably (3,600 max)');
+    var psu=Math.max(Math.ceil(ft/200),Math.ceil(lightsNeed/300)), extraHubs=Math.max(0,psu-ctl);
+    if(extraHubs) add('Control','Power Hub (extra power supply)',extraHubs,extraHubs*P.hub,'1 power supply per 200 ft or 300 lights → '+psu+' total, '+ctl+' comes with the combo');
+
+    var cableFt=Math.ceil(ft*1.5), cm=cableMix(cableFt);
+    if(cm.b5) add('Power','Power Cable, 500 ft box',cm.b5,cm.b5*P.cab500,null);
+    if(cm.b1) add('Power','Power Cable, 100 ft box',cm.b1,cm.b1*P.cab100,null);
+    lines[lines.length-1].why=ft+' ft × 1.5 → '+cableFt+' ft of power cable';
+
+    var tNeed=Math.ceil(ft*0.03), tPk=Math.ceil(tNeed/10);
+    add('Connectors','Split Link T, 10PK',tPk,tPk*P.splitT,'~3 per 100 ft → '+tNeed+' needed');
+    notes.push('Data lines: aim for 500 to 550 lights per line, 800 max, 4 lines per controller. This job runs about '+lightsNeed.toLocaleString()+' lights → '+Math.max(1,Math.ceil(lightsNeed/550))+' data line'+(Math.ceil(lightsNeed/550)>1?'s':'')+'.');
+    notes.push('Power: inject every 50 lights, max 3 injections per power line, max 2 power lines per controller.');
+  }
+  [['fl2','Flex Link 2 ft, 10PK'],['fl5','Flex Link 5 ft, 10PK'],['fl10','Flex Link 10 ft, 10PK']].forEach(function(f){
+    var q=Math.max(0,Math.floor(+$(f[0]).value||0)); if(q) add('Connectors',f[1],q,q*P[f[0]],null);
+  });
+  notes.push('Before shipping and tax. Match track version (Flap V01 does not fit V02). Confirm prices on the dealer portal before ordering.');
+
+  /* render */
+  var tb='', lastG='';
+  lines.forEach(function(l){
+    if(l.group!==lastG){tb+='<tr class="grp"><td colspan="3">'+l.group+'</td></tr>';lastG=l.group;}
+    tb+='<tr><td>'+esc(l.item)+(l.why?'<span class="why">'+esc(l.why)+'</span>':'')+'</td><td class="n">'+l.qty+'</td><td class="n">'+money(l.cost)+'</td></tr>';
+  });
+  $('lines').innerHTML=tb||'<tr><td colspan="3" style="color:var(--muted)">Add a run with footage to build the order.</td></tr>';
+  $('sumJob').textContent=job;
+  $('sumTotal').textContent=money(total);
+  $('sumPerFt').textContent=ft?money(total/ft):'$0.00';
+  $('stFt').textContent=ft.toLocaleString()+' ft';
+  $('stLights').textContent=Math.ceil(ft*1.5).toLocaleString();
+  var rate=+$('sellRate').value||0, rev=rate*ft;
+  $('stRev').textContent=money0(rev);
+  var pct=rev?total/rev*100:0, pe=$('stPct');
+  pe.textContent=rev?pct.toFixed(0)+'%':'n/a';
+  pe.className=pct&&pct<=35?'good':(pct?'warn':'');
+  if(rate&&rate<25) notes.unshift('Sell rate is under your $25/ft floor.');
+  var num=function(id){return Math.max(0,+$(id).value||0)};
+  var ship=total*num('shipPct')/100, inst=ft*(num('instRate')+num('qcRate')), card=rev*num('cardPct')/100, res=ft*num('resRate');
+  var cost=total+ship+inst+card+res, mar=rev-cost;
+  var ml=[['Job revenue',rev,ft+' ft × '+money(rate)],['Materials',-total,null],['Shipping',-ship,num('shipPct')+'% of materials'],['Installer + QC bonus',-inst,money(num('instRate')+num('qcRate'))+' per ft'],['Card processing',-card,num('cardPct')+'% of the sale'],['Callback reserve',-res,money(num('resRate'))+' per ft']];
+  $('mlines').innerHTML=ml.map(function(m){return '<tr><td>'+m[0]+(m[2]?'<span class="why">'+esc(m[2])+'</span>':'')+'</td><td class="n">'+(m[1]<0?'−':'')+money(Math.abs(m[1]))+'</td></tr>'}).join('')+'<tr><td><b>Margin before sales and ads</b></td><td class="n"><b>'+(mar<0?'−':'')+money(Math.abs(mar))+'</b></td></tr>';
+  $('stMar').textContent=money0(mar); $('stMar').className=mar>=0?'good':'warn';
+  $('stMarPct').textContent=rev?(mar/rev*100).toFixed(1)+'%':'n/a';
+  $('stMarFt').textContent=ft?money(mar/ft):'$0.00';
+  var fixedPerFt=ft?(total+ship+inst+res)/ft:0, cardF=num('cardPct')/100;
+  $('stBE').textContent=ft&&cardF<1?money(fixedPerFt/(1-cardF)):'$0.00';
+  $('notes').innerHTML=notes.map(function(n){return '<li>'+esc(n)+'</li>'}).join('');
+
+  text.push('LUMEN 514 MATERIAL ORDER');
+  text.push(job+' · '+ft+' ft');
+  text.push('');
+  lines.forEach(function(l){text.push(l.qty+' × '+l.item+'  '+money(l.cost))});
+  text.push('');
+  text.push('Materials total: '+money(total)+' (before shipping and tax)');
+  text.push('Margin before sales and ads: '+money(mar)+(rev?' ('+(mar/rev*100).toFixed(1)+'%)':''));
+  lastText=text.join('\n');
+}
+
+/* events */
+$('runs').addEventListener('input',function(e){
+  var el=e.target, row=el.closest('.run'); if(!row||!el.dataset.k) return;
+  var r=runs[+row.dataset.i]; r[el.dataset.k]=el.dataset.k==='ft'?Math.max(0,+el.value||0):el.value;
+  calc();
+});
+$('runs').addEventListener('change',function(e){
+  var el=e.target, row=el.closest('.run'); if(!row||!el.dataset.k) return;
+  runs[+row.dataset.i][el.dataset.k]=el.value; calc();
+});
+$('runs').addEventListener('click',function(e){
+  var b=e.target.closest('[data-del]'); if(!b) return;
+  runs.splice(+b.dataset.del,1); renderRuns(); calc();
+});
+$('addRun').addEventListener('click',function(){
+  var last=runs[runs.length-1];
+  runs.push({name:'Run '+(runs.length+1),type:last?last.type:'U',color:last?last.color:'White',ft:0});
+  renderRuns(); calc();
+  var f=$('rf'+(runs.length-1)); if(f) f.focus();
+});
+$('clearRuns').addEventListener('click',function(){
+  runs=[{name:'Front roofline',type:'U',color:'White',ft:0}]; isExample=false; $('jobPick').value='new';
+  $('jobName').value=''; $('fl5').value=0; $('fl10').value=0; $('fl2').value=0;
+  renderRuns(); calc(); $('jobName').focus();
+});
+['jobName','sellRate','fl2','fl5','fl10','instRate','qcRate','resRate','shipPct','cardPct'].forEach(function(id){$(id).addEventListener('input',calc)});
+$('pgrid').addEventListener('input',function(e){
+  var k=e.target.dataset.p; if(!k) return;
+  var v=parseFloat(e.target.value); if(isNaN(v)||v<0) return;
+  P[k]=v; try{localStorage.setItem('l514-prices',JSON.stringify(P))}catch(err){}
+  calc();
+});
+$('resetPrices').addEventListener('click',function(){
+  P=Object.assign({},DEF_PRICES); try{localStorage.removeItem('l514-prices')}catch(err){}
+  renderPrices(); calc();
+});
+$('copyOrder').addEventListener('click',function(){
+  var fb=$('fallback'), t=$('toast');
+  function show(){t.hidden=false;setTimeout(function(){t.hidden=true},1600)}
+  try{
+    navigator.clipboard.writeText(lastText).then(show,function(){fb.hidden=false;fb.value=lastText;fb.select();});
+  }catch(err){fb.hidden=false;fb.value=lastText;fb.select();}
+});
+
+function loadJob(id){
+  var j=JOBS.filter(function(x){return x.id===id})[0]; if(!j) return;
+  runs=j.runs.map(function(r){return Object.assign({},r)}); isExample=true;
+  $('jobName').value=j.name; $('sellRate').value=j.rate; $('fl2').value=j.fl[0]; $('fl5').value=j.fl[1]; $('fl10').value=j.fl[2];
+  $('exTag').textContent=j.tag; $('jobPick').value=j.id; renderRuns(); calc();
+}
+$('jobPick').innerHTML=JOBS.map(function(j){return '<option value="'+j.id+'">'+esc(j.label)+'</option>'}).join('')+'<option value="new">New job (blank)</option>';
+$('jobPick').addEventListener('change',function(){ if(this.value==='new') $('clearRuns').click(); else loadJob(this.value); });
+renderPrices(); loadJob(JOBS[0].id);
+})();
+</script>
+
+</body>
+</html>

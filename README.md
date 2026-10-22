@@ -6,5 +6,6 @@ Static site for Lumen 514 permanent lighting. Netlify deploys the `main` branch 
 - `design.html` quote request form (`/design?src=...`)
 - `quote.html` client quote page (link built by `/pro`)
 - `pro.html` sales presentation + quoting (PIN protected)
+- `calc.html` Bosso order calculator for the team (`/calc`, noindex, unlinked)
 - `privacy.html` privacy policy
 - `assets/` photos and images
