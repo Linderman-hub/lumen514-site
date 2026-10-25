@@ -536,10 +536,12 @@ footer b{color:var(--ink)}
       +'*Monthly figure is an example over '+S.mo+' months with approved third-party financing; terms and approval vary.';
   }
 
+  var VIRTUAL_NOTE='Virtual estimate. We priced this from photos and aerial imagery. We will measure in person before any payment, and the final price may go up or down with the exact footage. Your per-foot rate is locked.';
+  function isVirtual(){ return measure==='Virtual'; }
   function quoteText(){
     var p=priceOf(picked), depAmt=Math.round(p.net*S.dep/100);
     var nm=($('cName').value||'').trim(), ad=($('cAddr').value||'').trim();
-    var L=['LUMEN 514 — Lighting Proposal',
+    var L=['LUMEN 514 — '+(isVirtual()?'Lighting Estimate':'Lighting Proposal'),
       new Date().toLocaleDateString('en-US',{year:'numeric',month:'long',day:'numeric'})];
     if(nm) L.push('Prepared for: '+nm);
     if(ad) L.push(ad);
@@ -547,11 +549,12 @@ footer b{color:var(--ink)}
     L.push('Selected: '+NAMES[picked]+' — '+feet()[picked]+' linear ft');
     if(p.on&&S.discMode===1){ L.push('Project price: '+fmt(p.gross)); L.push(S.discLabel+': -'+fmt(p.off)); }
     if(p.on&&S.discMode===2){ L.push('Standard price: '+fmt(p.gross)+' ('+fmtRate(p.stdRate)+')'); L.push(S.discLabel+': '+fmtRate(p.rate)+' (saves '+fmt(p.off)+')'); }
-    L.push('Total: '+fmt(p.net));
+    L.push((isVirtual()?'Estimated total: ':'Total: ')+fmt(p.net));
     if(careOn) L.push(S.careName+': '+fmt(S.care)+'/yr, renews annually');
+    if(isVirtual()){ L.push(''); L.push(VIRTUAL_NOTE); }
     if(S.dep>0){ L.push(S.dep+'% deposit to schedule: '+fmt(depAmt)); L.push(S.terms+': '+fmt(p.net-depAmt)); } else { L.push(S.terms); }
     L.push('');
-    L.push('Includes custom design, hardware, professional installation, app setup, and the manufacturer product warranty (5 yr lights/track/accessories, 3 yr controllers/power). Quote valid 14 days.');
+    L.push('Includes custom design, hardware, professional installation, app setup, and the manufacturer product warranty (5 yr lights/track/accessories, 3 yr controllers/power). '+(isVirtual()?'Estimate':'Quote')+' valid 14 days.');
     L.push('');
     L.push('Lumen 514 · Veteran-owned · (404) 436-0901 · josh@lumen514.com');
     return L.join('\n');
@@ -609,9 +612,9 @@ footer b{color:var(--ink)}
   function buildLink(){
     var nm=($('cName').value||'').trim();
     var p=priceOf(picked);
-    /* #q2-<opt>-<ft>-<std rate x100>-<disc mode>-<disc value: $ or rate x100>-<care/yr>-<dep %>-<name hex>~<photo id> */
+    /* #q2-<opt>-<ft>-<std rate x100>-<disc mode>-<disc value: $ or rate x100>-<care/yr>-<dep %>-<name hex>-<virtual 0/1>~<photo id> */
     var dv=p.on? (S.discMode===2? Math.round(p.rate*100) : Math.round(p.off)) : 0;
-    var tok=['q2',picked,feet()[picked],Math.round(p.stdRate*100),(p.on?S.discMode:0),dv,(careOn?S.care:0),S.dep,(nm?strToHex(nm):'')];
+    var tok=['q2',picked,feet()[picked],Math.round(p.stdRate*100),(p.on?S.discMode:0),dv,(careOn?S.care:0),S.dep,(nm?strToHex(nm):''),(measure==='Virtual'?1:0)];
     return CLIENT_URL+(cardId?'?c='+cardId:'')+'#'+tok.join('-')+(photoId?'~'+photoId:'');
   }
   $('linkQ').addEventListener('click',function(){
@@ -641,7 +644,7 @@ footer b{color:var(--ink)}
       doc.setFontSize(8.5); doc.setTextColor(217,168,69);
       doc.text('P E R M A N E N T   L I G H T I N G',M+72,80);
       doc.setFontSize(12); doc.setTextColor(255,255,255);
-      doc.text('Lighting Proposal',W-M,58,{align:'right'});
+      doc.text(isVirtual()?'Lighting Estimate':'Lighting Proposal',W-M,58,{align:'right'});
       doc.setFontSize(9.5); doc.setTextColor(190,202,220);
       doc.text(new Date().toLocaleDateString('en-US',{year:'numeric',month:'long',day:'numeric'}),W-M,74,{align:'right'});
       y=152;
@@ -675,14 +678,21 @@ footer b{color:var(--ink)}
       if(careOn){ doc.text(S.careName+' (renews annually)',M,y); doc.text(fmt(S.care)+'/yr',W-M,y,{align:'right'}); y+=20; }
       y+=4; doc.line(M,y,W-M,y); y+=28;
       doc.setFont('helvetica','bold'); doc.setFontSize(15);
-      doc.text('Project total',M,y);
+      doc.text(isVirtual()?'Estimated total':'Project total',M,y);
       doc.setTextColor(184,134,11);
       doc.text(fmt(p.net)+(careOn? '  +  '+fmt(S.care)+'/yr':''),W-M,y,{align:'right'});
       y+=30;
       doc.setTextColor(25,32,44); doc.setFont('helvetica','normal'); doc.setFontSize(11);
       if(S.dep>0){ doc.text(S.dep+'% deposit to schedule: '+fmt(depAmt),M,y); y+=16; doc.text(S.terms+': '+fmt(p.net-depAmt),M,y); y+=30; }
       else { doc.text(S.terms,M,y); y+=30; }
-      var inc='Includes custom lighting design, hardware, professional installation, app setup and walkthrough, and the manufacturer product warranty: 5 years on lights, track and accessories; 3 years on controllers and power supplies. Quote valid for 14 days.';
+      if(isVirtual()){
+        var nl=doc.splitTextToSize(VIRTUAL_NOTE,W-2*M-28);
+        var bh=nl.length*13+22;
+        doc.setFillColor(247,243,232); doc.setDrawColor(217,168,69); doc.setLineWidth(1); doc.roundedRect(M,y-6,W-2*M,bh,4,4,'FD');
+        doc.setFont('helvetica','normal'); doc.setFontSize(10); doc.setTextColor(60,50,30);
+        doc.text(nl,M+14,y+12); y+=bh+10;
+      }
+      var inc='Includes custom lighting design, hardware, professional installation, app setup and walkthrough, and the manufacturer product warranty: 5 years on lights, track and accessories; 3 years on controllers and power supplies. '+(isVirtual()?'Estimate':'Quote')+' valid for 14 days.';
       var lines=doc.splitTextToSize(inc,W-2*M);
       doc.setFontSize(10); doc.setTextColor(120,130,145);
       doc.text(lines,M,y);

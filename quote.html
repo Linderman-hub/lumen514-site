@@ -59,6 +59,9 @@ h2{font-size:clamp(24px,5vw,34px);font-weight:900;margin:0 0 10px}
 .plan .ptotal{font-family:'Archivo';font-weight:900;font-size:clamp(34px,8vw,46px);color:var(--gold);font-variant-numeric:tabular-nums;line-height:1.1}
 .plan .pwas{color:var(--muted);text-decoration:line-through;font-size:15px;font-variant-numeric:tabular-nums;min-height:1.4em}
 .plan .pdisc{color:var(--muted);font-size:13.5px}
+.plan .pest{color:var(--gold);font-weight:800;letter-spacing:.16em;text-transform:uppercase;font-size:11px;margin-top:4px}
+.vnote{margin-top:12px;border:1px solid rgba(217,168,69,.55);border-radius:12px;padding:12px 16px;font-size:14px;line-height:1.5;color:var(--muted);background:rgba(217,168,69,.06)}
+.vnote b{color:var(--ink)}
 .plan .pblurb{color:var(--muted);font-size:15px;margin:0 0 14px;line-height:1.5}
 .plan .prate{font-size:14px;color:var(--muted);margin-top:4px;font-variant-numeric:tabular-nums}
 .plan .prate s{opacity:.7}
@@ -119,21 +122,23 @@ footer b{color:var(--ink)}
 </header>
 
 <section id="plan" class="wrap" hidden>
-  <p class="eyebrow">Your plan</p>
+  <p class="eyebrow" id="planEyebrow">Your plan</p>
   <h2 id="planTitle">Your home, lit.</h2>
-  <p class="sub">The numbers from our visit, locked in writing.</p>
+  <p class="sub" id="planSub">The numbers from our visit, locked in writing.</p>
   <div class="plan">
     <div id="planSvg"></div>
     <div class="pname" id="pname"></div>
     <div class="pft" id="pft"></div>
     <p class="pblurb" id="pblurb"></p>
     <div class="pwas" id="pwas"></div>
+    <div class="pest" id="pest" hidden>Estimated</div>
     <div class="ptotal" id="ptotal"></div>
     <div class="prate" id="prate"></div>
     <div class="pdisc" id="pdisc"></div>
     <ul id="pfeats"></ul>
     <div class="dep" id="pdep"></div>
   </div>
+  <div class="vnote" id="pnote" hidden><b>Virtual estimate.</b> We priced this from photos and aerial imagery. We'll measure in person before any payment, and the final price may go up or down with the exact footage. Your per-foot rate is locked.</div>
   <div class="cta">
     <b>Ready to get on the install calendar?</b> Call or text us:
     <div class="num">(404) 436-0901</div>
@@ -260,7 +265,7 @@ footer b{color:var(--ink)}
     q.ft=Math.max(0,parseInt(p[2],10)||0);
     q.rate=(parseInt(p[3],10)||0)/100;
     if(v==='q1'){ q.mode=(parseInt(p[4],10)||0)>0?1:0; q.val=Math.max(0,parseInt(p[4],10)||0); q.care=parseInt(p[5],10)||0; q.dep=parseInt(p[6],10)||0; q.name=hexToStr(p[7]||''); }
-    else { q.mode=Math.min(2,Math.max(0,parseInt(p[4],10)||0)); q.val=Math.max(0,parseInt(p[5],10)||0); q.care=parseInt(p[6],10)||0; q.dep=parseInt(p[7],10)||0; q.name=hexToStr(p[8]||''); }
+    else { q.mode=Math.min(2,Math.max(0,parseInt(p[4],10)||0)); q.val=Math.max(0,parseInt(p[5],10)||0); q.care=parseInt(p[6],10)||0; q.dep=parseInt(p[7],10)||0; q.name=hexToStr(p[8]||''); q.virtual=p[9]==='1'; }
     q.care=Math.max(0,q.care); q.dep=Math.min(100,Math.max(0,q.dep));
     q.gross=q.ft*q.rate; q.net=q.gross; q.netRate=q.rate;
     if(q.mode===1&&q.val>0){ q.net=Math.max(0,q.gross-q.val); }
@@ -290,6 +295,7 @@ footer b{color:var(--ink)}
       if(Q.mode===1){ $('pwas').textContent=fmt(Q.gross); $('pdisc').textContent='Includes your '+fmt(Q.off)+' discount, locked in with this quote.'; }
       if(Q.mode===2){ $('pwas').textContent=fmt(Q.gross); $('prate').innerHTML='<s>'+fmtRate(Q.rate)+'</s> &rarr; <b>'+fmtRate(Q.netRate)+'</b>'; $('pdisc').textContent='Your rate of '+fmtRate(Q.netRate)+' saves you '+fmt(Q.off)+', locked in with this quote.'; }
       $('ptotal').textContent=fmt(Q.net);
+      if(Q.virtual){ $('planEyebrow').textContent='Your estimate'; $('pest').hidden=false; $('pnote').hidden=false; $('planSub').textContent='Your numbers, in writing.'; }
       var feats=['Custom lighting design for your exact roofline','Hardware, professional install & app setup','5-yr product warranty on lights, track & accessories'];
       if(Q.care>0) feats.push('Lumen Care Plan: '+fmt(Q.care)+'/yr, renews annually');
       $('pfeats').innerHTML='<li>'+feats.join('</li><li>')+'</li>';
