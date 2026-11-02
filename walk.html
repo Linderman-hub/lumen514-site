@@ -1,0 +1,429 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="robots" content="noindex, nofollow">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="Site Walk">
+<meta name="theme-color" content="#0B1D38">
+<title>Lumen 514 Site Walk</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Archivo:wght@500;700;900&family=Manrope:wght@500;600;800&display=swap">
+<style>
+/* Layout: one column phone form. Sticky header with progress. Sections in walk order. Dark-first in Lumen navy. */
+:root{
+  --bg:#0B1D38; --panel:#122A4E; --panel2:#0E2244; --line:rgba(244,240,230,.14);
+  --fg:#F4F0E6; --muted:rgba(244,240,230,.62); --gold:#D9A845; --gold-ink:#0B1D38;
+  --ok:#5FC28A; --warn:#E0905A; --bad:#E06A6A;
+  --display:'Archivo',Arial Black,Arial,sans-serif; --body:'Manrope',system-ui,-apple-system,Segoe UI,sans-serif;
+  color-scheme:dark;
+}
+@media (prefers-color-scheme: light){ :root:not([data-theme="dark"]){
+  --bg:#F4F0E6; --panel:#FFFFFF; --panel2:#ECE6D8; --line:rgba(11,29,56,.14);
+  --fg:#0B1D38; --muted:rgba(11,29,56,.62); --gold:#B88726; --gold-ink:#FFFFFF; color-scheme:light;
+}}
+:root[data-theme="light"]{
+  --bg:#F4F0E6; --panel:#FFFFFF; --panel2:#ECE6D8; --line:rgba(11,29,56,.14);
+  --fg:#0B1D38; --muted:rgba(11,29,56,.62); --gold:#B88726; --gold-ink:#FFFFFF; color-scheme:light;
+}
+*{box-sizing:border-box}
+html{background:var(--bg)}
+body{margin:0;background:var(--bg);color:var(--fg);font-family:var(--body);font-size:16px;line-height:1.45;
+  padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));padding-block:0 48px}
+body::before{content:"";position:fixed;inset:0 0 auto;height:env(safe-area-inset-top,0px);z-index:10;background:var(--bg)}
+.wrap{max-width:640px;margin:0 auto}
+header{position:sticky;top:env(safe-area-inset-top,0px);z-index:5;background:var(--bg);padding:14px 0 10px;border-bottom:1px solid var(--line)}
+.brand{display:flex;align-items:center;gap:10px}
+.brand svg{width:26px;height:20px;flex:none}
+.brand h1{font:900 20px/1 var(--display);letter-spacing:.04em;margin:0;text-transform:uppercase}
+.brand span{font:600 11px/1 var(--body);letter-spacing:.14em;text-transform:uppercase;color:var(--gold)}
+.brand .st{margin-left:auto;font:700 11px var(--body);letter-spacing:.08em;text-transform:uppercase;color:var(--muted);text-align:right;line-height:1.3}
+.brand .st.saved{color:var(--ok)}.brand .st.dirty{color:var(--warn)}
+.prog{display:flex;align-items:center;gap:10px;margin-top:10px;font-size:13px;color:var(--muted)}
+.bar{flex:1;height:6px;border-radius:3px;background:var(--panel2);overflow:hidden}
+.bar i{display:block;height:100%;width:0;background:var(--gold);transition:width .25s}
+.prog b{color:var(--fg);font-variant-numeric:tabular-nums}
+.who{display:grid;gap:8px;margin:14px 0 4px}
+.who input{width:100%;padding:12px 14px;border:1px solid var(--line);border-radius:10px;background:var(--panel);color:var(--fg);font:600 16px var(--body)}
+.who input::placeholder{color:var(--muted)}
+section{margin-top:22px}
+section h2{font:800 12px/1 var(--body);letter-spacing:.16em;text-transform:uppercase;color:var(--gold);margin:0 0 8px;display:flex;justify-content:space-between}
+section h2 small{color:var(--muted);letter-spacing:.06em;font-weight:600}
+.item{background:var(--panel);border:1px solid var(--line);border-radius:12px;padding:12px 14px;margin-top:8px}
+.item.done{border-color:rgba(95,194,138,.45)}
+.q{font-weight:800;font-size:15px;margin:0 0 4px}
+.why{color:var(--muted);font-size:13px;margin:0 0 10px}
+.chips{display:flex;flex-wrap:wrap;gap:8px}
+.chips button{border:1px solid var(--line);background:var(--panel2);color:var(--fg);padding:9px 14px;border-radius:999px;font:700 14px var(--body);cursor:pointer;min-height:40px}
+.chips button[aria-pressed="true"]{background:var(--gold);color:var(--gold-ink);border-color:var(--gold)}
+.chips button.bad[aria-pressed="true"]{background:var(--bad);border-color:var(--bad);color:#fff}
+.chips button.warn[aria-pressed="true"]{background:var(--warn);border-color:var(--warn);color:#fff}
+.chips button:focus-visible,.who input:focus-visible,textarea:focus-visible,.actions button:focus-visible{outline:2px solid var(--gold);outline-offset:2px}
+textarea{width:100%;margin-top:10px;padding:10px 12px;border:1px solid var(--line);border-radius:10px;background:var(--panel2);color:var(--fg);font:500 14px var(--body);resize:vertical;min-height:40px}
+textarea::placeholder{color:var(--muted)}
+.ft{display:grid;grid-template-columns:repeat(auto-fit,minmax(120px,1fr));gap:8px;margin-top:10px}
+.ft label{font-size:12px;color:var(--muted);display:block}
+.ft input{width:100%;padding:9px 10px;border:1px solid var(--line);border-radius:8px;background:var(--panel2);color:var(--fg);font:700 16px var(--body);font-variant-numeric:tabular-nums}
+.total{margin-top:10px;font-weight:800;display:flex;justify-content:space-between}
+.total b{font-variant-numeric:tabular-nums;color:var(--gold)}
+.check{display:flex;align-items:center;gap:12px;cursor:pointer}
+.check input{width:22px;height:22px;accent-color:var(--gold);flex:none}
+.actions{position:sticky;bottom:0;background:var(--bg);padding:12px 0 calc(8px + env(safe-area-inset-bottom,0px));border-top:1px solid var(--line);margin-top:24px;display:flex;gap:8px}
+.actions button{flex:1;padding:14px 8px;border-radius:12px;font:800 15px var(--body);cursor:pointer;border:1px solid var(--line);background:var(--panel);color:var(--fg)}
+.actions button.primary{background:var(--gold);color:var(--gold-ink);border-color:var(--gold);flex:1.4}
+.actions button:disabled{opacity:.55;cursor:default}
+.toast{position:fixed;left:50%;bottom:calc(84px + env(safe-area-inset-bottom,0px));transform:translateX(-50%);background:var(--fg);color:var(--bg);padding:10px 16px;border-radius:999px;font-weight:800;font-size:14px;opacity:0;transition:opacity .2s;pointer-events:none;max-width:90vw;text-align:center}
+.toast.on{opacity:1}
+.flags{margin-top:14px;padding:12px 14px;border-radius:12px;background:var(--panel2);border:1px dashed var(--line);font-size:14px}
+.flags h3{margin:0 0 6px;font:800 12px var(--body);letter-spacing:.14em;text-transform:uppercase;color:var(--warn)}
+.flags ul{margin:0;padding-left:18px}
+.flags:empty,.flags.none{display:none}
+.meta{margin-top:10px;font-size:12px;color:var(--muted);display:flex;justify-content:space-between;gap:10px}
+.meta code{font:600 12px ui-monospace,Menlo,monospace;color:var(--fg)}
+#out{position:absolute;left:-9999px;top:0}
+@media (prefers-reduced-motion:reduce){.bar i{transition:none}}
+</style>
+</head>
+<body>
+<div class="wrap">
+<header>
+  <div class="brand">
+    <svg viewBox="0 0 26 20" aria-hidden="true"><polygon points="1.081,12.081 13,0.162 24.919,12.081 23.081,13.919 13,3.838 2.919,13.919" fill="var(--fg)"/><polygon points="5.081,16.081 13,8.162 20.919,16.081 19.081,17.919 13,11.838 6.919,17.919" fill="var(--gold)"/></svg>
+    <div><h1>Site Walk</h1><span>Lumen 514 quoting checklist</span></div>
+    <div class="st" id="status">Not saved</div>
+  </div>
+  <div class="prog"><div class="bar"><i id="barfill"></i></div><b id="count">0 / 0</b></div>
+</header>
+
+<div class="who">
+  <input id="cust" placeholder="Customer name" autocomplete="off">
+  <input id="addr" placeholder="Address" autocomplete="off">
+  <input id="phone" placeholder="Phone (optional)" inputmode="tel" autocomplete="off">
+</div>
+<div class="meta"><span>Walk <code id="wid"></code></span><span id="when"></span></div>
+
+<div class="flags none" id="flags"></div>
+
+<section>
+  <h2>Before you leave the truck <small>bring</small></h2>
+  <div class="item" data-k="bring_track"><label class="check"><input type="checkbox"> <span><span class="q">Piece of track for the demo</span><span class="why">Let them hold it. U, Flap and Back if you have them.</span></span></label></div>
+  <div class="item" data-k="bring_swatch"><label class="check"><input type="checkbox"> <span><span class="q">Track color swatches</span><span class="why">All 19 colors. Match to the fascia in daylight.</span></span></label></div>
+  <div class="item" data-k="bring_print"><label class="check"><input type="checkbox"> <span><span class="q">Printed photo of the house with the roofline traced</span><span class="why">Mark sections, peaks and transitions on it while you walk.</span></span></label></div>
+  <div class="item" data-k="bring_tablet"><label class="check"><input type="checkbox"> <span><span class="q">Tablet or laptop with the quote tool open</span><span class="why">lumen514.com/pro, signed in, gear menu closed.</span></span></label></div>
+</section>
+
+<section>
+  <h2>Outside <small>measure and inspect</small></h2>
+
+  <div class="item" data-k="measure">
+    <p class="q">In-person footage measurement</p>
+    <p class="why">Wheel or laser every run. Virtual quotes get re-measured here before any payment.</p>
+    <div class="ft">
+      <div><label for="ft_front">Front</label><input id="ft_front" inputmode="decimal" data-ft></div>
+      <div><label for="ft_left">Left side</label><input id="ft_left" inputmode="decimal" data-ft></div>
+      <div><label for="ft_right">Right side</label><input id="ft_right" inputmode="decimal" data-ft></div>
+      <div><label for="ft_back">Back</label><input id="ft_back" inputmode="decimal" data-ft></div>
+      <div><label for="ft_peaks">Peaks and gables</label><input id="ft_peaks" inputmode="decimal" data-ft></div>
+      <div><label for="ft_dormers">Dormers</label><input id="ft_dormers" inputmode="decimal" data-ft></div>
+    </div>
+    <div class="total"><span>Measured total</span><b id="fttotal">0 ft</b></div>
+    <textarea id="n_measure" placeholder="Peaks count, dormers count, anything odd"></textarea>
+  </div>
+
+  <div class="item" data-k="soffit">
+    <p class="q">What is the soffit and fascia made of?</p>
+    <p class="why">Vinyl, aluminum, wood, cement fiber, thin cement board. Thin board (about 1/4 in) means screw-through-track and the customer has to OK visible screws.</p>
+    <div class="chips" data-chips="soffit_mat" data-multi>
+      <button type="button">Vinyl</button><button type="button">Aluminum</button><button type="button">Wood</button><button type="button">Cement fiber</button><button type="button" class="warn">Thin cement board</button><button type="button">No soffit</button>
+    </div>
+    <textarea id="n_soffit" placeholder="Which sections have which material"></textarea>
+  </div>
+
+  <div class="item" data-k="multi_mat">
+    <p class="q">Multiple soffit materials, needing different tracks?</p>
+    <p class="why">A front with deep fascia and a porch with no eave can mean U track and Back track on one job.</p>
+    <div class="chips" data-chips="multi_mat"><button type="button" class="warn">Yes</button><button type="button">No</button></div>
+    <textarea id="n_multi_mat" placeholder="Which sections change"></textarea>
+  </div>
+
+  <div class="item" data-k="track_type">
+    <p class="q">Track type per section</p>
+    <p class="why">U: deep fascia, flush with the bottom edge. Flap: shallow fascia, metal or vinyl soffit. Back: flat surface, no eave.</p>
+    <div class="chips" data-chips="track_type" data-multi><button type="button">U</button><button type="button">Flap</button><button type="button">Back</button></div>
+    <textarea id="n_track_type" placeholder="Front U, porch Back, etc."></textarea>
+  </div>
+
+  <div class="item" data-k="colors">
+    <p class="q">How many soffit and fascia colors?</p>
+    <p class="why">Each color may need its own track color.</p>
+    <div class="chips" data-chips="colors"><button type="button">1</button><button type="button">2</button><button type="button" class="warn">3+</button></div>
+  </div>
+
+  <div class="item" data-k="track_color">
+    <p class="q">Track color picked with the swatch, in daylight</p>
+    <p class="why">Hold the swatch flat against the fascia. Customer agrees out loud.</p>
+    <div class="chips" data-chips="track_color_ok"><button type="button">Picked</button><button type="button" class="warn">Customer undecided</button></div>
+    <textarea id="n_track_color" placeholder="Color name(s) and which sections"></textarea>
+  </div>
+
+  <div class="item" data-k="loom">
+    <p class="q">Will loom or wire show anywhere?</p>
+    <p class="why">Walk every transition. Downspouts first, trim second, attic beats both. Point to each spot and get the OK now.</p>
+    <div class="chips" data-chips="loom"><button type="button">Nowhere</button><button type="button" class="warn">Yes, customer OK</button><button type="button" class="bad">Yes, customer unsure</button></div>
+    <textarea id="n_loom" placeholder="Where. Example: right downspout drop to lower level"></textarea>
+  </div>
+
+  <div class="item" data-k="conduit">
+    <p class="q">Do we need conduit?</p>
+    <p class="why">Long exterior wire runs with no trim or downspout to hide behind.</p>
+    <div class="chips" data-chips="conduit"><button type="button">No</button><button type="button" class="warn">Yes</button></div>
+    <textarea id="n_conduit" placeholder="Where and roughly how many feet"></textarea>
+  </div>
+</section>
+
+<section>
+  <h2>Inside <small>attic, garage, Wi-Fi</small></h2>
+
+  <div class="item" data-k="attic">
+    <p class="q">Attic access for power and wire?</p>
+    <p class="why">Attic routes keep every transition hidden. Find the hatch and go up.</p>
+    <div class="chips" data-chips="attic"><button type="button">Yes, walkable</button><button type="button" class="warn">Yes, tight</button><button type="button" class="bad">No attic</button></div>
+  </div>
+
+  <div class="item" data-k="corners">
+    <p class="q">Can we reach the corners and peaks from the attic?</p>
+    <p class="why">Flat soffit runs show daylight from inside. Peaks need a hole through the 2x6 at the top.</p>
+    <div class="chips" data-chips="corners"><button type="button">All</button><button type="button" class="warn">Some</button><button type="button" class="bad">None</button></div>
+    <textarea id="n_corners" placeholder="Which corners are blocked (HVAC, insulation, no deck)"></textarea>
+  </div>
+
+  <div class="item" data-k="outlet">
+    <p class="q">Where is the outlet for the controller?</p>
+    <p class="why">Garage or attic. Controller mounts within 6 ft of it. Own circuit, never shared with the garage door opener or an EV charger. Reachable by the homeowner.</p>
+    <div class="chips" data-chips="outlet"><button type="button">Garage, good spot</button><button type="button">Attic, good spot</button><button type="button" class="warn">Shares opener or EV circuit</button><button type="button" class="bad">No outlet nearby</button></div>
+    <textarea id="n_outlet" placeholder="Which wall, distance to the roofline start point"></textarea>
+  </div>
+
+  <div class="item" data-k="wifi">
+    <p class="q">Is the Wi-Fi close?</p>
+    <p class="why">Stand where the controller will mount and check your phone. Weak signal means an extender on the quote.</p>
+    <div class="chips" data-chips="wifi"><button type="button">Strong</button><button type="button" class="warn">Weak, add extender</button><button type="button" class="bad">None</button></div>
+    <textarea id="n_wifi" placeholder="Router location, network name"></textarea>
+  </div>
+
+  <div class="item" data-k="wifi_band">
+    <p class="q">Wi-Fi band: 2.4 GHz available, or 5 GHz only?</p>
+    <p class="why">The Bosso controller only joins 2.4 GHz. Ask the homeowner to open their router app. One combined network is usually fine. 5 GHz only means they split the bands or add a 2.4 network before install day, or the app will never pair.</p>
+    <div class="chips" data-chips="wifi_band"><button type="button">2.4 GHz network available</button><button type="button">Combined 2.4 / 5 (one name)</button><button type="button" class="bad">5 GHz only</button><button type="button" class="warn">Not sure</button></div>
+    <textarea id="n_wifi_band" placeholder="Router brand, 2.4 network name if separate, who manages it"></textarea>
+  </div>
+</section>
+
+<section>
+  <h2>Close <small>at the table</small></h2>
+
+  <div class="item" data-k="photo"><label class="check"><input type="checkbox"> <span><span class="q">Photo of the home taken for the quote</span><span class="why">Straight on from the street, daylight. Upload it under the gear so the quote card shows their house.</span></span></label></div>
+
+  <div class="item" data-k="package">
+    <p class="q">Package picked</p>
+    <div class="chips" data-chips="package"><button type="button">Front</button><button type="button">Front With Peaks</button><button type="button">Full House Wrap</button></div>
+  </div>
+
+  <div class="item" data-k="payment">
+    <p class="q">Did you collect payment?</p>
+    <p class="why">Deposit only after the in-person measurement above is done.</p>
+    <div class="chips" data-chips="payment"><button type="button">Deposit collected</button><button type="button">Paid in full</button><button type="button" class="warn">Follow up</button></div>
+    <textarea id="n_payment" placeholder="Amount, method, follow-up date"></textarea>
+  </div>
+
+  <div class="item" data-k="notes">
+    <p class="q">Anything else for install day</p>
+    <textarea id="n_notes" placeholder="Dogs, gate codes, HOA, best day, ladder access, sprinklers"></textarea>
+  </div>
+</section>
+
+<div class="actions">
+  <button type="button" id="newbtn">New walk</button>
+  <button type="button" id="copybtn">Copy</button>
+  <button type="button" class="primary" id="savebtn">Save to sheet</button>
+</div>
+<textarea id="out" aria-hidden="true" tabindex="-1"></textarea>
+<div class="toast" id="toast">Copied</div>
+</div>
+
+<script>
+(function(){
+  var SCRIPT_URL='https://script.google.com/macros/s/AKfycbx5_22g8v4v8OkC-sIbJKRcuO0enCNSxCIoPz1XXlC49U6nJj7DEttLR42hohW01HsMuQ/exec';
+  var KEY='l514walk2';
+  var S={};
+  try{ S=JSON.parse(localStorage.getItem(KEY)||'{}')||{}; }catch(e){ S={}; }
+  if(!S.id) S.id=newId();
+  if(!S.started) S.started=new Date().toISOString();
+
+  function newId(){ var d=new Date(); var p=function(n){return (n<10?'0':'')+n;}; return 'W'+String(d.getFullYear()).slice(2)+p(d.getMonth()+1)+p(d.getDate())+'-'+Math.random().toString(36).slice(2,6).toUpperCase(); }
+  function save(){ try{ localStorage.setItem(KEY,JSON.stringify(S)); }catch(e){} }
+  function $(s,r){ return (r||document).querySelector(s); }
+  function $$(s,r){ return Array.prototype.slice.call((r||document).querySelectorAll(s)); }
+  function dirty(){ S.dirty=true; save(); setStatus(); }
+  function setStatus(){
+    var el=$('#status');
+    if(S.savedAt&&!S.dirty){ el.className='st saved'; el.textContent='Saved '+new Date(S.savedAt).toLocaleTimeString([], {hour:'numeric',minute:'2-digit'}); }
+    else if(S.savedAt){ el.className='st dirty'; el.textContent='Changes not saved'; }
+    else { el.className='st'; el.textContent='Not saved'; }
+    $('#wid').textContent=S.id; $('#when').textContent='Started '+new Date(S.started).toLocaleDateString();
+  }
+
+  // text inputs and textareas
+  $$('input[type=text],input:not([type]),textarea').forEach(function(el){
+    if(el.id==='out')return;
+    if(S[el.id]!=null) el.value=S[el.id];
+    el.addEventListener('input',function(){ S[el.id]=el.value; dirty(); refresh(); });
+  });
+  // checkboxes
+  $$('input[type=checkbox]').forEach(function(cb){
+    var k=cb.closest('.item').dataset.k;
+    cb.checked=!!S[k];
+    cb.addEventListener('change',function(){ S[k]=cb.checked; dirty(); refresh(); });
+  });
+  // chips
+  $$('[data-chips]').forEach(function(g){
+    var k=g.dataset.chips, multi=g.hasAttribute('data-multi');
+    var btns=$$('button',g);
+    function paint(){
+      var v=S[k]||(multi?[]:'');
+      btns.forEach(function(b){ var on=multi?v.indexOf(b.textContent)>-1:v===b.textContent; b.setAttribute('aria-pressed',on?'true':'false'); });
+    }
+    btns.forEach(function(b){
+      b.addEventListener('click',function(){
+        var t=b.textContent;
+        if(multi){ var v=S[k]||[]; var i=v.indexOf(t); if(i>-1)v.splice(i,1); else v.push(t); S[k]=v; }
+        else { S[k]=(S[k]===t?'':t); }
+        dirty(); paint(); refresh();
+      });
+    });
+    paint();
+  });
+
+  function ftTotal(){
+    var t=0; $$('[data-ft]').forEach(function(i){ var n=parseFloat(i.value); if(n>0)t+=n; });
+    return Math.round(t);
+  }
+  function itemDone(it){
+    var k=it.dataset.k;
+    var cb=$('input[type=checkbox]',it); if(cb) return cb.checked;
+    var g=$('[data-chips]',it); if(g){ var v=S[g.dataset.chips]; return Array.isArray(v)?v.length>0:!!v; }
+    if(k==='measure') return ftTotal()>0;
+    if(k==='notes') return true;
+    return false;
+  }
+  function refresh(){
+    var items=$$('.item'), done=0;
+    items.forEach(function(it){ var d=itemDone(it); it.classList.toggle('done',d); if(d)done++; });
+    var countable=items.length-1; // notes is optional
+    var dn=Math.min(done-(itemDone($('.item[data-k=notes]'))?1:0),countable);
+    $('#count').textContent=dn+' / '+countable;
+    $('#barfill').style.width=(countable?Math.round(dn/countable*100):0)+'%';
+    $('#fttotal').textContent=ftTotal()+' ft';
+    flags(); setStatus();
+  }
+  var v=function(k){ var x=S[k]; return Array.isArray(x)?x.join(', '):(x||''); };
+  var n=function(id){ return (S[id]||'').trim(); };
+  function flagList(){
+    var f=[];
+    if(/Thin/.test(v('soffit_mat'))) f.push('Thin cement board: plan screw-through-track, get customer OK on visible screws.');
+    if(v('multi_mat')==='Yes') f.push('Mixed materials: order more than one track type.');
+    if(v('colors')==='3+') f.push('Three or more fascia colors: confirm track color per section.');
+    if(/unsure/.test(v('loom'))) f.push('Customer unsure on visible wire. Settle it before deposit.');
+    if(v('conduit')==='Yes') f.push('Conduit on the quote.');
+    if(v('attic')==='No attic') f.push('No attic: every transition runs outside. Price the extra loom and time.');
+    if(v('corners')==='None') f.push('No attic reach to corners: plan downspout and trim routes.');
+    if(/Shares/.test(v('outlet'))) f.push('Outlet shares the opener or EV circuit. Find another or add a circuit.');
+    if(v('outlet')==='No outlet nearby') f.push('No outlet within 6 ft of the controller spot. Electrician line item.');
+    if(/Weak/.test(v('wifi'))) f.push('Wi-Fi extender on the quote.');
+    if(v('wifi')==='None') f.push('No Wi-Fi at the controller spot. Solve before install day.');
+    if(v('wifi_band')==='5 GHz only') f.push('5 GHz only: homeowner must turn on a 2.4 GHz network before install day or the controller will not pair.');
+    if(v('wifi_band')==='Not sure') f.push('Wi-Fi band unknown: have them check the router app before install day. Controller needs 2.4 GHz.');
+    if(v('payment')==='Follow up') f.push('No deposit yet. Set the follow-up date in the Quotes sheet.');
+    return f;
+  }
+  function flags(){
+    var f=flagList(), box=$('#flags');
+    if(!f.length){ box.className='flags none'; box.innerHTML=''; return; }
+    box.className='flags';
+    box.innerHTML='<h3>Flags for the quote</h3><ul>'+f.map(function(x){return '<li>'+x+'</li>';}).join('')+'</ul>';
+  }
+
+  function summary(){
+    var L=[];
+    L.push('SITE WALK '+new Date().toLocaleDateString()+' · '+S.id);
+    L.push((n('cust')||'Customer')+' | '+(n('addr')||'Address')+(n('phone')?' | '+n('phone'):''));
+    L.push('');
+    var ft=['front','left','right','back','peaks','dormers'].map(function(s){ var x=parseFloat(S['ft_'+s]); return x>0?s+' '+x:null; }).filter(Boolean).join(', ');
+    L.push('Measured: '+ftTotal()+' ft'+(ft?' ('+ft+')':'')); if(n('n_measure'))L.push('  '+n('n_measure'));
+    L.push('Soffit/fascia: '+(v('soffit_mat')||'?')); if(n('n_soffit'))L.push('  '+n('n_soffit'));
+    L.push('Mixed materials: '+(v('multi_mat')||'?')); if(n('n_multi_mat'))L.push('  '+n('n_multi_mat'));
+    L.push('Track type: '+(v('track_type')||'?')); if(n('n_track_type'))L.push('  '+n('n_track_type'));
+    L.push('Fascia colors: '+(v('colors')||'?'));
+    L.push('Track color: '+(v('track_color_ok')||'?')+(n('n_track_color')?' '+n('n_track_color'):''));
+    L.push('Visible loom: '+(v('loom')||'?')); if(n('n_loom'))L.push('  '+n('n_loom'));
+    L.push('Conduit: '+(v('conduit')||'?')); if(n('n_conduit'))L.push('  '+n('n_conduit'));
+    L.push('Attic: '+(v('attic')||'?')+' | Corners: '+(v('corners')||'?')); if(n('n_corners'))L.push('  '+n('n_corners'));
+    L.push('Outlet: '+(v('outlet')||'?')); if(n('n_outlet'))L.push('  '+n('n_outlet'));
+    L.push('Wi-Fi: '+(v('wifi')||'?')+' | Band: '+(v('wifi_band')||'?')); if(n('n_wifi'))L.push('  '+n('n_wifi')); if(n('n_wifi_band'))L.push('  '+n('n_wifi_band'));
+    L.push('Photo: '+(S.photo?'yes':'no')+' | Package: '+(v('package')||'?')+' | Payment: '+(v('payment')||'?')+(n('n_payment')?' '+n('n_payment'):''));
+    if(n('n_notes'))L.push('Notes: '+n('n_notes'));
+    var fl=flagList(); if(fl.length){ L.push('FLAGS:'); fl.forEach(function(x){L.push('  - '+x);}); }
+    L.push('Brought: '+['bring_track','bring_swatch','bring_print','bring_tablet'].filter(function(k){return S[k];}).map(function(k){return k.replace('bring_','');}).join(', '));
+    return L.join('\n');
+  }
+
+  function payload(){
+    var ftn=function(s){ var x=parseFloat(S['ft_'+s]); return x>0?x:''; };
+    return {
+      type:'walk', id:S.id, started:S.started,
+      customer:n('cust'), address:n('addr'), phone:n('phone'),
+      total:ftTotal(), front:ftn('front'), left:ftn('left'), right:ftn('right'), back:ftn('back'), peaks:ftn('peaks'), dormers:ftn('dormers'), measureNotes:n('n_measure'),
+      soffit:v('soffit_mat'), soffitNotes:n('n_soffit'), multiMat:v('multi_mat'), multiMatNotes:n('n_multi_mat'),
+      trackType:v('track_type'), trackTypeNotes:n('n_track_type'), colors:v('colors'), trackColor:v('track_color_ok'), trackColorNotes:n('n_track_color'),
+      loom:v('loom'), loomNotes:n('n_loom'), conduit:v('conduit'), conduitNotes:n('n_conduit'),
+      attic:v('attic'), corners:v('corners'), cornersNotes:n('n_corners'), outlet:v('outlet'), outletNotes:n('n_outlet'),
+      wifi:v('wifi'), wifiNotes:n('n_wifi'), wifiBand:v('wifi_band'), wifiBandNotes:n('n_wifi_band'),
+      photo:S.photo?'Yes':'No', pkg:v('package'), payment:v('payment'), paymentNotes:n('n_payment'), notes:n('n_notes'),
+      brought:['bring_track','bring_swatch','bring_print','bring_tablet'].filter(function(k){return S[k];}).map(function(k){return k.replace('bring_','');}).join(', '),
+      flags:flagList().join('\n'), summary:summary(), device:/iPhone|iPad|Android/.test(navigator.userAgent)?'Phone':'Computer'
+    };
+  }
+
+  function toast(msg,ms){ var t=$('#toast'); t.textContent=msg; t.classList.add('on'); setTimeout(function(){t.classList.remove('on');},ms||1600); }
+  $('#copybtn').addEventListener('click',function(){
+    var txt=summary(); var out=$('#out'); out.value=txt;
+    if(navigator.clipboard&&navigator.clipboard.writeText){
+      navigator.clipboard.writeText(txt).then(function(){toast('Copied. Paste into the quote Notes.');},function(){ out.style.left='0'; out.style.position='relative'; out.style.width='100%'; out.style.height='200px'; out.select(); toast('Select and copy the text below'); });
+    } else { out.style.left='0'; out.style.position='relative'; out.style.width='100%'; out.style.height='200px'; out.select(); toast('Select and copy the text below'); }
+  });
+  var saving=false;
+  $('#savebtn').addEventListener('click',function(){
+    if(saving) return;
+    if(!n('cust')&&!n('addr')){ toast('Add the customer name or address first'); $('#cust').focus(); return; }
+    saving=true; var b=this; b.disabled=true; b.textContent='Saving…';
+    fetch(SCRIPT_URL,{method:'POST',body:JSON.stringify(payload())}).then(function(r){return r.text();}).then(function(t){
+      var ok=/ok/i.test(t);
+      if(!ok) throw new Error(t||'no reply');
+      S.savedAt=new Date().toISOString(); S.dirty=false; save(); setStatus(); toast('Saved to the Site Walks tab');
+    }).catch(function(e){
+      toast('Could not save. Still on this phone. '+(e&&e.message?e.message:''),3200);
+    }).finally(function(){ saving=false; b.disabled=false; b.textContent='Save to sheet'; });
+  });
+  var armed=false;
+  $('#newbtn').addEventListener('click',function(){
+    if(!armed){ armed=true; this.textContent='Tap again to clear'; var b=this; setTimeout(function(){armed=false;b.textContent='New walk';},2500); return; }
+    if(S.dirty&&S.savedAt===undefined&&ftTotal()>0&&!confirm('This walk was never saved to the sheet. Clear it anyway?')) { armed=false; this.textContent='New walk'; return; }
+    S={id:newId(),started:new Date().toISOString()}; save(); location.reload();
+  });
+
+  refresh();
+})();
+</script>
+</body>
+</html>
