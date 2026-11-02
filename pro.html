@@ -363,8 +363,8 @@ footer b{color:var(--ink)}
       <h3>Your roofline</h3>
       <p class="note">Measured linear feet per coverage level.</p>
       <div class="field"><label for="ftA">Front (ft)</label><input id="ftA" type="number" inputmode="decimal" min="0" step="1" value="80"></div>
-      <div class="field"><label for="ftB">Front With Peaks (ft)</label><input id="ftB" type="number" inputmode="decimal" min="0" step="1" value="140"></div>
-      <div class="field"><label for="ftC">Full House Wrap (ft)</label><input id="ftC" type="number" inputmode="decimal" min="0" step="1" value="210"></div>
+      <div class="field"><label for="ftB">Front and Sides (ft)</label><input id="ftB" type="number" inputmode="decimal" min="0" step="1" value="140"></div>
+      <div class="field"><label for="ftC">Full Wrap (ft)</label><input id="ftC" type="number" inputmode="decimal" min="0" step="1" value="210"></div>
       <h3 style="margin-top:18px">Customer</h3>
       <div class="field"><label for="cName">Name</label><input id="cName" type="text" autocomplete="off"></div>
       <div class="field"><label for="cPhone">Phone</label><input id="cPhone" type="tel" inputmode="tel" autocomplete="off"></div>
@@ -422,8 +422,8 @@ footer b{color:var(--ink)}
   <h4 style="margin-top:26px">Rates &amp; defaults</h4>
   <div class="grid">
     <div class="field"><label for="sRateA">Front $/ft</label><input id="sRateA" type="number" min="15" step="0.5" value="33"></div>
-    <div class="field"><label for="sRateB">Front With Peaks $/ft</label><input id="sRateB" type="number" min="15" step="0.5" value="29"></div>
-    <div class="field"><label for="sRateC">Full House Wrap $/ft</label><input id="sRateC" type="number" min="15" step="0.5" value="25"></div>
+    <div class="field"><label for="sRateB">Front and Sides $/ft</label><input id="sRateB" type="number" min="15" step="0.5" value="29"></div>
+    <div class="field"><label for="sRateC">Full Wrap $/ft</label><input id="sRateC" type="number" min="15" step="0.5" value="25"></div>
     <div class="field"><label for="sDep">Deposit (%)</label><input id="sDep" type="number" min="0" max="100" step="5" value="50"></div>
     <div class="field"><label for="sTerms">Payment terms line</label><input id="sTerms" type="text" value="Balance due on completion of install"></div>
     <div class="field"><label for="sDiscLabel">Discount name (shown to customer)</label><input id="sDiscLabel" type="text" value="Preferred Pricing"></div>
@@ -462,18 +462,19 @@ footer b{color:var(--ink)}
     var eaves='M18 40 H170 M8 62 H84 M116 62 H174';
     var rakes='M28 40 L45 22 L62 40 M84 40 L108 8 L132 40 M134 40 L146 22 L158 40';
     var wrap='M170 40 L202 29 M174 62 L196 54';
+    var back='M202 29 L166 17 M196 54 L180 48';
     var s='<svg viewBox="0 0 210 100" aria-hidden="true">';
     s+='<path d="M2 92 H208" '+dim+'/>';
     s+='<path d="'+body+'" '+faint+'/><path d="'+side+'" '+faint+'/><path d="'+garage+'" '+dim+'/><path d="'+porch+'" '+dim+'/><path d="'+win+'" '+dim+'/>';
-    s+='<path d="'+eaves+'" '+lit+'/>';
-    if(level>=1) s+='<path d="'+rakes+'" '+lit+'/>';
-    if(level>=2) s+='<path d="'+wrap+'" '+lit+'/>';
+    s+='<path d="'+eaves+'" '+lit+'/><path d="'+rakes+'" '+lit+'/>';
+    if(level>=1) s+='<path d="'+wrap+'" '+lit+'/>';
+    if(level>=2) s+='<path d="'+back+'" '+lit+'/>';
     return s+'</svg>';
   }
-  var NAMES=['Front','Front With Peaks','Full House Wrap'];
-  var SCOPE=['Front eaves, street view','Front eaves plus every peak','Every eave and peak, all the way around'];
+  var NAMES=['Front','Front and Sides','Full Wrap'];
+  var SCOPE=['Front eaves and peaks, street view','Front plus both sides of the house','Every eave and peak, all the way around'];
   var BLURB=['Holiday cheer from the street, every December, and a warm glow every other night of the year. Zero ladders.',
-    'The house people slow down for. Every peak outlined, and the neighbors will know exactly what they are missing.',
+    'The house people slow down for. Lit from the street and from the driveway, and the neighbors on both sides get the view too.',
     'Lit from every angle. Backyard birthday parties, graduation cookouts, game day on the patio: the whole house shows up.'];
   function rates(){ return [S.rA,S.rB,S.rC]; }
   function feet(){ return [+($('ftA').value)||0, +($('ftB').value)||0, +($('ftC').value)||0]; }

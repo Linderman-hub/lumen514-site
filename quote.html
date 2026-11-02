@@ -205,10 +205,10 @@ footer b{color:var(--ink)}
   'use strict';
   var $=function(id){return document.getElementById(id)};
   var fmt=function(n){return '$'+Math.round(n).toLocaleString('en-US')};
-  var NAMES=['Front','Front With Peaks','Full House Wrap'];
-  var SCOPE=['Front eaves, street view','Front eaves plus every peak','Every eave and peak, all the way around'];
+  var NAMES=['Front','Front and Sides','Full Wrap'];
+  var SCOPE=['Front eaves and peaks, street view','Front plus both sides of the house','Every eave and peak, all the way around'];
   var BLURB=['Holiday cheer from the street every December, and a warm glow every other night of the year. Zero ladders, ever.',
-    'The house people slow down for. Every peak outlined, and the neighbors will know exactly what they are missing.',
+    'The house people slow down for. Lit from the street and from the driveway, and the neighbors on both sides get the view too.',
     'Lit from every angle. Backyard birthday parties, graduation cookouts, game day on the patio: the whole house shows up.'];
   var fmtRate=function(r){return '$'+(Math.round(r*100)/100).toLocaleString('en-US')+'/ft'};
 
@@ -238,12 +238,13 @@ footer b{color:var(--ink)}
     var eaves='M18 40 H170 M8 62 H84 M116 62 H174';
     var rakes='M28 40 L45 22 L62 40 M84 40 L108 8 L132 40 M134 40 L146 22 L158 40';
     var wrap='M170 40 L202 29 M174 62 L196 54';
+    var back='M202 29 L166 17 M196 54 L180 48';
     var s='<svg viewBox="0 0 210 100" aria-hidden="true">';
     s+='<path d="M2 92 H208" '+dim+'/>';
     s+='<path d="'+body+'" '+faint+'/><path d="'+side+'" '+faint+'/><path d="'+garage+'" '+dim+'/><path d="'+porch+'" '+dim+'/><path d="'+win+'" '+dim+'/>';
-    s+='<path d="'+eaves+'" '+lit+'/>';
-    if(level>=1) s+='<path d="'+rakes+'" '+lit+'/>';
-    if(level>=2) s+='<path d="'+wrap+'" '+lit+'/>';
+    s+='<path d="'+eaves+'" '+lit+'/><path d="'+rakes+'" '+lit+'/>';
+    if(level>=1) s+='<path d="'+wrap+'" '+lit+'/>';
+    if(level>=2) s+='<path d="'+back+'" '+lit+'/>';
     return s+'</svg>';
   }
 
