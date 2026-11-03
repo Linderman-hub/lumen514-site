@@ -314,6 +314,13 @@ var ENDPOINT='https://script.google.com/macros/s/AKfycbx5_22g8v4v8OkC-sIbJKRcuO0
 var params=new URLSearchParams(location.search);
 var SRC=(params.get('src')||'design').slice(0,40);
 var $=function(id){return document.getElementById(id)};
+/* count this open on the Visits tab once per browser session (owner devices skipped: open lumen514.com/quote?me=1 once) */
+try{
+  if(params.has('me')){ try{localStorage.setItem('l514-owner','1')}catch(e){} }
+  var ownerDev=false; try{ ownerDev=localStorage.getItem('l514-owner')==='1'; }catch(e){}
+  var seen=false; try{ seen=sessionStorage.getItem('l514v')==='1'; sessionStorage.setItem('l514v','1'); }catch(e){}
+  if(!ownerDev && !seen) fetch(ENDPOINT+'?src='+encodeURIComponent(SRC)+'&ping=1',{mode:'no-cors',keepalive:true}).catch(function(){});
+}catch(e){}
 var steps=[].slice.call(document.querySelectorAll('.step'));
 var cur=0, LAST=4;
 var NEXT_LABEL=['Start my design','Next','Next','Almost done','Send me my design'];
