@@ -338,7 +338,6 @@ footer b{color:var(--ink)}
         var why=(o.mode>0&&Q.why)?' '+Q.why:'';
         if(o.mode===1){ $('pwas').textContent=fmt(o.gross); $('pdisc').textContent='Includes '+fmt(o.off)+' off'+why+', locked in with this quote.'; }
         if(o.mode===2){ $('pwas').textContent=fmt(o.gross); $('prate').innerHTML='<s>'+fmtRate(o.rate)+'</s> &rarr; <b>'+fmtRate(o.netRate)+'</b>'; $('pdisc').textContent='Your rate of '+fmtRate(o.netRate)+why+' saves you '+fmt(o.off)+', locked in with this quote.'; }
-        if(why){ $('pwhy').textContent=(o.mode===2?'Standard rate '+fmtRate(o.rate)+'. ':'')+'This pricing is '+Q.why.replace(/^for /,'for ')+'.'; $('pwhy').hidden=false; }
         $('ptotal').textContent=fmt(o.net);
         var feats=['Custom lighting design for your exact roofline','Hardware, professional install & app setup','5-yr product warranty on lights, track & accessories'];
         if(Q.care>0) feats.push('Lumen Care Plan: '+fmt(Q.care)+'/yr, renews annually');
