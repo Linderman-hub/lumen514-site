@@ -366,6 +366,15 @@ footer b{color:var(--ink)}
 <script>
 (function(){
   'use strict';
+  /* count this visit on the Visits tab as "home" (or home-<src>), once per browser session; owner devices skipped */
+  try{
+    var qp=new URLSearchParams(location.search);
+    if(qp.has('me')){ try{localStorage.setItem('l514-owner','1')}catch(e){} }
+    var own=false; try{ own=localStorage.getItem('l514-owner')==='1'; }catch(e){}
+    var seen=false; try{ seen=sessionStorage.getItem('l514h')==='1'; sessionStorage.setItem('l514h','1'); }catch(e){}
+    var tag='home'+(qp.get('src')?'-'+String(qp.get('src')).replace(/[^A-Za-z0-9_-]/g,'').slice(0,20):'');
+    if(!own && !seen && !/bot|crawl|spider|slurp|preview/i.test(navigator.userAgent)) fetch('https://script.google.com/macros/s/AKfycbx5_22g8v4v8OkC-sIbJKRcuO0enCNSxCIoPz1XXlC49U6nJj7DEttLR42hohW01HsMuQ/exec?src='+tag+'&ping=1',{mode:'no-cors',keepalive:true}).catch(function(){});
+  }catch(e){}
   ["home-xmas","home-halloween"].forEach(function(n){var i=new Image();i.src='assets/'+n+'.jpg'});
   var LOOKS={
     warm:{src:'assets/home-accent.jpg',alt:'Two-story home with warm white accent lighting under the eaves',note:"Warm accent lighting, every single night. It reads as custom architectural lighting, and it's the look most homes run 300 nights a year."},
