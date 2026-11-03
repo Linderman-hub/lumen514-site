@@ -51,6 +51,19 @@ header + section{border-top:0}
 .eyebrow{color:var(--gold);font-weight:800;letter-spacing:.2em;text-transform:uppercase;font-size:12px;margin:0 0 8px}
 h2{font-size:clamp(24px,5vw,34px);font-weight:900;margin:0 0 10px}
 .sub{color:var(--muted);max-width:36em;margin:0 0 24px}
+/* option picker (q3 links with more than one option) */
+.optgrid{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:12px;margin:0 0 16px}
+.optcard{border:1px solid var(--line);background:var(--navy-2);border-radius:14px;padding:16px 16px 14px;cursor:pointer;text-align:left;color:var(--ink);font-family:'Manrope';position:relative}
+.optcard svg{display:block;width:100%;height:auto;margin-bottom:8px}
+.optcard .on{font-family:'Archivo';font-weight:900;font-size:16px}
+.optcard .of{font-size:12.5px;color:var(--muted);margin:2px 0 8px}
+.optcard .ow{font-size:13px;color:var(--muted);text-decoration:line-through;min-height:1.2em;font-variant-numeric:tabular-nums}
+.optcard .ot{font-family:'Archivo';font-weight:900;font-size:26px;color:var(--gold);font-variant-numeric:tabular-nums;line-height:1.1}
+.optcard .rec{position:absolute;top:12px;right:12px;font-size:10.5px;font-weight:800;letter-spacing:.12em;text-transform:uppercase;background:var(--gold);color:var(--navy);border-radius:999px;padding:3px 9px}
+.optcard.sel{border-color:var(--gold);box-shadow:0 0 0 1px var(--gold)}
+.optcard:focus-visible{outline:2px solid var(--gold);outline-offset:2px}
+.pickhint{color:var(--muted);font-size:14px;margin:0 0 14px}
+.plan .pwhy{color:var(--ink);font-size:14px;margin-top:6px;border-left:3px solid var(--gold);padding-left:10px}
 /* plan card */
 .plan{background:var(--navy-2);border:1px solid var(--gold);border-radius:16px;padding:26px 24px}
 .plan svg{display:block;width:min(300px,100%);margin-bottom:12px}
@@ -125,6 +138,8 @@ footer b{color:var(--ink)}
   <p class="eyebrow" id="planEyebrow">Your plan</p>
   <h2 id="planTitle">Your home, lit.</h2>
   <p class="sub" id="planSub">The numbers from our visit, locked in writing.</p>
+  <div class="optgrid" id="optgrid" hidden></div>
+  <p class="pickhint" id="pickhint" hidden>Tap an option to see its full breakdown below.</p>
   <div class="plan">
     <div id="planSvg"></div>
     <div class="pname" id="pname"></div>
@@ -135,6 +150,7 @@ footer b{color:var(--ink)}
     <div class="ptotal" id="ptotal"></div>
     <div class="prate" id="prate"></div>
     <div class="pdisc" id="pdisc"></div>
+    <div class="pwhy" id="pwhy" hidden></div>
     <ul id="pfeats"></ul>
     <div class="dep" id="pdep"></div>
   </div>
@@ -250,8 +266,9 @@ footer b{color:var(--ink)}
 
   /* personalized plan from the link token.
      q1: #q1-<opt>-<ft>-<rate x100>-<$ off>-<care/yr>-<dep %>-<name hex>
-     q2: #q2-<opt>-<ft>-<std rate x100>-<disc mode 0/1/2>-<disc value: $ off, or rate x100>-<care/yr>-<dep %>-<name hex>
-     either may end in ~<drive photo id> */
+     q2: #q2-<opt>-<ft>-<std rate x100>-<disc mode 0/1/2>-<disc value: $ off, or rate x100>-<care/yr>-<dep %>-<name hex>-<virtual>
+     q3: #q3-<rec>-<shown mask>-<ftA.ftB.ftC>-<rates x100 A.B.C>-<disc mode>-<disc value>-<care/yr>-<dep %>-<name hex>-<virtual>-<reason hex>
+     any may end in ~<drive photo id> */
   function hexToStr(h){
     try{
       if(!h||h.length%2) return '';
@@ -259,8 +276,30 @@ footer b{color:var(--ink)}
       return decodeURIComponent(b.map(function(c){return '%'+('0'+c.toString(16)).slice(-2)}).join(''));
     }catch(e){ return ''; }
   }
+  function priceOpt(ft,rate,mode,val){
+    var g=ft*rate, net=g, nr=rate, off=0;
+    if(mode===1&&val>0){ net=Math.max(0,g-val); }
+    else if(mode===2){ var r2=val/100; if(r2>0&&r2<rate){ nr=r2; net=ft*r2; } else { mode=0; } }
+    off=g-net; if(off<=0) mode=0;
+    return {ft:ft,rate:rate,gross:g,net:net,netRate:nr,off:off,mode:mode};
+  }
   function parseTok(h){
     var p=h.split('-'), v=p[0], q={};
+    if(v==='q3'){
+      q.v3=true;
+      q.opt=Math.min(2,Math.max(0,parseInt(p[1],10)||0));
+      var mask=parseInt(p[2],10)||0;
+      var fts=(p[3]||'').split('.').map(function(x){return Math.max(0,parseInt(x,10)||0)});
+      var rts=(p[4]||'').split('.').map(function(x){return (parseInt(x,10)||0)/100});
+      var mode=Math.min(2,Math.max(0,parseInt(p[5],10)||0)), val=Math.max(0,parseInt(p[6],10)||0);
+      q.care=Math.max(0,parseInt(p[7],10)||0); q.dep=Math.min(100,Math.max(0,parseInt(p[8],10)||0));
+      q.name=hexToStr(p[9]||''); q.virtual=p[10]==='1'; q.why=hexToStr(p[11]||'');
+      q.opts=[]; for(var i=0;i<3;i++){ if((mask&(1<<i)) && fts[i]>0 && rts[i]>0) q.opts.push(Object.assign({i:i},priceOpt(fts[i],rts[i],mode,val))); }
+      if(!q.opts.length) return null;
+      var cur=q.opts.filter(function(x){return x.i===q.opt})[0]||q.opts[0]; q.opt=cur.i;
+      q.ft=cur.ft; q.rate=cur.rate; q.gross=cur.gross; q.net=cur.net; q.netRate=cur.netRate; q.off=cur.off; q.mode=cur.mode;
+      return q;
+    }
     if(v!=='q1'&&v!=='q2') return null;
     q.opt=Math.min(2,Math.max(0,parseInt(p[1],10)||0));
     q.ft=Math.max(0,parseInt(p[2],10)||0);
@@ -289,34 +328,66 @@ footer b{color:var(--ink)}
     if(Q&&Q.ft>0&&Q.rate>0){
       $('plan').hidden=false;
       if(Q.name){ $('forline').innerHTML='Prepared for <b></b>. Everything we talked about, in one place.'; $('forline').querySelector('b').textContent=Q.name; }
-      $('planSvg').innerHTML=svgHouse(Q.opt);
-      $('pname').textContent=NAMES[Q.opt];
-      $('pft').textContent=Q.ft+' linear ft · '+SCOPE[Q.opt];
-      $('pblurb').textContent=BLURB[Q.opt];
-      if(Q.mode===1){ $('pwas').textContent=fmt(Q.gross); $('pdisc').textContent='Includes your '+fmt(Q.off)+' discount, locked in with this quote.'; }
-      if(Q.mode===2){ $('pwas').textContent=fmt(Q.gross); $('prate').innerHTML='<s>'+fmtRate(Q.rate)+'</s> &rarr; <b>'+fmtRate(Q.netRate)+'</b>'; $('pdisc').textContent='Your rate of '+fmtRate(Q.netRate)+' saves you '+fmt(Q.off)+', locked in with this quote.'; }
-      $('ptotal').textContent=fmt(Q.net);
-      if(Q.virtual){ $('planEyebrow').textContent='Your estimate'; $('pest').hidden=false; $('pnote').hidden=false; $('planSub').textContent='Your numbers, in writing.'; }
-      var feats=['Custom lighting design for your exact roofline','Hardware, professional install & app setup','5-yr product warranty on lights, track & accessories'];
-      if(Q.care>0) feats.push('Lumen Care Plan: '+fmt(Q.care)+'/yr, renews annually');
-      $('pfeats').innerHTML='<li>'+feats.join('</li><li>')+'</li>';
-      var depAmt=Math.round(Q.net*Q.dep/100);
-      $('pdep').innerHTML = Q.dep>0
-        ? Q.dep+'% down to schedule: <b>'+fmt(depAmt)+'</b> · balance on completion: <b>'+fmt(Q.net-depAmt)+'</b>'
-        : 'Payment details in your written quote.';
+      var rec=Q.opt;
+      function renderPlan(o){
+        $('planSvg').innerHTML=svgHouse(o.i);
+        $('pname').textContent=NAMES[o.i]+(Q.opts&&Q.opts.length>1&&o.i===rec?' · our recommendation':'');
+        $('pft').textContent=o.ft+' linear ft · '+SCOPE[o.i];
+        $('pblurb').textContent=BLURB[o.i];
+        $('pwas').textContent=''; $('prate').innerHTML=''; $('pdisc').textContent=''; $('pwhy').hidden=true;
+        var why=(o.mode>0&&Q.why)?' '+Q.why:'';
+        if(o.mode===1){ $('pwas').textContent=fmt(o.gross); $('pdisc').textContent='Includes '+fmt(o.off)+' off'+why+', locked in with this quote.'; }
+        if(o.mode===2){ $('pwas').textContent=fmt(o.gross); $('prate').innerHTML='<s>'+fmtRate(o.rate)+'</s> &rarr; <b>'+fmtRate(o.netRate)+'</b>'; $('pdisc').textContent='Your rate of '+fmtRate(o.netRate)+why+' saves you '+fmt(o.off)+', locked in with this quote.'; }
+        if(why){ $('pwhy').textContent=(o.mode===2?'Standard rate '+fmtRate(o.rate)+'. ':'')+'This pricing is '+Q.why.replace(/^for /,'for ')+'.'; $('pwhy').hidden=false; }
+        $('ptotal').textContent=fmt(o.net);
+        var feats=['Custom lighting design for your exact roofline','Hardware, professional install & app setup','5-yr product warranty on lights, track & accessories'];
+        if(Q.care>0) feats.push('Lumen Care Plan: '+fmt(Q.care)+'/yr, renews annually');
+        $('pfeats').innerHTML='<li>'+feats.join('</li><li>')+'</li>';
+        var depAmt=Math.round(o.net*Q.dep/100);
+        $('pdep').innerHTML = Q.dep>0
+          ? Q.dep+'% down to schedule: <b>'+fmt(depAmt)+'</b> · balance on completion: <b>'+fmt(o.net-depAmt)+'</b>'
+          : 'Payment details in your written quote.';
+      }
+      var cur={i:Q.opt,ft:Q.ft,rate:Q.rate,gross:Q.gross,net:Q.net,netRate:Q.netRate,off:Q.off,mode:Q.mode};
+      renderPlan(cur);
+      if(Q.opts&&Q.opts.length>1){
+        var g=$('optgrid'), tapped={};
+        $('planTitle').textContent='Your home, lit. Pick the coverage.';
+        $('planSub').textContent='Every option below is priced for your exact roofline. The one we recommend is marked.';
+        g.hidden=false; $('pickhint').hidden=false;
+        g.innerHTML=Q.opts.map(function(o){
+          return '<button type="button" class="optcard'+(o.i===Q.opt?' sel':'')+'" data-i="'+o.i+'">'+(o.i===rec?'<span class="rec">Recommended</span>':'')+svgHouse(o.i)
+            +'<div class="on">'+NAMES[o.i]+'</div><div class="of">'+o.ft+' ft · '+SCOPE[o.i]+'</div>'
+            +'<div class="ow">'+(o.mode>0?fmt(o.gross):'')+'</div><div class="ot">'+fmt(o.net)+'</div></button>';
+        }).join('');
+        [].forEach.call(g.querySelectorAll('.optcard'),function(b){
+          b.addEventListener('click',function(){
+            var i=+b.dataset.i, o=Q.opts.filter(function(x){return x.i===i})[0]; if(!o) return;
+            [].forEach.call(g.querySelectorAll('.optcard'),function(x){x.classList.toggle('sel',x===b)});
+            renderPlan(o); Q.opt=i; Q.net=o.net; Q.ft=o.ft;
+            if(!tapped[i]&&i!==rec){ tapped[i]=1; beacon(NAMES[i]+' · '+o.ft+' ft · customer tapped'); }
+          });
+        });
+      }
+      if(Q.virtual){ $('planEyebrow').textContent='Your estimate'; $('pest').hidden=false; $('pnote').hidden=false; if(!(Q.opts&&Q.opts.length>1)) $('planSub').textContent='Your numbers, in writing.'; }
     }
   }catch(e){}
-  /* tell Lumen 514 when this quote is opened (skipped on the owner's own devices) */
+  /* tell Lumen 514 when this quote is opened, and when the customer taps another option (skipped on the owner's own devices) */
+  var owner=false;
+  function beacon(plan){
+    try{
+      if(owner||!Q||!(Q.ft>0)) return;
+      var tok=(location.hash||'').replace(/^#/,'').split('~')[0];
+      var ua=navigator.userAgent, dev=/iPhone|iPad/.test(ua)?'iPhone/iPad':/Android/.test(ua)?'Android':'Computer';
+      fetch('https://script.google.com/macros/s/AKfycbx5_22g8v4v8OkC-sIbJKRcuO0enCNSxCIoPz1XXlC49U6nJj7DEttLR42hohW01HsMuQ/exec',{method:'POST',keepalive:true,
+        body:JSON.stringify({type:'view',token:tok.slice(0,200),name:Q.name,plan:plan,total:Q.net,device:dev})}).catch(function(){});
+    }catch(e){}
+  }
   try{
     var qs=new URLSearchParams(location.search);
     if(qs.has('me')){ try{localStorage.setItem('l514-owner','1')}catch(e){} }
-    var owner=false; try{owner=localStorage.getItem('l514-owner')==='1'}catch(e){}
-    var tok=(location.hash||'').replace(/^#/,'').split('~')[0];
-    if(!owner && Q && Q.ft>0){
-      var ua=navigator.userAgent, dev=/iPhone|iPad/.test(ua)?'iPhone/iPad':/Android/.test(ua)?'Android':'Computer';
-      fetch('https://script.google.com/macros/s/AKfycbx5_22g8v4v8OkC-sIbJKRcuO0enCNSxCIoPz1XXlC49U6nJj7DEttLR42hohW01HsMuQ/exec',{method:'POST',keepalive:true,
-        body:JSON.stringify({type:'view',token:tok.slice(0,200),name:Q.name,plan:NAMES[Q.opt]+' · '+Q.ft+' ft',total:Q.net,device:dev})}).catch(function(){});
-    }
+    try{owner=localStorage.getItem('l514-owner')==='1'}catch(e){}
+    if(Q) beacon(NAMES[Q.opt]+' · '+Q.ft+' ft');
   }catch(e){}
 })();
 </script>

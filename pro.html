@@ -161,6 +161,10 @@ details p{margin:0 0 16px;color:var(--muted);padding-inline:4px;max-width:46em}
 .field textarea{width:100%;background:var(--navy);border:1px solid var(--line);border-radius:9px;color:var(--ink);font:600 15px 'Manrope';padding:10px 12px;min-height:72px;resize:vertical}
 .field textarea:focus{outline:2px solid var(--gold);outline-offset:1px}
 .qbtn.ghost{border-color:var(--line);color:var(--muted)}
+.opt .onq{float:right;font-size:11px;font-weight:800;letter-spacing:.08em;text-transform:uppercase;border:1px solid var(--line);color:var(--muted);border-radius:999px;padding:4px 10px;cursor:pointer}
+.opt .onq.on{border-color:var(--gold);color:var(--gold)}
+.opt.off{opacity:.45}
+.opt.off .onq{opacity:1}
 .opt .tag{display:inline-block;font-size:11px;font-weight:800;letter-spacing:.12em;text-transform:uppercase;background:var(--gold);color:var(--navy);border-radius:999px;padding:3px 9px;margin-bottom:8px}
 .closer{margin-top:20px;background:var(--panel);border:1px solid var(--gold);border-radius:14px;padding:20px;display:none}
 .closer.show{display:block}
@@ -411,6 +415,8 @@ footer b{color:var(--ink)}
     <div class="field"><label for="dMode">Discount</label><select id="dMode"><option value="0">None</option><option value="1">$ off</option><option value="2">$ per ft</option></select></div>
     <div class="field" id="dAmtField"><label for="dAmt" id="dAmtLabel">Amount off ($)</label><input id="dAmt" type="number" inputmode="decimal" min="0" step="1" value="300"></div>
   </div>
+  <div class="field" id="dWhyField" style="margin-top:12px"><label for="dWhy">Discount reason (the customer sees this)</label><input id="dWhy" type="text" autocomplete="off" placeholder="for booking this week · as Ryan's neighbor · for the Google review"></div>
+  <p class="note" style="margin-top:8px">Tap a card to recommend it. Use <b>On quote</b> on each card to choose which options the customer sees.</p>
   <div class="field" style="margin-top:12px"><label for="cNotes">Notes for follow-up</label><textarea id="cNotes" placeholder="Decision makers, objections, trim color, what they got excited about..."></textarea></div>
   <div class="field photofield"><label>Their house, lit (optional)</label><input id="cPhoto" type="file" accept="image/*" hidden><button type="button" class="qbtn" id="photoBtn">Add photo</button><span class="qmsg" id="photoMsg">No photo yet. The quote page shows our default house until you add one.</span><img id="photoPrev" alt="" hidden></div>
   <div class="actions">
@@ -445,7 +451,7 @@ footer b{color:var(--ink)}
   var S={};
   try{ S=Object.assign({},DEF,JSON.parse(localStorage.getItem('l514set4')||'{}')); }catch(e){ S=Object.assign({},DEF); }
   ['rA','rB','rC'].forEach(function(k){ if(!(S[k]>=15)) S[k]=Math.max(15,DEF[k]); });
-  var careOn=false, picked=-1, photoId='', cardId='', measure='', quoteId=newId(), lastLink='';
+  var careOn=false, picked=-1, photoId='', cardId='', measure='', quoteId=newId(), lastLink='', show=[true,true,true], discWhy='';
   function newId(){ return 'Q'+Date.now().toString(36).toUpperCase()+Math.random().toString(36).slice(2,5).toUpperCase(); }
   var SCRIPT_URL='https://script.google.com/macros/s/AKfycbx5_22g8v4v8OkC-sIbJKRcuO0enCNSxCIoPz1XXlC49U6nJj7DEttLR42hohW01HsMuQ/exec';
   if(window.jspdf) document.getElementById('pdfQ').hidden=false;
@@ -488,6 +494,9 @@ footer b{color:var(--ink)}
   function fmtRate(r){ return '$'+(Math.round(r*100)/100).toLocaleString('en-US')+'/ft'; }
   var $=function(id){return document.getElementById(id)};
   var fmt=function(n){return '$'+Math.round(n).toLocaleString('en-US')};
+  function shown(){ var f=feet(); return [0,1,2].filter(function(i){ return show[i] && f[i]>0; }); }
+  function whyText(){ var w=(discWhy||'').trim(); return w ? (/^(for|as|because|since|while)\b/i.test(w)? w : 'for '+w) : ''; }
+  function discLine(p){ if(!p.on) return ''; var w=whyText(); return (S.discMode===2 ? S.discLabel+': '+fmtRate(p.rate)+' instead of '+fmtRate(p.stdRate) : S.discLabel+': '+fmt(p.off)+' off')+(w?' '+w:''); }
 
   function calc(){
     var FEATS=['Custom design & clean install','5-yr product warranty','App setup & walkthrough'];
@@ -497,7 +506,9 @@ footer b{color:var(--ink)}
       var mo=S.mo>0? p.net/S.mo : 0;
       var feats=FEATS.slice();
       if(careOn) feats.push(S.careName+' — '+fmt(S.care)+'/yr');
-      html+='<button class="opt'+(picked===i?' pick':'')+'" data-i="'+i+'">'
+      var onq=show[i]&&feet()[i]>0;
+      html+='<button class="opt'+(picked===i?' pick':'')+(onq?'':' off')+'" data-i="'+i+'">'
+        +'<span class="onq'+(onq?' on':'')+'" data-t="'+i+'" role="button">'+(onq?'On quote ✓':'Off quote')+'</span>'
         +(i===1?'<span class="tag">Most chosen</span>':'')
         +svgHouse(i)
         +'<div class="oname">'+NAMES[i]+'</div>'
@@ -512,7 +523,10 @@ footer b{color:var(--ink)}
     }
     $('opts').innerHTML=html;
     [].forEach.call(document.querySelectorAll('.opt'),function(b){
-      b.addEventListener('click',function(){ picked=+b.dataset.i; calc(); });
+      b.addEventListener('click',function(){ picked=+b.dataset.i; show[picked]=true; calc(); });
+    });
+    [].forEach.call(document.querySelectorAll('.opt .onq'),function(t){
+      t.addEventListener('click',function(e){ e.stopPropagation(); var i=+t.dataset.t; show[i]=!show[i]; if(!show[i]&&picked===i) picked=-1; calc(); });
     });
     $('careName').textContent=S.careName;
     var cb=$('careBtn');
@@ -524,7 +538,9 @@ footer b{color:var(--ink)}
       cl.classList.add('show');
       $('closerline').innerHTML=NAMES[picked]+' — <b>'+fmt(p2.net)+'</b>'
         +(careOn? ' + '+S.careName+' <b>'+fmt(S.care)+'/yr</b>':'')
-        +(p2.on? ' <span style="font-size:.6em;color:var(--muted)">'+S.discLabel+(S.discMode===2?' at '+fmtRate(p2.rate):'')+' applied</span>':'');
+        +(p2.on? ' <span style="font-size:.6em;color:var(--muted)">'+S.discLabel+(S.discMode===2?' at '+fmtRate(p2.rate):'')+(whyText()?' '+whyText():'')+' applied</span>':'');
+      var others=shown().filter(function(i){return i!==picked}).map(function(i){ return NAMES[i]+' '+fmt(priceOf(i).net); });
+      $('closersub').textContent=(others.length?'Also on the quote: '+others.join(' · ')+'. ':'')+'A signed agreement and deposit lock in your install date and tonight\'s price.';
       var depAmt=Math.round(p2.net*S.dep/100);
       $('depline').innerHTML = S.dep>0
         ? S.dep+'% down today: <b>'+fmt(depAmt)+'</b> &nbsp;·&nbsp; '+S.terms+': <b>'+fmt(p2.net-depAmt)+'</b>'
@@ -547,13 +563,15 @@ footer b{color:var(--ink)}
     if(nm) L.push('Prepared for: '+nm);
     if(ad) L.push(ad);
     L.push('');
-    L.push('Selected: '+NAMES[picked]+' — '+feet()[picked]+' linear ft');
-    if(p.on&&S.discMode===1){ L.push('Project price: '+fmt(p.gross)); L.push(S.discLabel+': -'+fmt(p.off)); }
-    if(p.on&&S.discMode===2){ L.push('Standard price: '+fmt(p.gross)+' ('+fmtRate(p.stdRate)+')'); L.push(S.discLabel+': '+fmtRate(p.rate)+' (saves '+fmt(p.off)+')'); }
+    L.push('Recommended: '+NAMES[picked]+' — '+feet()[picked]+' linear ft');
+    if(p.on&&S.discMode===1){ L.push('Project price: '+fmt(p.gross)); L.push(S.discLabel+': -'+fmt(p.off)+(whyText()?' '+whyText():'')); }
+    if(p.on&&S.discMode===2){ L.push('Standard price: '+fmt(p.gross)+' ('+fmtRate(p.stdRate)+')'); L.push(S.discLabel+': '+fmtRate(p.rate)+' (saves '+fmt(p.off)+')'+(whyText()?' '+whyText():'')); }
     L.push((isVirtual()?'Estimated total: ':'Total: ')+fmt(p.net));
     if(careOn) L.push(S.careName+': '+fmt(S.care)+'/yr, renews annually');
     if(isVirtual()){ L.push(''); L.push(VIRTUAL_NOTE); }
     if(S.dep>0){ L.push(S.dep+'% deposit to schedule: '+fmt(depAmt)); L.push(S.terms+': '+fmt(p.net-depAmt)); } else { L.push(S.terms); }
+    var oth=shown().filter(function(i){return i!==picked});
+    if(oth.length){ L.push(''); L.push('Other options quoted:'); oth.forEach(function(i){ var q=priceOf(i); L.push('  '+NAMES[i]+' — '+feet()[i]+' ft — '+fmt(q.net)+(q.on?' (with '+S.discLabel+')':'')); }); }
     L.push('');
     L.push('Includes custom design, hardware, professional installation, app setup, and the manufacturer product warranty (5 yr lights/track/accessories, 3 yr controllers/power). '+(isVirtual()?'Estimate':'Quote')+' valid 14 days.');
     L.push('');
@@ -569,10 +587,11 @@ footer b{color:var(--ink)}
   /* save to the Quotes tab (Save quote, Copy client link and Download PDF all do this) */
   function quotePayload(){
     var p=priceOf(picked), depAmt=Math.round(p.net*S.dep/100);
-    var disc = !p.on ? 'None' : (S.discMode===2 ? S.discLabel+' ($/ft)' : S.discLabel+' ($ off)');
+    var disc = !p.on ? 'None' : (S.discMode===2 ? S.discLabel+' ($/ft)' : S.discLabel+' ($ off)')+(whyText()?' '+whyText():'');
+    var shownTxt=shown().map(function(i){ return NAMES[i]+' '+fmt(priceOf(i).net)+(i===picked?' (rec)':''); }).join(' | ');
     return {type:'quote', id:quoteId, name:($('cName').value||'').trim(), phone:($('cPhone').value||'').trim(), address:($('cAddr').value||'').trim(),
       measure:measure, pkg:NAMES[picked], feet:feet()[picked], stdRate:p.stdRate, discount:disc, discValue:(p.on?(S.discMode===2?p.rate:p.off):0),
-      gross:p.gross, total:p.net, dep:S.dep, depAmt:depAmt, care:(careOn?S.care:0), photoId:photoId, link:lastLink, token:(lastLink.split('#')[1]||'').split('~')[0], notes:($('cNotes').value||'').trim()};
+      gross:p.gross, total:p.net, dep:S.dep, depAmt:depAmt, care:(careOn?S.care:0), photoId:photoId, link:lastLink, token:(lastLink.split('#')[1]||'').split('~')[0], notes:('Shown: '+shownTxt+'\n'+($('cNotes').value||'').trim()).trim()};
   }
   function saveQuote(quiet){
     if(picked<0){ $('smsg').textContent='Pick an option on the quote first'; return; }
@@ -590,7 +609,7 @@ footer b{color:var(--ink)}
   $('newQ').addEventListener('click',function(){
     ['cName','cPhone','cAddr','cNotes'].forEach(function(id){ $(id).value=''; });
     $('ftA').value=80; $('ftB').value=140; $('ftC').value=210;
-    picked=-1; careOn=false; photoId=''; cardId=''; measure=''; lastLink=''; quoteId=newId();
+    picked=-1; careOn=false; photoId=''; cardId=''; measure=''; lastLink=''; quoteId=newId(); show=[true,true,true]; discWhy=''; $('dWhy').value='';
     $('cPhoto').value=''; $('photoPrev').hidden=true; $('photoPrev').removeAttribute('src');
     $('photoMsg').textContent='No photo yet. The quote page shows our default house until you add one.';
     [].forEach.call(document.querySelectorAll('#measure button'),function(x){x.classList.remove('on')});
@@ -613,9 +632,11 @@ footer b{color:var(--ink)}
   function buildLink(){
     var nm=($('cName').value||'').trim();
     var p=priceOf(picked);
-    /* #q2-<opt>-<ft>-<std rate x100>-<disc mode>-<disc value: $ or rate x100>-<care/yr>-<dep %>-<name hex>-<virtual 0/1>~<photo id> */
-    var dv=p.on? (S.discMode===2? Math.round(p.rate*100) : Math.round(p.off)) : 0;
-    var tok=['q2',picked,feet()[picked],Math.round(p.stdRate*100),(p.on?S.discMode:0),dv,(careOn?S.care:0),S.dep,(nm?strToHex(nm):''),(measure==='Virtual'?1:0)];
+    /* #q3-<rec>-<shown mask 1|2|4>-<ftA.ftB.ftC>-<rates x100 A.B.C>-<disc mode>-<disc value: $ or rate x100>-<care/yr>-<dep %>-<name hex>-<virtual 0/1>-<reason hex>~<photo id> */
+    var dv=(S.discMode>0)? (S.discMode===2? Math.round(S.discRate*100) : Math.round(S.discAmt)) : 0;
+    var mask=shown().reduce(function(m,i){ return m|(1<<i); },0)|(1<<picked);
+    var f=feet(), r=rates();
+    var tok=['q3',picked,mask,f.join('.'),r.map(function(x){return Math.round(x*100)}).join('.'),S.discMode,dv,(careOn?S.care:0),S.dep,(nm?strToHex(nm):''),(measure==='Virtual'?1:0),(whyText()?strToHex(whyText()):'')];
     return CLIENT_URL+(cardId?'?c='+cardId:'')+'#'+tok.join('-')+(photoId?'~'+photoId:'');
   }
   $('linkQ').addEventListener('click',function(){
@@ -674,8 +695,8 @@ footer b{color:var(--ink)}
       doc.text(feet()[picked]+' linear ft of permanent roofline lighting',M,y+15);
       y+=38;
       doc.setFontSize(11); doc.setTextColor(25,32,44);
-      if(p.on&&S.discMode===1){ doc.text(S.discLabel,M,y); doc.text('-'+fmt(p.off),W-M,y,{align:'right'}); y+=20; }
-      if(p.on&&S.discMode===2){ doc.text(S.discLabel+': '+fmtRate(p.rate)+' instead of '+fmtRate(p.stdRate),M,y); doc.text('-'+fmt(p.off),W-M,y,{align:'right'}); y+=20; }
+      if(p.on&&S.discMode===1){ doc.text(S.discLabel+(whyText()?' '+whyText():''),M,y); doc.text('-'+fmt(p.off),W-M,y,{align:'right'}); y+=20; }
+      if(p.on&&S.discMode===2){ doc.text(S.discLabel+': '+fmtRate(p.rate)+' instead of '+fmtRate(p.stdRate)+(whyText()?', '+whyText():''),M,y); doc.text('-'+fmt(p.off),W-M,y,{align:'right'}); y+=20; }
       if(careOn){ doc.text(S.careName+' (renews annually)',M,y); doc.text(fmt(S.care)+'/yr',W-M,y,{align:'right'}); y+=20; }
       y+=4; doc.line(M,y,W-M,y); y+=28;
       doc.setFont('helvetica','bold'); doc.setFontSize(15);
@@ -686,6 +707,13 @@ footer b{color:var(--ink)}
       doc.setTextColor(25,32,44); doc.setFont('helvetica','normal'); doc.setFontSize(11);
       if(S.dep>0){ doc.text(S.dep+'% deposit to schedule: '+fmt(depAmt),M,y); y+=16; doc.text(S.terms+': '+fmt(p.net-depAmt),M,y); y+=30; }
       else { doc.text(S.terms,M,y); y+=30; }
+      var othp=shown().filter(function(i){return i!==picked});
+      if(othp.length){
+        doc.setFont('helvetica','bold'); doc.setFontSize(9); doc.setTextColor(120,130,145); doc.text('OTHER OPTIONS QUOTED',M,y); y+=16;
+        doc.setFont('helvetica','normal'); doc.setFontSize(11); doc.setTextColor(25,32,44);
+        othp.forEach(function(i){ var q=priceOf(i); doc.text(NAMES[i]+' · '+feet()[i]+' linear ft'+(q.on?' · '+S.discLabel+' applied':''),M,y); doc.text(fmt(q.net),W-M,y,{align:'right'}); y+=16; });
+        y+=14;
+      }
       if(isVirtual()){
         var nl=doc.splitTextToSize(VIRTUAL_NOTE,W-2*M-28);
         var bh=nl.length*13+22;
@@ -716,7 +744,9 @@ footer b{color:var(--ink)}
     $('dAmtLabel').textContent = S.discMode===2 ? 'Their price per ft ($)' : 'Amount off ($)';
     $('dAmt').value = S.discMode===2 ? S.discRate : S.discAmt;
     $('dAmt').step = S.discMode===2 ? '0.5' : '1';
+    $('dWhyField').hidden=!(S.discMode>0);
   }
+  $('dWhy').addEventListener('input',function(){ discWhy=$('dWhy').value; calc(); });
   function saveS(){ try{ localStorage.setItem('l514set4',JSON.stringify(S)); }catch(e){} }
   $('dMode').addEventListener('change',function(){ S.discMode=+$('dMode').value||0; loadDeal(); saveS(); calc(); });
   $('dAmt').addEventListener('input',function(){ var v=Math.max(0,+($('dAmt').value)||0); if(S.discMode===2) S.discRate=v; else S.discAmt=v; saveS(); calc(); });
