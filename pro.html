@@ -415,6 +415,12 @@ footer b{color:var(--ink)}
     <div class="field"><label for="dMode">Discount</label><select id="dMode"><option value="0">None</option><option value="1">$ off</option><option value="2">$ per ft</option></select></div>
     <div class="field" id="dAmtField"><label for="dAmt" id="dAmtLabel">Amount off ($)</label><input id="dAmt" type="number" inputmode="decimal" min="0" step="1" value="300"></div>
   </div>
+  <div class="grid" id="dRatesField" hidden>
+    <div class="field"><label for="dR0">Front, their $/ft</label><input id="dR0" type="number" inputmode="decimal" min="0" step="0.5" value="27"></div>
+    <div class="field"><label for="dR1">Front and Sides, their $/ft</label><input id="dR1" type="number" inputmode="decimal" min="0" step="0.5" value="24"></div>
+    <div class="field"><label for="dR2">Full Wrap, their $/ft</label><input id="dR2" type="number" inputmode="decimal" min="0" step="0.5" value="22"></div>
+  </div>
+  <p class="note" id="dRatesNote" hidden>Leave one at 0 or above the standard rate to keep that option at standard price. Lower rates for more coverage reads as a bulk discount.</p>
   <div class="field" id="dWhyField" style="margin-top:12px"><label for="dWhy">Discount reason (the customer sees this)</label><input id="dWhy" type="text" autocomplete="off" placeholder="for booking this week · as Ryan's neighbor · for the Google review"></div>
   <p class="note" style="margin-top:8px">Tap a card to recommend it. Use <b>On quote</b> on each card to choose which options the customer sees.</p>
   <div class="field" style="margin-top:12px"><label for="cNotes">Notes for follow-up</label><textarea id="cNotes" placeholder="Decision makers, objections, trim color, what they got excited about..."></textarea></div>
@@ -447,10 +453,12 @@ footer b{color:var(--ink)}
 <script>
 (function(){
   'use strict';
-  var DEF={rA:33,rB:29,rC:25,care:500,careName:'Lumen Care Plan',discMode:0,discLabel:'Preferred Pricing',discAmt:300,discRate:24,mo:60,dep:50,terms:'Balance due on completion of install'};
+  var DEF={rA:33,rB:29,rC:25,care:500,careName:'Lumen Care Plan',discMode:0,discLabel:'Preferred Pricing',discAmt:300,discRate:24,discRates:[27,24,22],mo:60,dep:50,terms:'Balance due on completion of install'};
   var S={};
   try{ S=Object.assign({},DEF,JSON.parse(localStorage.getItem('l514set4')||'{}')); }catch(e){ S=Object.assign({},DEF); }
   ['rA','rB','rC'].forEach(function(k){ if(!(S[k]>=15)) S[k]=Math.max(15,DEF[k]); });
+  if(!Array.isArray(S.discRates)||S.discRates.length!==3) S.discRates=DEF.discRates.slice();
+  function dRate(i){ var v=+S.discRates[i]||0; return v; }
   var careOn=false, picked=-1, photoId='', cardId='', measure='', quoteId=newId(), lastLink='', show=[true,true,true], discWhy='';
   function newId(){ return 'Q'+Date.now().toString(36).toUpperCase()+Math.random().toString(36).slice(2,5).toUpperCase(); }
   var SCRIPT_URL='https://script.google.com/macros/s/AKfycbx5_22g8v4v8OkC-sIbJKRcuO0enCNSxCIoPz1XXlC49U6nJj7DEttLR42hohW01HsMuQ/exec';
@@ -488,7 +496,7 @@ footer b{color:var(--ink)}
   function priceOf(i){
     var f=feet()[i], r=rates()[i], g=f*r, net=g, rate=r, off=0, on=false;
     if(S.discMode===1 && S.discAmt>0){ net=Math.max(0,g-S.discAmt); off=g-net; on=off>0; }
-    else if(S.discMode===2 && S.discRate>0 && S.discRate<r){ rate=S.discRate; net=f*rate; off=g-net; on=f>0; }
+    else if(S.discMode===2 && dRate(i)>0 && dRate(i)<r){ rate=dRate(i); net=f*rate; off=g-net; on=f>0; }
     return {gross:g, net:net, rate:rate, stdRate:r, off:off, on:on};
   }
   function fmtRate(r){ return '$'+(Math.round(r*100)/100).toLocaleString('en-US')+'/ft'; }
@@ -548,7 +556,7 @@ footer b{color:var(--ink)}
     } else { cl.classList.remove('show'); }
     $('fine').textContent='Prices include design, hardware, installation, app setup, and the manufacturer product warranty: 5 years on lights, track and accessories, 3 years on controllers and power. '
       +(S.discMode===1&&S.discAmt>0? S.discLabel+': '+fmt(S.discAmt)+' off, already applied above. ':'')
-      +(S.discMode===2&&S.discRate>0? S.discLabel+': '+fmtRate(S.discRate)+' wherever it beats the standard rate, already applied above. ':'')
+      +(S.discMode===2? S.discLabel+': '+[0,1,2].filter(function(i){return priceOf(i).on}).map(function(i){return NAMES[i]+' '+fmtRate(dRate(i))}).join(', ')+'. The more of the house we light, the lower the rate. Already applied above. ':'')
       +(careOn? S.careName+' renews annually: a yearly visit to check bulbs, housings, controller, app configuration and tracking, with workmanship and parts covered and priority scheduling. ':'')
       +'*Monthly figure is an example over '+S.mo+' months with approved third-party financing; terms and approval vary.';
   }
@@ -633,7 +641,7 @@ footer b{color:var(--ink)}
     var nm=($('cName').value||'').trim();
     var p=priceOf(picked);
     /* #q3-<rec>-<shown mask 1|2|4>-<ftA.ftB.ftC>-<rates x100 A.B.C>-<disc mode>-<disc value: $ or rate x100>-<care/yr>-<dep %>-<name hex>-<virtual 0/1>-<reason hex>~<photo id> */
-    var dv=(S.discMode>0)? (S.discMode===2? Math.round(S.discRate*100) : Math.round(S.discAmt)) : 0;
+    var dv=(S.discMode>0)? (S.discMode===2? [0,1,2].map(function(i){return Math.round(dRate(i)*100)}).join('.') : Math.round(S.discAmt)) : 0;
     var mask=shown().reduce(function(m,i){ return m|(1<<i); },0)|(1<<picked);
     var f=feet(), r=rates();
     var tok=['q3',picked,mask,f.join('.'),r.map(function(x){return Math.round(x*100)}).join('.'),S.discMode,dv,(careOn?S.care:0),S.dep,(nm?strToHex(nm):''),(measure==='Virtual'?1:0),(whyText()?strToHex(whyText()):'')];
@@ -740,16 +748,17 @@ footer b{color:var(--ink)}
   /* discount controls (main panel) */
   function loadDeal(){
     $('dMode').value=String(S.discMode||0);
-    var f=$('dAmtField'); f.hidden=!(S.discMode>0);
-    $('dAmtLabel').textContent = S.discMode===2 ? 'Their price per ft ($)' : 'Amount off ($)';
-    $('dAmt').value = S.discMode===2 ? S.discRate : S.discAmt;
-    $('dAmt').step = S.discMode===2 ? '0.5' : '1';
+    var f=$('dAmtField'); f.hidden=!(S.discMode===1);
+    $('dAmt').value = S.discAmt; $('dAmt').step='1';
+    $('dRatesField').hidden=!(S.discMode===2); $('dRatesNote').hidden=!(S.discMode===2);
+    [0,1,2].forEach(function(i){ $('dR'+i).value=dRate(i); });
     $('dWhyField').hidden=!(S.discMode>0);
   }
   $('dWhy').addEventListener('input',function(){ discWhy=$('dWhy').value; calc(); });
   function saveS(){ try{ localStorage.setItem('l514set4',JSON.stringify(S)); }catch(e){} }
   $('dMode').addEventListener('change',function(){ S.discMode=+$('dMode').value||0; loadDeal(); saveS(); calc(); });
-  $('dAmt').addEventListener('input',function(){ var v=Math.max(0,+($('dAmt').value)||0); if(S.discMode===2) S.discRate=v; else S.discAmt=v; saveS(); calc(); });
+  $('dAmt').addEventListener('input',function(){ S.discAmt=Math.max(0,+($('dAmt').value)||0); saveS(); calc(); });
+  [0,1,2].forEach(function(i){ $('dR'+i).addEventListener('input',function(){ S.discRates[i]=Math.max(0,+($('dR'+i).value)||0); saveS(); calc(); }); });
   loadDeal();
 
   /* share card: their house behind "Your quote is ready", built here on the phone, saved to Drive,

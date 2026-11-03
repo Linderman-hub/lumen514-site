@@ -291,10 +291,12 @@ footer b{color:var(--ink)}
       var mask=parseInt(p[2],10)||0;
       var fts=(p[3]||'').split('.').map(function(x){return Math.max(0,parseInt(x,10)||0)});
       var rts=(p[4]||'').split('.').map(function(x){return (parseInt(x,10)||0)/100});
-      var mode=Math.min(2,Math.max(0,parseInt(p[5],10)||0)), val=Math.max(0,parseInt(p[6],10)||0);
+      var mode=Math.min(2,Math.max(0,parseInt(p[5],10)||0));
+      var vals=(p[6]||'0').split('.').map(function(x){return Math.max(0,parseInt(x,10)||0)});
+      var valFor=function(i){ return mode===2 ? (vals.length>=3 ? vals[i] : vals[0]) : vals[0]; };
       q.care=Math.max(0,parseInt(p[7],10)||0); q.dep=Math.min(100,Math.max(0,parseInt(p[8],10)||0));
       q.name=hexToStr(p[9]||''); q.virtual=p[10]==='1'; q.why=hexToStr(p[11]||'');
-      q.opts=[]; for(var i=0;i<3;i++){ if((mask&(1<<i)) && fts[i]>0 && rts[i]>0) q.opts.push(Object.assign({i:i},priceOpt(fts[i],rts[i],mode,val))); }
+      q.opts=[]; for(var i=0;i<3;i++){ if((mask&(1<<i)) && fts[i]>0 && rts[i]>0) q.opts.push(Object.assign({i:i},priceOpt(fts[i],rts[i],mode,valFor(i)))); }
       if(!q.opts.length) return null;
       var cur=q.opts.filter(function(x){return x.i===q.opt})[0]||q.opts[0]; q.opt=cur.i;
       q.ft=cur.ft; q.rate=cur.rate; q.gross=cur.gross; q.net=cur.net; q.netRate=cur.netRate; q.off=cur.off; q.mode=cur.mode;
@@ -357,7 +359,8 @@ footer b{color:var(--ink)}
         g.innerHTML=Q.opts.map(function(o){
           return '<button type="button" class="optcard'+(o.i===Q.opt?' sel':'')+'" data-i="'+o.i+'">'+(o.i===rec?'<span class="rec">Recommended</span>':'')+svgHouse(o.i)
             +'<div class="on">'+NAMES[o.i]+'</div><div class="of">'+o.ft+' ft · '+SCOPE[o.i]+'</div>'
-            +'<div class="ow">'+(o.mode>0?fmt(o.gross):'')+'</div><div class="ot">'+fmt(o.net)+'</div></button>';
+            +'<div class="ow">'+(o.mode>0?fmt(o.gross):'')+'</div><div class="ot">'+fmt(o.net)+'</div>'
+            +(o.mode===2?'<div class="of" style="margin:4px 0 0"><s>'+fmtRate(o.rate)+'</s> &rarr; '+fmtRate(o.netRate)+'</div>':'')+'</button>';
         }).join('');
         [].forEach.call(g.querySelectorAll('.optcard'),function(b){
           b.addEventListener('click',function(){
