@@ -424,6 +424,7 @@ footer b{color:var(--ink)}
   <div class="field" id="dWhyField" style="margin-top:12px"><label for="dWhy">Discount reason (the customer sees this)</label><input id="dWhy" type="text" autocomplete="off" placeholder="for booking this week · as Ryan's neighbor · for the Google review"></div>
   <p class="note" style="margin-top:8px">Tap a card to recommend it. Use <b>On quote</b> on each card to choose which options the customer sees.</p>
   <div class="field" style="margin-top:12px"><label for="cNotes">Notes for follow-up</label><textarea id="cNotes" placeholder="Decision makers, objections, trim color, what they got excited about..."></textarea></div>
+  <div class="field" style="margin-top:12px"><label for="cVideo">Personal video for this quote (optional)</label><input id="cVideo" type="url" inputmode="url" autocomplete="off" placeholder="Paste a YouTube (unlisted), Loom or Google Drive link"><span class="qmsg" id="videoMsg"></span></div>
   <div class="field photofield"><label>Their house, lit (optional)</label><input id="cPhoto" type="file" accept="image/*" hidden><button type="button" class="qbtn" id="photoBtn">Add photo</button><span class="qmsg" id="photoMsg">No photo yet. The quote page shows our default house until you add one.</span><img id="photoPrev" alt="" hidden></div>
   <div class="actions">
     <button class="btn gold" id="saveQ">Save quote</button>
@@ -459,7 +460,7 @@ footer b{color:var(--ink)}
   ['rA','rB','rC'].forEach(function(k){ if(!(S[k]>=15)) S[k]=Math.max(15,DEF[k]); });
   if(!Array.isArray(S.discRates)||S.discRates.length!==3) S.discRates=DEF.discRates.slice();
   function dRate(i){ var v=+S.discRates[i]||0; return v; }
-  var careOn=false, picked=-1, photoId='', cardId='', measure='', quoteId=newId(), lastLink='', show=[true,true,true], discWhy='';
+  var careOn=false, picked=-1, photoId='', cardId='', measure='', quoteId=newId(), lastLink='', show=[true,true,true], discWhy='', videoCode='';
   function newId(){ return 'Q'+Date.now().toString(36).toUpperCase()+Math.random().toString(36).slice(2,5).toUpperCase(); }
   var SCRIPT_URL='https://script.google.com/macros/s/AKfycbx5_22g8v4v8OkC-sIbJKRcuO0enCNSxCIoPz1XXlC49U6nJj7DEttLR42hohW01HsMuQ/exec';
   if(window.jspdf) document.getElementById('pdfQ').hidden=false;
@@ -503,6 +504,16 @@ footer b{color:var(--ink)}
   var $=function(id){return document.getElementById(id)};
   var fmt=function(n){return '$'+Math.round(n).toLocaleString('en-US')};
   function shown(){ var f=feet(); return [0,1,2].filter(function(i){ return show[i] && f[i]>0; }); }
+  function parseVideo(u){
+    u=(u||'').trim(); if(!u) return '';
+    var m;
+    if((m=u.match(/(?:youtu\.be\/|youtube\.com\/(?:watch\?(?:.*&)?v=|shorts\/|embed\/))([A-Za-z0-9_-]{11})/))) return 'y'+m[1];
+    if((m=u.match(/loom\.com\/(?:share|embed)\/([a-f0-9]{32})/))) return 'l'+m[1];
+    if((m=u.match(/drive\.google\.com\/file\/d\/([A-Za-z0-9_-]{20,})/))) return 'd'+m[1];
+    if((m=u.match(/drive\.google\.com\/open\?id=([A-Za-z0-9_-]{20,})/))) return 'd'+m[1];
+    return null;
+  }
+  function videoUrl(){ var c=videoCode; if(!c) return ''; var id=c.slice(1); return c[0]==='y'?'https://youtu.be/'+id : c[0]==='l'?'https://www.loom.com/share/'+id : 'https://drive.google.com/file/d/'+id+'/view'; }
   function whyText(){ var w=(discWhy||'').trim(); return w ? (/^(for|as|because|since|while)\b/i.test(w)? w : 'for '+w) : ''; }
   function discLine(p){ if(!p.on) return ''; var w=whyText(); return (S.discMode===2 ? S.discLabel+': '+fmtRate(p.rate)+' instead of '+fmtRate(p.stdRate) : S.discLabel+': '+fmt(p.off)+' off')+(w?' '+w:''); }
 
@@ -576,6 +587,7 @@ footer b{color:var(--ink)}
     if(p.on&&S.discMode===2){ L.push('Standard price: '+fmt(p.gross)+' ('+fmtRate(p.stdRate)+')'); L.push(S.discLabel+': '+fmtRate(p.rate)+' (saves '+fmt(p.off)+')'+(whyText()?' '+whyText():'')); }
     L.push((isVirtual()?'Estimated total: ':'Total: ')+fmt(p.net));
     if(careOn) L.push(S.careName+': '+fmt(S.care)+'/yr, renews annually');
+    if(videoCode){ L.push(''); L.push('Your video walkthrough: '+videoUrl()); }
     if(isVirtual()){ L.push(''); L.push(VIRTUAL_NOTE); }
     if(S.dep>0){ L.push(S.dep+'% deposit to schedule: '+fmt(depAmt)); L.push(S.terms+': '+fmt(p.net-depAmt)); } else { L.push(S.terms); }
     var oth=shown().filter(function(i){return i!==picked});
@@ -599,7 +611,7 @@ footer b{color:var(--ink)}
     var shownTxt=shown().map(function(i){ return NAMES[i]+' '+fmt(priceOf(i).net)+(i===picked?' (rec)':''); }).join(' | ');
     return {type:'quote', id:quoteId, name:($('cName').value||'').trim(), phone:($('cPhone').value||'').trim(), address:($('cAddr').value||'').trim(),
       measure:measure, pkg:NAMES[picked], feet:feet()[picked], stdRate:p.stdRate, discount:disc, discValue:(p.on?(S.discMode===2?p.rate:p.off):0),
-      gross:p.gross, total:p.net, dep:S.dep, depAmt:depAmt, care:(careOn?S.care:0), photoId:photoId, link:lastLink, token:(lastLink.split('#')[1]||'').split('~')[0], notes:('Shown: '+shownTxt+'\n'+($('cNotes').value||'').trim()).trim()};
+      gross:p.gross, total:p.net, dep:S.dep, depAmt:depAmt, care:(careOn?S.care:0), photoId:photoId, link:lastLink, token:(lastLink.split('#')[1]||'').split('~')[0], notes:('Shown: '+shownTxt+(videoCode?'\nVideo: '+videoUrl():'')+'\n'+($('cNotes').value||'').trim()).trim()};
   }
   function saveQuote(quiet){
     if(picked<0){ $('smsg').textContent='Pick an option on the quote first'; return; }
@@ -617,7 +629,7 @@ footer b{color:var(--ink)}
   $('newQ').addEventListener('click',function(){
     ['cName','cPhone','cAddr','cNotes'].forEach(function(id){ $(id).value=''; });
     $('ftA').value=80; $('ftB').value=140; $('ftC').value=210;
-    picked=-1; careOn=false; photoId=''; cardId=''; measure=''; lastLink=''; quoteId=newId(); show=[true,true,true]; discWhy=''; $('dWhy').value='';
+    picked=-1; careOn=false; photoId=''; cardId=''; measure=''; lastLink=''; quoteId=newId(); show=[true,true,true]; discWhy=''; $('dWhy').value=''; videoCode=''; $('cVideo').value=''; $('videoMsg').textContent='';
     $('cPhoto').value=''; $('photoPrev').hidden=true; $('photoPrev').removeAttribute('src');
     $('photoMsg').textContent='No photo yet. The quote page shows our default house until you add one.';
     [].forEach.call(document.querySelectorAll('#measure button'),function(x){x.classList.remove('on')});
@@ -645,7 +657,7 @@ footer b{color:var(--ink)}
     var mask=shown().reduce(function(m,i){ return m|(1<<i); },0)|(1<<picked);
     var f=feet(), r=rates();
     var tok=['q3',picked,mask,f.join('.'),r.map(function(x){return Math.round(x*100)}).join('.'),S.discMode,dv,(careOn?S.care:0),S.dep,(nm?strToHex(nm):''),(measure==='Virtual'?1:0),(whyText()?strToHex(whyText()):'')];
-    return CLIENT_URL+(cardId?'?c='+cardId:'')+'#'+tok.join('-')+(photoId?'~'+photoId:'');
+    return CLIENT_URL+(cardId?'?c='+cardId:'')+'#'+tok.join('-')+(photoId||videoCode?'~'+photoId:'')+(videoCode?'~'+videoCode:'');
   }
   $('linkQ').addEventListener('click',function(){
     if(picked<0){ $('qmsg').textContent='Pick an option first'; return; }
@@ -715,6 +727,7 @@ footer b{color:var(--ink)}
       doc.setTextColor(25,32,44); doc.setFont('helvetica','normal'); doc.setFontSize(11);
       if(S.dep>0){ doc.text(S.dep+'% deposit to schedule: '+fmt(depAmt),M,y); y+=16; doc.text(S.terms+': '+fmt(p.net-depAmt),M,y); y+=30; }
       else { doc.text(S.terms,M,y); y+=30; }
+      if(videoCode){ doc.setTextColor(184,134,11); doc.textWithLink('Watch your video walkthrough: '+videoUrl(),M,y,{url:videoUrl()}); doc.setTextColor(25,32,44); y+=22; }
       var othp=shown().filter(function(i){return i!==picked});
       if(othp.length){
         doc.setFont('helvetica','bold'); doc.setFontSize(9); doc.setTextColor(120,130,145); doc.text('OTHER OPTIONS QUOTED',M,y); y+=16;
@@ -755,6 +768,12 @@ footer b{color:var(--ink)}
     $('dWhyField').hidden=!(S.discMode>0);
   }
   $('dWhy').addEventListener('input',function(){ discWhy=$('dWhy').value; calc(); });
+  $('cVideo').addEventListener('input',function(){
+    var v=$('cVideo').value.trim(); var c=parseVideo(v); lastLink='';
+    if(!v){ videoCode=''; $('videoMsg').textContent=''; }
+    else if(c){ videoCode=c; $('videoMsg').textContent='Video attached. It plays under their house photo on the quote page.'; }
+    else { videoCode=''; $('videoMsg').textContent='That link is not a YouTube, Loom or Google Drive video link.'; }
+  });
   function saveS(){ try{ localStorage.setItem('l514set4',JSON.stringify(S)); }catch(e){} }
   $('dMode').addEventListener('change',function(){ S.discMode=+$('dMode').value||0; loadDeal(); saveS(); calc(); });
   $('dAmt').addEventListener('input',function(){ S.discAmt=Math.max(0,+($('dAmt').value)||0); saveS(); calc(); });

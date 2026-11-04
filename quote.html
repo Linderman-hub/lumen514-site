@@ -64,6 +64,11 @@ h2{font-size:clamp(24px,5vw,34px);font-weight:900;margin:0 0 10px}
 .optcard:focus-visible{outline:2px solid var(--gold);outline-offset:2px}
 .pickhint{color:var(--muted);font-size:14px;margin:0 0 14px}
 .plan .pwhy{color:var(--ink);font-size:14px;margin-top:6px;border-left:3px solid var(--gold);padding-left:10px}
+/* video */
+.vid{margin-top:14px;border-radius:14px;overflow:hidden;border:1px solid var(--line);background:#000;position:relative;aspect-ratio:16/9;max-width:100%}
+.vid iframe{position:absolute;inset:0;width:100%;height:100%;border:0}
+.vid.tall{aspect-ratio:9/16;max-width:380px;margin-left:auto;margin-right:auto}
+.vidcapt{color:var(--muted);font-size:14px;margin:10px 0 0;text-align:center}
 /* plan card */
 .plan{background:var(--navy-2);border:1px solid var(--gold);border-radius:16px;padding:26px 24px}
 .plan svg{display:block;width:min(300px,100%);margin-bottom:12px}
@@ -132,6 +137,8 @@ footer b{color:var(--ink)}
   <p class="for" id="forline">Here's everything we talked about, in one place.</p>
   <div class="heroimg"><span class="tag" id="herotag" hidden><b>Your house</b> · classic warm white</span><img id="hero" src="assets/hero-threezone.jpg" alt="One house shown in three lighting looks at once"></div>
   <p class="capt" id="herocapt" hidden>A rendering of your home with the lights installed. The lights are exactly what we install; the rest is staging.</p>
+  <div class="vid" id="pvid" hidden></div>
+  <p class="vidcapt" id="pvidcapt" hidden>A quick walkthrough of your plan, recorded for you.</p>
 </header>
 
 <section id="plan" class="wrap" hidden>
@@ -194,6 +201,13 @@ footer b{color:var(--ink)}
     <a class="store" href="https://play.google.com/store/apps/details?id=com.bossolighting" target="_blank" rel="noopener"><b>Android</b><span>Google Play</span></a>
     <p class="qrnote">Download free and open <b>demo mode</b>. Presets, schedules, music sync, the whole thing.</p>
   </div>
+</section>
+
+<section class="wrap" id="installvid" hidden>
+  <p class="eyebrow">Install day</p>
+  <h2>What install day looks like.</h2>
+  <p class="sub">Sixty seconds, start to finish.</p>
+  <div class="vid" id="ivid"></div>
 </section>
 
 <section class="wrap">
@@ -318,7 +332,13 @@ footer b{color:var(--ink)}
   var Q=null;
   try{
     var h=(location.hash||'').replace(/^#/,'');
-    var ph=''; if(h.indexOf('~')>0){ ph=h.slice(h.indexOf('~')+1); h=h.slice(0,h.indexOf('~')); }
+    var ph='', vc=''; if(h.indexOf('~')>0){ var tails=h.split('~'); h=tails[0]; ph=tails[1]||''; vc=tails[2]||''; }
+    /* fixed install-day video on every quote: set INSTALL_VIDEO to a YouTube id, loom id (l...) or drive id (d...) */
+    var INSTALL_VIDEO='';
+    function embedUrl(c){ var id=c.slice(1); return c[0]==='y'?'https://www.youtube-nocookie.com/embed/'+id+'?rel=0&modestbranding=1&playsinline=1' : c[0]==='l'?'https://www.loom.com/embed/'+id : c[0]==='d'?'https://drive.google.com/file/d/'+id+'/preview':''; }
+    function okCode(c){ return /^y[A-Za-z0-9_-]{11}$/.test(c)||/^l[a-f0-9]{32}$/.test(c)||/^d[A-Za-z0-9_-]{20,}$/.test(c); }
+    if(okCode(vc)){ $('pvid').innerHTML='<iframe src="'+embedUrl(vc)+'" allow="autoplay; encrypted-media; picture-in-picture; fullscreen" allowfullscreen title="Your video walkthrough"></iframe>'; $('pvid').hidden=false; $('pvidcapt').hidden=false; }
+    if(okCode(INSTALL_VIDEO)){ $('ivid').innerHTML='<iframe src="'+embedUrl(INSTALL_VIDEO)+'" allow="autoplay; encrypted-media; picture-in-picture; fullscreen" allowfullscreen title="What install day looks like"></iframe>'; $('installvid').hidden=false; }
     /* their own house if a photo was attached; otherwise the default stays */
     if(/^[A-Za-z0-9_-]{20,}$/.test(ph)){
       var hero=$('hero'), fb=hero.src;
