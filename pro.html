@@ -424,6 +424,7 @@ footer b{color:var(--ink)}
   <div class="field" id="dWhyField" style="margin-top:12px"><label for="dWhy">Discount reason (the customer sees this)</label><input id="dWhy" type="text" autocomplete="off" placeholder="for booking this week · as Ryan's neighbor · for the Google review"></div>
   <p class="note" style="margin-top:8px">Tap a card to recommend it. Use <b>On quote</b> on each card to choose which options the customer sees.</p>
   <div class="field" style="margin-top:12px"><label for="cNotes">Notes for follow-up</label><textarea id="cNotes" placeholder="Decision makers, objections, trim color, what they got excited about..."></textarea></div>
+  <div class="field" style="margin-top:12px"><label style="display:flex;align-items:center;gap:10px;cursor:pointer"><input id="cFin" type="checkbox" checked style="width:20px;height:20px;accent-color:var(--gold)"> Show financing on this quote (monthly estimate, 0% line, Hearth apply button)</label><span class="qmsg">Turn it off for at-cost or neighbor jobs where you'd rather not push payments.</span></div>
   <div class="field" style="margin-top:12px"><label for="cVideo">Personal video for this quote (optional)</label><input id="cVideo" type="url" inputmode="url" autocomplete="off" placeholder="Paste a YouTube (unlisted), Loom or Google Drive link"><span class="qmsg" id="videoMsg"></span></div>
   <div class="field photofield"><label>Their house, lit (optional)</label><input id="cPhoto" type="file" accept="image/*" hidden><button type="button" class="qbtn" id="photoBtn">Add photo</button><span class="qmsg" id="photoMsg">No photo yet. The quote page shows our default house until you add one.</span><img id="photoPrev" alt="" hidden></div>
   <div class="actions">
@@ -460,7 +461,10 @@ footer b{color:var(--ink)}
   ['rA','rB','rC'].forEach(function(k){ if(!(S[k]>=15)) S[k]=Math.max(15,DEF[k]); });
   if(!Array.isArray(S.discRates)||S.discRates.length!==3) S.discRates=DEF.discRates.slice();
   function dRate(i){ var v=+S.discRates[i]||0; return v; }
-  var careOn=false, picked=-1, photoId='', cardId='', measure='', quoteId=newId(), lastLink='', show=[true,true,true], discWhy='', videoCode='';
+  var careOn=false, picked=-1, photoId='', cardId='', measure='', quoteId=newId(), lastLink='', show=[true,true,true], discWhy='', videoCode='', finOn=true;
+  /* financing through Hearth: keep in step with FIN in quote.html */
+  var FIN={url:'https://app.gethearth.com/partners/lumen-514-llc/josh/apply',apr:6.99,months:84,min:1000};
+  function finMonthly(total){ var r=FIN.apr/100/12, n=FIN.months; return Math.ceil(total*r/(1-Math.pow(1+r,-n))); }
   function newId(){ return 'Q'+Date.now().toString(36).toUpperCase()+Math.random().toString(36).slice(2,5).toUpperCase(); }
   var SCRIPT_URL='https://script.google.com/macros/s/AKfycbx5_22g8v4v8OkC-sIbJKRcuO0enCNSxCIoPz1XXlC49U6nJj7DEttLR42hohW01HsMuQ/exec';
   if(window.jspdf) document.getElementById('pdfQ').hidden=false;
@@ -590,6 +594,7 @@ footer b{color:var(--ink)}
     if(videoCode){ L.push(''); L.push('Your video walkthrough: '+videoUrl()); }
     if(isVirtual()){ L.push(''); L.push(VIRTUAL_NOTE); }
     if(S.dep>0){ L.push(S.dep+'% deposit to schedule: '+fmt(depAmt)); L.push(S.terms+': '+fmt(p.net-depAmt)); } else { L.push(S.terms); }
+    if(finOn&&p.net>=FIN.min){ L.push(''); L.push('Financing available: from about '+fmt(finMonthly(p.net))+'/mo (est.), 0% interest options for qualified buyers. Two-minute application, no effect on your credit score: '+FIN.url); }
     var oth=shown().filter(function(i){return i!==picked});
     if(oth.length){ L.push(''); L.push('Other options quoted:'); oth.forEach(function(i){ var q=priceOf(i); L.push('  '+NAMES[i]+' — '+feet()[i]+' ft — '+fmt(q.net)+(q.on?' (with '+S.discLabel+')':'')); }); }
     L.push('');
@@ -611,7 +616,7 @@ footer b{color:var(--ink)}
     var shownTxt=shown().map(function(i){ return NAMES[i]+' '+fmt(priceOf(i).net)+(i===picked?' (rec)':''); }).join(' | ');
     return {type:'quote', id:quoteId, name:($('cName').value||'').trim(), phone:($('cPhone').value||'').trim(), address:($('cAddr').value||'').trim(),
       measure:measure, pkg:NAMES[picked], feet:feet()[picked], stdRate:p.stdRate, discount:disc, discValue:(p.on?(S.discMode===2?p.rate:p.off):0),
-      gross:p.gross, total:p.net, dep:S.dep, depAmt:depAmt, care:(careOn?S.care:0), photoId:photoId, link:lastLink, token:(lastLink.split('#')[1]||'').split('~')[0], notes:('Shown: '+shownTxt+(videoCode?'\nVideo: '+videoUrl():'')+'\n'+($('cNotes').value||'').trim()).trim()};
+      gross:p.gross, total:p.net, dep:S.dep, depAmt:depAmt, care:(careOn?S.care:0), photoId:photoId, link:lastLink, token:(lastLink.split('#')[1]||'').split('~')[0], notes:('Shown: '+shownTxt+(videoCode?'\nVideo: '+videoUrl():'')+(finOn?'':'\nFinancing: off')+'\n'+($('cNotes').value||'').trim()).trim()};
   }
   function saveQuote(quiet){
     if(picked<0){ $('smsg').textContent='Pick an option on the quote first'; return; }
@@ -629,7 +634,7 @@ footer b{color:var(--ink)}
   $('newQ').addEventListener('click',function(){
     ['cName','cPhone','cAddr','cNotes'].forEach(function(id){ $(id).value=''; });
     $('ftA').value=80; $('ftB').value=140; $('ftC').value=210;
-    picked=-1; careOn=false; photoId=''; cardId=''; measure=''; lastLink=''; quoteId=newId(); show=[true,true,true]; discWhy=''; $('dWhy').value=''; videoCode=''; $('cVideo').value=''; $('videoMsg').textContent='';
+    picked=-1; careOn=false; photoId=''; cardId=''; measure=''; lastLink=''; quoteId=newId(); show=[true,true,true]; discWhy=''; $('dWhy').value=''; videoCode=''; $('cVideo').value=''; $('videoMsg').textContent=''; finOn=true; $('cFin').checked=true;
     $('cPhoto').value=''; $('photoPrev').hidden=true; $('photoPrev').removeAttribute('src');
     $('photoMsg').textContent='No photo yet. The quote page shows our default house until you add one.';
     [].forEach.call(document.querySelectorAll('#measure button'),function(x){x.classList.remove('on')});
@@ -652,11 +657,11 @@ footer b{color:var(--ink)}
   function buildLink(){
     var nm=($('cName').value||'').trim();
     var p=priceOf(picked);
-    /* #q3-<rec>-<shown mask 1|2|4>-<ftA.ftB.ftC>-<rates x100 A.B.C>-<disc mode>-<disc value: $ or rate x100>-<care/yr>-<dep %>-<name hex>-<virtual 0/1>-<reason hex>~<photo id> */
+    /* #q3-<rec>-<shown mask 1|2|4>-<ftA.ftB.ftC>-<rates x100 A.B.C>-<disc mode>-<disc value: $ or rate x100>-<care/yr>-<dep %>-<name hex>-<virtual 0/1>-<reason hex>-<financing 0/1>~<photo id>~<video code> */
     var dv=(S.discMode>0)? (S.discMode===2? [0,1,2].map(function(i){return Math.round(dRate(i)*100)}).join('.') : Math.round(S.discAmt)) : 0;
     var mask=shown().reduce(function(m,i){ return m|(1<<i); },0)|(1<<picked);
     var f=feet(), r=rates();
-    var tok=['q3',picked,mask,f.join('.'),r.map(function(x){return Math.round(x*100)}).join('.'),S.discMode,dv,(careOn?S.care:0),S.dep,(nm?strToHex(nm):''),(measure==='Virtual'?1:0),(whyText()?strToHex(whyText()):'')];
+    var tok=['q3',picked,mask,f.join('.'),r.map(function(x){return Math.round(x*100)}).join('.'),S.discMode,dv,(careOn?S.care:0),S.dep,(nm?strToHex(nm):''),(measure==='Virtual'?1:0),(whyText()?strToHex(whyText()):''),(finOn?1:0)];
     return CLIENT_URL+(cardId?'?c='+cardId:'')+'#'+tok.join('-')+(photoId||videoCode?'~'+photoId:'')+(videoCode?'~'+videoCode:'');
   }
   $('linkQ').addEventListener('click',function(){
@@ -728,6 +733,13 @@ footer b{color:var(--ink)}
       if(S.dep>0){ doc.text(S.dep+'% deposit to schedule: '+fmt(depAmt),M,y); y+=16; doc.text(S.terms+': '+fmt(p.net-depAmt),M,y); y+=30; }
       else { doc.text(S.terms,M,y); y+=30; }
       if(videoCode){ doc.setTextColor(184,134,11); doc.textWithLink('Watch your video walkthrough: '+videoUrl(),M,y,{url:videoUrl()}); doc.setTextColor(25,32,44); y+=22; }
+      if(finOn&&p.net>=FIN.min){
+        doc.setFont('helvetica','bold'); doc.text('Financing available: from about '+fmt(finMonthly(p.net))+'/mo*  ·  0% interest options for qualified buyers',M,y); y+=16;
+        doc.setFont('helvetica','normal'); doc.setTextColor(184,134,11); doc.textWithLink('See your monthly options (2 minutes, no effect on your credit score): '+FIN.url,M,y,{url:FIN.url}); y+=14;
+        doc.setFontSize(8); doc.setTextColor(120,130,145);
+        doc.text(doc.splitTextToSize('*Estimate based on an '+FIN.months+'-month loan at '+FIN.apr+'% APR for excellent credit; rate and payment depend on credit approval. Financing through Hearth\'s lending partners, subject to credit approval. Lumen 514 is not a lender.',W-2*M),M,y); y+=30;
+        doc.setFontSize(11); doc.setTextColor(25,32,44);
+      }
       var othp=shown().filter(function(i){return i!==picked});
       if(othp.length){
         doc.setFont('helvetica','bold'); doc.setFontSize(9); doc.setTextColor(120,130,145); doc.text('OTHER OPTIONS QUOTED',M,y); y+=16;
@@ -768,6 +780,7 @@ footer b{color:var(--ink)}
     $('dWhyField').hidden=!(S.discMode>0);
   }
   $('dWhy').addEventListener('input',function(){ discWhy=$('dWhy').value; calc(); });
+  $('cFin').addEventListener('change',function(){ finOn=$('cFin').checked; lastLink=''; });
   $('cVideo').addEventListener('input',function(){
     var v=$('cVideo').value.trim(); var c=parseVideo(v); lastLink='';
     if(!v){ videoCode=''; $('videoMsg').textContent=''; }
