@@ -73,8 +73,9 @@ h2{font-size:clamp(26px,4.6vw,40px);font-weight:900;line-height:1.08;margin:0 0 
 .tabs{display:flex;gap:8px;flex-wrap:wrap;margin:0 0 14px}
 .tab{border:1px solid var(--line);background:none;color:var(--muted);font:700 14px 'Manrope';padding:9px 16px;border-radius:999px;cursor:pointer}
 .tab.on{background:var(--gold);border-color:var(--gold);color:var(--navy)}
-.lookimg{border-radius:14px;overflow:hidden;border:1px solid var(--line)}
-.lookimg img{display:block;width:100%;aspect-ratio:3/2;object-fit:cover}
+.lookimg{border-radius:14px;overflow:hidden;border:1px solid var(--line);max-width:680px;margin:0 auto;background:#000}
+.lookimg img,.lookimg video{display:block;width:100%;aspect-ratio:1/1;object-fit:cover}
+.lookcapt{color:var(--muted);font-size:12.5px;text-align:center;margin:8px 0 0}
 .looknote{color:var(--muted);font-size:14.5px;margin-top:10px}
 /* compare */
 .vs{width:100%;border-collapse:collapse;font-size:15.5px}
@@ -231,8 +232,10 @@ footer b{color:var(--ink)}
     <button class="tab on" data-k="warm">Every night</button>
     <button class="tab" data-k="xmas">Christmas</button>
     <button class="tab" data-k="hal">Halloween</button>
+    <button class="tab" data-k="fall">Fall</button>
   </div>
-  <div class="lookimg"><img id="lookimg" src="assets/home-accent.jpg" alt="Two-story home with warm white accent lighting under the eaves"></div>
+  <div class="lookimg"><video id="lookvid" muted autoplay loop playsinline preload="metadata" poster="assets/look-warm.jpg" aria-label="A Lumen 514 home in warm white"><source src="assets/look-warm.mp4" type="video/mp4"></video></div>
+  <p class="lookcapt">Real footage. One of our installs, the same evening, four looks.</p>
   <p class="looknote" id="looknote">Warm white, every single night. Reads as custom architectural lighting, and it's the look most of our customers run 300 nights a year.</p>
   <div class="occasions">
     <span class="occ gold">Any occasion, one tap</span>
@@ -377,19 +380,22 @@ footer b{color:var(--ink)}
     var tag='home'+(qp.get('src')?'-'+String(qp.get('src')).replace(/[^A-Za-z0-9_-]/g,'').slice(0,20):'');
     if(!own && !seen && !/bot|crawl|spider|slurp|preview/i.test(navigator.userAgent)) fetch('https://script.google.com/macros/s/AKfycbx5_22g8v4v8OkC-sIbJKRcuO0enCNSxCIoPz1XXlC49U6nJj7DEttLR42hohW01HsMuQ/exec?src='+tag+'&ping=1',{mode:'no-cors',keepalive:true}).catch(function(){});
   }catch(e){}
-  ["home-xmas","home-halloween"].forEach(function(n){var i=new Image();i.src='assets/'+n+'.jpg'});
+  ["look-xmas","look-hal","look-fall"].forEach(function(n){var i=new Image();i.src='assets/'+n+'.jpg'});
   var LOOKS={
-    warm:{src:'assets/home-accent.jpg',alt:'Two-story home with warm white accent lighting under the eaves',note:"Warm accent lighting, every single night. It reads as custom architectural lighting, and it's the look most homes run 300 nights a year."},
-    xmas:{src:'assets/home-xmas.jpg',alt:'The same home outlined in classic warm white for Christmas',note:'Classic Christmas white across every roofline. December is handled without a ladder, and January 1st is one tap back to everyday.'},
-    hal:{src:'assets/home-halloween.jpg',alt:'The same home glowing purple for Halloween',note:'Halloween purple from the same lights. Game day, birthdays, Fourth of July: any color, any night, right from the app.'}
+    warm:{src:'assets/look-warm',alt:'A Lumen 514 home in warm white',note:"Warm white, every single night. It reads as custom architectural lighting, and it's the look most homes run 300 nights a year."},
+    xmas:{src:'assets/look-xmas',alt:'The same home in red and white for Christmas',note:'Red and white across every peak and the porch. December is handled without a ladder, and January 1st is one tap back to everyday.'},
+    hal:{src:'assets/look-hal',alt:'The same home in purple and orange for Halloween',note:'Purple and orange from the same lights. Game day, birthdays, Fourth of July: any color, any night, right from the app.'},
+    fall:{src:'assets/look-fall',alt:'The same home in amber for fall',note:'Amber for fall, from the first cool night through Thanksgiving. Set it once in the app and it runs on a schedule.'}
   };
-  var img=document.getElementById('lookimg'), note=document.getElementById('looknote');
+  var vid=document.getElementById('lookvid'), note=document.getElementById('looknote');
   var tabs=document.querySelectorAll('#looktabs .tab');
   tabs.forEach(function(t){
     t.addEventListener('click',function(){
       tabs.forEach(function(x){x.classList.toggle('on',x===t)});
-      img.src=LOOKS[t.dataset.k].src; img.alt=LOOKS[t.dataset.k].alt;
-      note.textContent=LOOKS[t.dataset.k].note;
+      var L=LOOKS[t.dataset.k];
+      vid.poster=L.src+'.jpg'; vid.setAttribute('aria-label',L.alt);
+      vid.querySelector('source').src=L.src+'.mp4'; vid.load(); var pr=vid.play(); if(pr&&pr.catch) pr.catch(function(){});
+      note.textContent=L.note;
     });
   });
   /* scroll reveal */

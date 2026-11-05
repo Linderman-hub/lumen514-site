@@ -101,8 +101,9 @@ h2{font-size:clamp(24px,5vw,34px);font-weight:900;margin:0 0 10px}
 .tabs{display:flex;gap:8px;flex-wrap:wrap;margin:0 0 14px}
 .tab{border:1px solid var(--line);background:none;color:var(--muted);font:700 14px 'Manrope';padding:9px 16px;border-radius:999px;cursor:pointer}
 .tab.on{background:var(--gold);border-color:var(--gold);color:var(--navy)}
-.lookimg{border-radius:14px;overflow:hidden;border:1px solid var(--line)}
-.lookimg img{display:block;width:100%;aspect-ratio:3/2;object-fit:cover}
+.lookimg{border-radius:14px;overflow:hidden;border:1px solid var(--line);max-width:620px;margin:0 auto;background:#000}
+.lookimg img,.lookimg video{display:block;width:100%;aspect-ratio:1/1;object-fit:cover}
+.lookcapt{color:var(--muted);font-size:12.5px;text-align:center;margin:8px 0 0}
 .looknote{color:var(--muted);font-size:14px;margin-top:10px}
 /* duo */
 .duo{display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:12px}
@@ -183,9 +184,11 @@ footer b{color:var(--ink)}
     <button class="tab on" data-k="warm">Every night</button>
     <button class="tab" data-k="xmas">Christmas</button>
     <button class="tab" data-k="hal">Halloween</button>
+    <button class="tab" data-k="fall">Fall</button>
   </div>
-  <div class="lookimg"><img id="lookimg" src="assets/home-accent.jpg" alt="Two-story home with warm white accent lighting under the eaves"></div>
-  <p class="looknote" id="looknote">Warm accent lighting, every single night. It reads as custom architectural lighting.</p>
+  <div class="lookimg"><video id="lookvid" muted autoplay loop playsinline preload="metadata" poster="assets/look-warm.jpg" aria-label="A Lumen 514 home in warm white"><source src="assets/look-warm.mp4" type="video/mp4"></video></div>
+  <p class="lookcapt">Real footage. One of our installs, the same evening, four looks.</p>
+  <p class="looknote" id="looknote">Warm white, every single night. It reads as custom architectural lighting.</p>
 </section>
 
 <section class="wrap">
@@ -250,15 +253,17 @@ footer b{color:var(--ink)}
 
   /* looks toggle */
   var LOOKS={
-    warm:{src:'assets/home-accent.jpg',note:'Warm accent lighting, every single night. It reads as custom architectural lighting.'},
-    xmas:{src:'assets/home-xmas.jpg',note:'Classic Christmas white across every roofline, and one tap back to everyday on January 1st.'},
-    hal:{src:'assets/home-halloween.jpg',note:'Halloween purple from the same lights. Game day, birthdays, Fourth of July: any color, any night.'}
+    warm:{src:'assets/look-warm',note:'Warm white, every single night. It reads as custom architectural lighting.'},
+    xmas:{src:'assets/look-xmas',note:'Red and white across every peak and the porch, and one tap back to everyday on January 1st.'},
+    hal:{src:'assets/look-hal',note:'Purple and orange from the same lights. Game day, birthdays, Fourth of July: any color, any night.'},
+    fall:{src:'assets/look-fall',note:'Amber for fall. Set it once in the app and it runs on a schedule.'}
   };
   [].forEach.call(document.querySelectorAll('#looks .tab'),function(t){
     t.addEventListener('click',function(){
       [].forEach.call(document.querySelectorAll('#looks .tab'),function(x){x.classList.toggle('on',x===t)});
-      $('lookimg').src=LOOKS[t.dataset.k].src;
-      $('looknote').textContent=LOOKS[t.dataset.k].note;
+      var L=LOOKS[t.dataset.k], v=$('lookvid');
+      v.poster=L.src+'.jpg'; v.querySelector('source').src=L.src+'.mp4'; v.load(); var pr=v.play(); if(pr&&pr.catch) pr.catch(function(){});
+      $('looknote').textContent=L.note;
     });
   });
 
