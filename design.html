@@ -131,7 +131,7 @@ input:focus,textarea:focus,.chip:focus-visible,.tile:focus-visible,.btn:focus-vi
 <section class="step on" data-step="0">
   <div class="hero">
     <div class="slides" id="slides">
-      <video id="reel" muted autoplay loop playsinline preload="auto" poster="assets/look-warm.jpg" aria-label="One of our installs, the same evening, in four looks: warm white, Christmas red and white, Halloween purple and orange, and amber for fall"><source src="assets/looks-reel.mp4" type="video/mp4"></video>
+      <video id="reel" muted autoplay loop playsinline preload="auto" poster="assets/look-warm.jpg" aria-label="One of our installs, the same evening, in five looks: warm white, Christmas red and white, Halloween purple and orange, a Thanksgiving mix, and amber for fall"><source src="assets/looks-reel.mp4" type="video/mp4"></video>
     </div>
     <div class="veil"></div>
     <div class="look" id="lookname">Every night</div>
@@ -330,7 +330,7 @@ var NEXT_LABEL=['Start my design','Next','Next','Almost done','Send me my design
 
 /* hero slideshow */
 /* the reel is four clips back to back; the label follows the playhead */
-var reel=$('reel'), CUES=[[0,'Every night'],[4.57,'Christmas'],[9.53,'Halloween'],[14.6,'Fall']];
+var reel=$('reel'), CUES=[[0,'Every night'],[4.57,'Christmas'],[9.53,'Halloween'],[14.6,'Thanksgiving'],[19.8,'Fall']];
 var reduce=window.matchMedia&&window.matchMedia('(prefers-reduced-motion: reduce)').matches;
 if(reduce){ reel.removeAttribute('autoplay'); reel.pause(); }
 reel.addEventListener('timeupdate',function(){
