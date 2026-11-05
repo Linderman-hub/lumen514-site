@@ -322,7 +322,7 @@ try{
   if(params.has('me')){ try{localStorage.setItem('l514-owner','1')}catch(e){} }
   var ownerDev=false; try{ ownerDev=localStorage.getItem('l514-owner')==='1'; }catch(e){}
   var seen=false; try{ seen=sessionStorage.getItem('l514v')==='1'; sessionStorage.setItem('l514v','1'); }catch(e){}
-  if(!ownerDev && !seen) fetch(ENDPOINT+'?src='+encodeURIComponent(SRC)+'&ping=1',{mode:'no-cors',keepalive:true}).catch(function(){});
+  if(!ownerDev && !seen) fetch(ENDPOINT+'?src='+encodeURIComponent(SRC)+'&ping=1&dev='+(/iPad|Tablet|(Android(?!.*Mobile))/i.test(navigator.userAgent)?'tablet':/iPhone|Android|Mobile/i.test(navigator.userAgent)?'phone':'computer'),{mode:'no-cors',keepalive:true}).catch(function(){});
 }catch(e){}
 var steps=[].slice.call(document.querySelectorAll('.step'));
 var cur=0, LAST=4;
