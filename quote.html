@@ -406,7 +406,8 @@ footer b{color:var(--ink)}
           return '<button type="button" class="optcard'+(o.i===Q.opt?' sel':'')+'" data-i="'+o.i+'">'+(o.i===rec?'<span class="rec">Recommended</span>':'')+svgHouse(o.i)
             +'<div class="on">'+NAMES[o.i]+'</div><div class="of">'+o.ft+' ft · '+SCOPE[o.i]+'</div>'
             +'<div class="ow">'+(o.mode>0?fmt(o.gross):'')+'</div><div class="ot">'+fmt(o.net)+'</div>'
-            +(o.mode===2?'<div class="of" style="margin:4px 0 0"><s>'+fmtRate(o.rate)+'</s> &rarr; '+fmtRate(o.netRate)+'</div>':'')+'</button>';
+            +(o.mode===2?'<div class="of" style="margin:4px 0 0"><s>'+fmtRate(o.rate)+'</s> &rarr; '+fmtRate(o.netRate)+'</div>':'')
+            +((Q.fin&&o.net>=FIN.min)?'<div class="of" style="margin:6px 0 0;color:var(--ink)">or about <b>'+fmt(finMonthly(o.net))+'/mo</b>*</div>':'')+'</button>';
         }).join('');
         [].forEach.call(g.querySelectorAll('.optcard'),function(b){
           b.addEventListener('click',function(){
