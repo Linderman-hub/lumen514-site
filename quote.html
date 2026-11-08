@@ -244,7 +244,7 @@ footer b{color:var(--ink)}
 (function(){
   'use strict';
   var $=function(id){return document.getElementById(id)};
-  var fmt=function(n){return '$'+Math.round(n).toLocaleString('en-US')};
+  var fmt=function(n){return '$'+String(Math.round(n))};
   var NAMES=['Front','Front and Sides','Full Wrap'];
   var SCOPE=['Front eaves and peaks, street view','Front plus both sides of the house','Every eave and peak, all the way around'];
   var BLURB=['Holiday cheer from the street every December, and a warm glow every other night of the year. Zero ladders, ever.',

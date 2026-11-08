@@ -506,7 +506,7 @@ footer b{color:var(--ink)}
   }
   function fmtRate(r){ return '$'+(Math.round(r*100)/100).toLocaleString('en-US')+'/ft'; }
   var $=function(id){return document.getElementById(id)};
-  var fmt=function(n){return '$'+Math.round(n).toLocaleString('en-US')};
+  var fmt=function(n){return '$'+String(Math.round(n))};
   function shown(){ var f=feet(); return [0,1,2].filter(function(i){ return show[i] && f[i]>0; }); }
   function parseVideo(u){
     u=(u||'').trim(); if(!u) return '';
