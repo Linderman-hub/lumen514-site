@@ -459,7 +459,7 @@ footer b{color:var(--ink)}
       if(Q.virtual){ $('planEyebrow').textContent='Your estimate'; $('pest').hidden=false; $('pnote').hidden=false; if(!(Q.opts&&Q.opts.length>1)) $('planSub').textContent='Your numbers, in writing.'; }
       /* accept this quote: in-person quotes only; virtual estimates still need a measure first */
       if(!Q.virtual){
-        $('accept').hidden=false;
+        /* shown once the quote API answers (see live sync below), so an old script version never gets a tap it can't handle */
         if(Q.name) $('aName').value=Q.name;
         var sumLine=function(){ var o=Q.opts?Q.opts.filter(function(x){return x.i===Q.opt})[0]:null; var net=o?o.net:Q.net, ft=o?o.ft:Q.ft, depAmt=Math.round(net*Q.dep/100); $('asum').innerHTML='Accepting: <b>'+NAMES[Q.opt]+'</b> · '+ft+' ft · <b>'+fmt(net)+'</b>'+(Q.dep>0?' · deposit <b>'+fmt(depAmt)+'</b>':''); };
         sumLine();
@@ -481,17 +481,19 @@ footer b{color:var(--ink)}
     }
   }catch(e){}
   function showAccepted(nm,plan,net,depAmt,pay){
-    $('acceptForm').hidden=true; $('acceptDone').hidden=false; $('cta').hidden=true;
+    $('accept').hidden=false; $('acceptForm').hidden=true; $('acceptDone').hidden=false; $('cta').hidden=true;
     $('doneText').innerHTML=(nm?nm.split(' ')[0]+', thank':'Thank')+' you. <b>'+plan+'</b> at <b>'+fmt(net)+'</b> is marked accepted. We\'ll reach out within the hour'+(depAmt>0?' to collect the <b>'+fmt(depAmt)+'</b> deposit'+(pay&&pay!=='Not sure yet'?' by '+pay.toLowerCase():''):'')+' and lock in your install date.';
     try{ $('accept').scrollIntoView({behavior:'smooth',block:'center'}); }catch(e){}
   }
   var SCRIPT_URL='https://script.google.com/macros/s/AKfycbx5_22g8v4v8OkC-sIbJKRcuO0enCNSxCIoPz1XXlC49U6nJj7DEttLR42hohW01HsMuQ/exec';
   /* live sync: if the quote was edited in the quote tool after this link was sent, swap in the latest numbers */
   try{
-    if(Q&&Q.id){
+    if(Q&&Q.ft>0){
       var synced=''; try{ synced=sessionStorage.getItem('l514-sync')||''; }catch(e){}
-      fetch(SCRIPT_URL+'?action=quote&id='+encodeURIComponent(Q.id)).then(function(r){return r.json()}).then(function(j){
-        var q=j&&j.ok&&j.quote; if(!q) return;
+      fetch(SCRIPT_URL+'?action=quote&id='+encodeURIComponent(Q.id||'none')).then(function(r){return r.json()}).then(function(j){
+        if(!(j&&j.ok)) return;
+        if(!Q.virtual && $('acceptDone').hidden) $('accept').hidden=false;
+        var q=j.quote; if(!q) return;
         if(q.status==='Accepted'){ showAccepted(q.name||Q.name,q.pkg||NAMES[Q.opt],Number(q.total)||Q.net,0,''); $('doneText').innerHTML=(q.name?q.name.split(' ')[0]+', this':'This')+' quote is marked <b>accepted</b>. We\'re on it; expect a text to set up your deposit and install date.'; }
         var live=(q.link||'').split('#')[1]||'';
         var here=(location.hash||'').replace(/^#/,'');
