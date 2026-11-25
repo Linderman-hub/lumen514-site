@@ -96,6 +96,22 @@ h2{font-size:clamp(24px,5vw,34px);font-weight:900;margin:0 0 10px}
 .fin .fnote{margin:10px 0 0;font-size:12px;line-height:1.45;color:var(--muted)}
 .cta{margin-top:20px;background:var(--panel);border-radius:12px;padding:16px 18px;font-size:15.5px}
 .cta b{font-family:'Archivo'}
+/* accept this quote */
+.accept{margin-top:20px;background:var(--navy-2);border:1px solid var(--gold);border-radius:16px;padding:22px 22px 20px}
+.accept h3{font-family:'Archivo';font-weight:900;font-size:22px;margin:0 0 6px;line-height:1.15}
+.accept p{margin:0 0 12px;font-size:15px;color:var(--muted)}
+.accept .abtn{display:block;width:100%;background:var(--gold);color:#0b1d38;border:0;border-radius:12px;font-family:'Archivo';font-weight:900;font-size:18px;padding:16px 18px;cursor:pointer}
+.accept .abtn:disabled{opacity:.6;cursor:default}
+.accept .afields{display:grid;gap:10px;margin:8px 0 12px}
+.accept label{display:block;font-size:12px;font-weight:800;letter-spacing:.12em;text-transform:uppercase;color:var(--muted);margin-bottom:4px}
+.accept input,.accept select{width:100%;box-sizing:border-box;background:rgba(244,240,230,.06);border:1px solid var(--line);border-radius:10px;color:var(--ink);font:600 16px 'Manrope';padding:12px 12px}
+.accept input:focus,.accept select:focus{outline:2px solid var(--gold);outline-offset:1px}
+.accept .asum{font-size:15px;margin:0 0 10px;color:var(--ink)}
+.accept .asum b{color:var(--gold);font-variant-numeric:tabular-nums}
+.accept .amsg{font-size:13.5px;color:var(--muted);margin:10px 0 0;min-height:1.2em}
+.accept .done{font-size:16px;color:var(--ink)}
+.accept .done b{color:var(--gold)}
+.accept .fine{font-size:12px;color:var(--muted);margin:12px 0 0;line-height:1.45}
 .cta .num{color:var(--gold);font-family:'Archivo';font-weight:900;font-size:19px;user-select:all}
 /* looks toggle */
 .tabs{display:flex;gap:8px;flex-wrap:wrap;margin:0 0 14px}
@@ -169,8 +185,29 @@ footer b{color:var(--ink)}
     <div class="fin" id="pfin" hidden></div>
   </div>
   <div class="vnote" id="pnote" hidden><b>Virtual estimate.</b> We priced this from photos and aerial imagery. We'll measure in person before any payment, and the final price may go up or down with the exact footage. Your per-foot rate is locked.</div>
-  <div class="cta">
-    <b>Ready to get on the install calendar?</b> Call or text us:
+  <div class="accept" id="accept" hidden>
+    <div id="acceptForm">
+      <h3>Ready to light it up?</h3>
+      <p>Accept your quote here and we'll reach out within the hour to set up your deposit and pick your install date.</p>
+      <p class="asum" id="asum"></p>
+      <div class="afields">
+        <div><label for="aName">Name</label><input id="aName" type="text" autocomplete="name"></div>
+        <div><label for="aPhone">Best phone number</label><input id="aPhone" type="tel" inputmode="tel" autocomplete="tel" placeholder="(404) 555-0123"></div>
+        <div><label for="aEmail">Email (optional)</label><input id="aEmail" type="email" inputmode="email" autocomplete="email"></div>
+        <div><label for="aPay">How would you like to pay the deposit?</label><select id="aPay"><option value="">Choose one</option><option>Zelle</option><option>Card</option><option>Check</option><option>Financing through Hearth</option><option>Not sure yet</option></select></div>
+      </div>
+      <button type="button" class="abtn" id="aBtn">Accept this quote</button>
+      <p class="amsg" id="amsg"></p>
+      <p class="fine">Accepting tells us you're in. Nothing is charged here. Your install date is locked once the deposit is in, and this price is held with it.</p>
+    </div>
+    <div id="acceptDone" hidden>
+      <h3>You're in. 🎉</h3>
+      <p class="done" id="doneText"></p>
+      <p class="fine">Questions in the meantime? Call or text <b>(404) 436-0901</b>.</p>
+    </div>
+  </div>
+  <div class="cta" id="cta">
+    <b>Prefer to talk first?</b> Call or text us:
     <div class="num">(404) 436-0901</div>
     A deposit locks in your install date and this price.
   </div>
@@ -324,6 +361,7 @@ footer b{color:var(--ink)}
       q.care=Math.max(0,parseInt(p[7],10)||0); q.dep=Math.min(100,Math.max(0,parseInt(p[8],10)||0));
       q.name=hexToStr(p[9]||''); q.virtual=p[10]==='1'; q.why=hexToStr(p[11]||'');
       q.fin=p[12]!=='0'; /* financing shown unless the quote tool turned it off */
+      q.id=/^Q[A-Z0-9]{5,20}$/.test(p[13]||'')?p[13]:''; /* quote id: lets this page pull the latest version and accept by id */
       q.opts=[]; for(var i=0;i<3;i++){ if((mask&(1<<i)) && fts[i]>0 && rts[i]>0) q.opts.push(Object.assign({i:i},priceOpt(fts[i],rts[i],mode,valFor(i)))); }
       if(!q.opts.length) return null;
       var cur=q.opts.filter(function(x){return x.i===q.opt})[0]||q.opts[0]; q.opt=cur.i;
@@ -419,6 +457,49 @@ footer b{color:var(--ink)}
         });
       }
       if(Q.virtual){ $('planEyebrow').textContent='Your estimate'; $('pest').hidden=false; $('pnote').hidden=false; if(!(Q.opts&&Q.opts.length>1)) $('planSub').textContent='Your numbers, in writing.'; }
+      /* accept this quote: in-person quotes only; virtual estimates still need a measure first */
+      if(!Q.virtual){
+        $('accept').hidden=false;
+        if(Q.name) $('aName').value=Q.name;
+        var sumLine=function(){ var o=Q.opts?Q.opts.filter(function(x){return x.i===Q.opt})[0]:null; var net=o?o.net:Q.net, ft=o?o.ft:Q.ft, depAmt=Math.round(net*Q.dep/100); $('asum').innerHTML='Accepting: <b>'+NAMES[Q.opt]+'</b> · '+ft+' ft · <b>'+fmt(net)+'</b>'+(Q.dep>0?' · deposit <b>'+fmt(depAmt)+'</b>':''); };
+        sumLine();
+        [].forEach.call(document.querySelectorAll('#optgrid .optcard'),function(b){ b.addEventListener('click',sumLine); });
+        $('aBtn').addEventListener('click',function(){
+          var nm=($('aName').value||'').trim(), ph=($('aPhone').value||'').trim(), em=($('aEmail').value||'').trim(), pay=$('aPay').value;
+          if(ph.replace(/\D/g,'').length<10){ $('amsg').textContent='Add the best number to reach you and we\'re set.'; $('aPhone').focus(); return; }
+          var o=Q.opts?Q.opts.filter(function(x){return x.i===Q.opt})[0]:null; var net=o?o.net:Q.net, ft=o?o.ft:Q.ft, depAmt=Math.round(net*Q.dep/100);
+          $('aBtn').disabled=true; $('amsg').textContent='Sending…';
+          var tok=(location.hash||'').replace(/^#/,'').split('~')[0];
+          fetch(SCRIPT_URL,{method:'POST',body:JSON.stringify({type:'accept',id:Q.id||'',token:tok.slice(0,300),name:nm,phone:ph,email:em,pay:pay,plan:NAMES[Q.opt],ft:ft,total:net,dep:depAmt})})
+            .then(function(r){return r.json()}).then(function(j){
+              if(j&&j.ok){ showAccepted(nm,NAMES[Q.opt],net,depAmt,pay); try{localStorage.setItem('l514-accepted-'+(Q.id||tok.slice(0,40)),'1')}catch(e){} beacon(NAMES[Q.opt]+' · '+ft+' ft · ACCEPTED'); }
+              else { $('aBtn').disabled=false; $('amsg').textContent='That didn\'t go through. Try again, or text us at (404) 436-0901.'; }
+            }).catch(function(){ $('aBtn').disabled=false; $('amsg').textContent='No signal. Try again, or text us at (404) 436-0901.'; });
+        });
+        try{ if(localStorage.getItem('l514-accepted-'+(Q.id||(location.hash||'').replace(/^#/,'').split('~')[0].slice(0,40)))==='1') showAccepted(Q.name,NAMES[Q.opt],Q.net,Math.round(Q.net*Q.dep/100),''); }catch(e){}
+      }
+    }
+  }catch(e){}
+  function showAccepted(nm,plan,net,depAmt,pay){
+    $('acceptForm').hidden=true; $('acceptDone').hidden=false; $('cta').hidden=true;
+    $('doneText').innerHTML=(nm?nm.split(' ')[0]+', thank':'Thank')+' you. <b>'+plan+'</b> at <b>'+fmt(net)+'</b> is marked accepted. We\'ll reach out within the hour'+(depAmt>0?' to collect the <b>'+fmt(depAmt)+'</b> deposit'+(pay&&pay!=='Not sure yet'?' by '+pay.toLowerCase():''):'')+' and lock in your install date.';
+    try{ $('accept').scrollIntoView({behavior:'smooth',block:'center'}); }catch(e){}
+  }
+  var SCRIPT_URL='https://script.google.com/macros/s/AKfycbx5_22g8v4v8OkC-sIbJKRcuO0enCNSxCIoPz1XXlC49U6nJj7DEttLR42hohW01HsMuQ/exec';
+  /* live sync: if the quote was edited in the quote tool after this link was sent, swap in the latest numbers */
+  try{
+    if(Q&&Q.id){
+      var synced=''; try{ synced=sessionStorage.getItem('l514-sync')||''; }catch(e){}
+      fetch(SCRIPT_URL+'?action=quote&id='+encodeURIComponent(Q.id)).then(function(r){return r.json()}).then(function(j){
+        var q=j&&j.ok&&j.quote; if(!q) return;
+        if(q.status==='Accepted'){ showAccepted(q.name||Q.name,q.pkg||NAMES[Q.opt],Number(q.total)||Q.net,0,''); $('doneText').innerHTML=(q.name?q.name.split(' ')[0]+', this':'This')+' quote is marked <b>accepted</b>. We\'re on it; expect a text to set up your deposit and install date.'; }
+        var live=(q.link||'').split('#')[1]||'';
+        var here=(location.hash||'').replace(/^#/,'');
+        if(live&&here&&live!==here&&synced!==live){
+          try{ sessionStorage.setItem('l514-sync',live); }catch(e){}
+          location.replace(location.pathname+location.search+'#'+live); location.reload();
+        }
+      }).catch(function(){});
     }
   }catch(e){}
   /* tell Lumen 514 when this quote is opened, and when the customer taps another option (skipped on the owner's own devices) */
@@ -436,7 +517,9 @@ footer b{color:var(--ink)}
     var qs=new URLSearchParams(location.search);
     if(qs.has('me')){ try{localStorage.setItem('l514-owner','1')}catch(e){} }
     try{owner=localStorage.getItem('l514-owner')==='1'}catch(e){}
-    if(Q) beacon(NAMES[Q.opt]+' · '+Q.ft+' ft');
+    /* a live-sync reload is the same visit: count it once */
+    var justSynced=false; try{ var sv=sessionStorage.getItem('l514-sync')||''; if(sv&&sv===(location.hash||'').replace(/^#/,'')){ justSynced=true; sessionStorage.removeItem('l514-sync'); } }catch(e){}
+    if(Q&&!justSynced) beacon(NAMES[Q.opt]+' · '+Q.ft+' ft');
   }catch(e){}
 })();
 </script>

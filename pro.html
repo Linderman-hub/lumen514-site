@@ -410,6 +410,7 @@ footer b{color:var(--ink)}
   <p class="note">The customer never sees this panel. Everything here saves on this device.</p>
 
   <h4>This quote</h4>
+  <div class="field" style="margin-bottom:12px"><label for="openQ">Open a saved quote to edit it</label><div style="display:flex;gap:8px;align-items:center"><select id="openQ" style="flex:1;min-width:0"><option value="">Recent quotes…</option></select><button type="button" class="qbtn" id="openBtn">Open</button></div><span class="qmsg" id="openMsg">Pick one, tap Open, change what you need, then Save quote. The customer's link updates on its own.</span></div>
   <div class="grid">
     <div class="field"><label>Measured</label><div class="seg" id="measure"><button type="button" data-m="Virtual">Virtual</button><button type="button" data-m="In person">In person</button></div></div>
     <div class="field"><label for="dMode">Discount</label><select id="dMode"><option value="0">None</option><option value="1">$ off</option><option value="2">$ per ft</option></select></div>
@@ -657,11 +658,11 @@ footer b{color:var(--ink)}
   function buildLink(){
     var nm=($('cName').value||'').trim();
     var p=priceOf(picked);
-    /* #q3-<rec>-<shown mask 1|2|4>-<ftA.ftB.ftC>-<rates x100 A.B.C>-<disc mode>-<disc value: $ or rate x100>-<care/yr>-<dep %>-<name hex>-<virtual 0/1>-<reason hex>-<financing 0/1>~<photo id>~<video code> */
+    /* #q3-<rec>-<shown mask 1|2|4>-<ftA.ftB.ftC>-<rates x100 A.B.C>-<disc mode>-<disc value: $ or rate x100>-<care/yr>-<dep %>-<name hex>-<virtual 0/1>-<reason hex>-<financing 0/1>-<quote id>~<photo id>~<video code> */
     var dv=(S.discMode>0)? (S.discMode===2? [0,1,2].map(function(i){return Math.round(dRate(i)*100)}).join('.') : Math.round(S.discAmt)) : 0;
     var mask=shown().reduce(function(m,i){ return m|(1<<i); },0)|(1<<picked);
     var f=feet(), r=rates();
-    var tok=['q3',picked,mask,f.join('.'),r.map(function(x){return Math.round(x*100)}).join('.'),S.discMode,dv,(careOn?S.care:0),S.dep,(nm?strToHex(nm):''),(measure==='Virtual'?1:0),(whyText()?strToHex(whyText()):''),(finOn?1:0)];
+    var tok=['q3',picked,mask,f.join('.'),r.map(function(x){return Math.round(x*100)}).join('.'),S.discMode,dv,(careOn?S.care:0),S.dep,(nm?strToHex(nm):''),(measure==='Virtual'?1:0),(whyText()?strToHex(whyText()):''),(finOn?1:0),quoteId];
     return CLIENT_URL+(cardId?'?c='+cardId:'')+'#'+tok.join('-')+(photoId||videoCode?'~'+photoId:'')+(videoCode?'~'+videoCode:'');
   }
   $('linkQ').addEventListener('click',function(){
@@ -875,7 +876,62 @@ footer b{color:var(--ink)}
 
   /* settings sheet */
   function loadSheet(){ $('sRateA').value=S.rA; $('sRateB').value=S.rB; $('sRateC').value=S.rC; $('sDiscLabel').value=S.discLabel; $('sCareName').value=S.careName; $('sCare').value=S.care; $('sDep').value=S.dep; $('sTerms').value=S.terms; $('sMo').value=S.mo; }
-  $('gear').addEventListener('click',function(){ loadSheet(); $('sheet').hidden=false; });
+  $('gear').addEventListener('click',function(){ loadSheet(); $('sheet').hidden=false; loadRecent(); });
+
+  /* open a saved quote: pulls the row from the Quotes sheet and rebuilds the page from it, so Save quote updates that row */
+  var recentAt=0;
+  function loadRecent(){
+    if(Date.now()-recentAt<60000) return;
+    fetch(SCRIPT_URL+'?action=recent').then(function(r){return r.json()}).then(function(j){
+      if(!(j&&j.ok&&j.quotes)) return;
+      recentAt=Date.now();
+      var sel=$('openQ'), cur=sel.value;
+      sel.innerHTML='<option value="">Recent quotes…</option>'+j.quotes.map(function(q){
+        var t=(q.saved?q.saved+' · ':'')+(q.name||'(no name)')+(q.pkg?' · '+q.pkg:'')+(q.total?' · '+fmt(+q.total):'')+(q.status?' · '+q.status:'');
+        return '<option value="'+q.id+'"'+(q.id===cur?' selected':'')+'>'+t.replace(/</g,'&lt;')+'</option>';
+      }).join('');
+    }).catch(function(){});
+  }
+  function hexToStr(h){ try{ if(!h||h.length%2) return ''; var b=[]; for(var i=0;i<h.length;i+=2) b.push(parseInt(h.substr(i,2),16)); return decodeURIComponent(b.map(function(c){return '%'+('0'+c.toString(16)).slice(-2)}).join('')); }catch(e){ return ''; } }
+  function restoreFromLink(link){
+    var hash=(link.split('#')[1]||''), tails=hash.split('~'), tok=tails[0], p=tok.split('-');
+    if(p[0]!=='q3') return false;
+    var m=link.match(/[?&]c=([A-Za-z0-9_-]{20,})/); cardId=m?m[1]:'';
+    photoId=/^[A-Za-z0-9_-]{20,}$/.test(tails[1]||'')?tails[1]:''; videoCode=tails[2]||'';
+    picked=Math.min(2,Math.max(0,parseInt(p[1],10)||0));
+    var mask=parseInt(p[2],10)||7; show=[0,1,2].map(function(i){ return !!(mask&(1<<i)); });
+    var fts=(p[3]||'').split('.'); $('ftA').value=parseInt(fts[0],10)||0; $('ftB').value=parseInt(fts[1],10)||0; $('ftC').value=parseInt(fts[2],10)||0;
+    var rts=(p[4]||'').split('.').map(function(x){return (parseInt(x,10)||0)/100}); if(rts[0]>=15) S.rA=rts[0]; if(rts[1]>=15) S.rB=rts[1]; if(rts[2]>=15) S.rC=rts[2];
+    S.discMode=Math.min(2,Math.max(0,parseInt(p[5],10)||0));
+    if(S.discMode===2){ var dr=(p[6]||'').split('.').map(function(x){return (parseInt(x,10)||0)/100}); if(dr.length===3) S.discRates=dr; }
+    else if(S.discMode===1){ S.discAmt=Math.max(0,parseInt(p[6],10)||0); }
+    var care=parseInt(p[7],10)||0; careOn=care>0; if(care>0) S.care=care;
+    S.dep=Math.min(100,Math.max(0,parseInt(p[8],10)||0));
+    $('cName').value=hexToStr(p[9]||'');
+    measure=p[10]==='1'?'Virtual':'In person';
+    discWhy=hexToStr(p[11]||'').replace(/^for\s+/i,''); $('dWhy').value=discWhy;
+    finOn=p[12]!=='0'; $('cFin').checked=finOn;
+    return true;
+  }
+  $('openBtn').addEventListener('click',function(){
+    var id=$('openQ').value; if(!id){ $('openMsg').textContent='Pick a quote first.'; return; }
+    $('openMsg').textContent='Opening…';
+    fetch(SCRIPT_URL+'?action=quote&id='+encodeURIComponent(id)).then(function(r){return r.json()}).then(function(j){
+      var q=j&&j.ok&&j.quote; if(!q||!q.link){ $('openMsg').textContent='Could not load that one. Older quotes without a client link can\'t be reopened.'; return; }
+      if(!restoreFromLink(q.link)){ $('openMsg').textContent='That quote is an older format and can\'t be reopened here.'; return; }
+      quoteId=q.id; lastLink=q.link;
+      if(q.measure==='Virtual'||q.measure==='In person') measure=q.measure;
+      [].forEach.call(document.querySelectorAll('#measure button'),function(x){x.classList.toggle('on',x.dataset.m===measure)});
+      $('cPhone').value=q.phone||''; $('cAddr').value=q.address||'';
+      $('cNotes').value=String(q.notes||'').split('\n').filter(function(l){ return !/^(Shown:|Video:|Financing: off|ACCEPTED ONLINE)/.test(l.trim()); }).join('\n').trim();
+      $('cVideo').value=videoUrl(); $('videoMsg').textContent=videoCode?'Video attached.':'';
+      if(q.photo){ $('photoPrev').src=q.photo; $('photoPrev').hidden=false; $('photoMsg').textContent='Photo attached.'; } else { $('photoPrev').hidden=true; $('photoPrev').removeAttribute('src'); $('photoMsg').textContent='No photo yet. The quote page shows our default house until you add one.'; }
+      saveS(); loadDeal(); calc();
+      $('openMsg').textContent='Editing '+q.id+(q.saved?' (saved '+q.saved+')':'')+(q.status?' · '+q.status:'')+'. Save quote updates it; the customer\'s link shows the new numbers on its own.';
+      $('smsg').textContent='Editing '+q.id+'. Save quote updates the saved row.';
+      document.getElementById('price').scrollIntoView({behavior:'smooth'});
+    }).catch(function(){ $('openMsg').textContent='Could not load. Check signal and try again.'; });
+  });
   $('closeSet').addEventListener('click',function(){ $('sheet').hidden=true; });
   $('saveSet').addEventListener('click',function(){
     S.rA=Math.max(15, +($('sRateA').value)||DEF.rA);
