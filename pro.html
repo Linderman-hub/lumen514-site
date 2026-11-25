@@ -411,6 +411,7 @@ footer b{color:var(--ink)}
 
   <h4>This quote</h4>
   <div class="field" style="margin-bottom:12px"><label for="openQ">Open a saved quote to edit it</label><div style="display:flex;gap:8px;align-items:center"><select id="openQ" style="flex:1;min-width:0"><option value="">Recent quotes…</option></select><button type="button" class="qbtn" id="openBtn">Open</button></div><span class="qmsg" id="openMsg">Pick one, tap Open, change what you need, then Save quote. The customer's link updates on its own.</span></div>
+  <div class="field" style="margin-bottom:12px"><label>Quote clock</label><div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap"><span class="qmsg" id="clockMsg" style="flex-basis:auto"></span><button type="button" class="qbtn" id="clockBtn">Restart the 7 days</button></div></div>
   <div class="grid">
     <div class="field"><label>Measured</label><div class="seg" id="measure"><button type="button" data-m="Virtual">Virtual</button><button type="button" data-m="In person">In person</button></div></div>
     <div class="field"><label for="dMode">Discount</label><select id="dMode"><option value="0">None</option><option value="1">$ off</option><option value="2">$ per ft</option></select></div>
@@ -463,6 +464,10 @@ footer b{color:var(--ink)}
   if(!Array.isArray(S.discRates)||S.discRates.length!==3) S.discRates=DEF.discRates.slice();
   function dRate(i){ var v=+S.discRates[i]||0; return v; }
   var careOn=false, picked=-1, photoId='', cardId='', measure='', quoteId=newId(), lastLink='', show=[true,true,true], discWhy='', videoCode='', finOn=true;
+  /* every quote is good for VALID_DAYS from the moment it's created; the client page shows the countdown and retires the prices after */
+  var VALID_DAYS=7, quoteAt=Date.now();
+  function validThrough(){ return new Date(quoteAt+VALID_DAYS*864e5); }
+  function validText(){ return validThrough().toLocaleDateString('en-US',{weekday:'long',month:'long',day:'numeric'}); }
   /* financing through Hearth: keep in step with FIN in quote.html */
   var FIN={url:'https://app.gethearth.com/partners/lumen-514-llc/josh/apply',apr:6.99,months:84,min:1000};
   function finMonthly(total){ var r=FIN.apr/100/12, n=FIN.months; return Math.ceil(total*r/(1-Math.pow(1+r,-n))); }
@@ -599,7 +604,7 @@ footer b{color:var(--ink)}
     var oth=shown().filter(function(i){return i!==picked});
     if(oth.length){ L.push(''); L.push('Other options quoted:'); oth.forEach(function(i){ var q=priceOf(i); L.push('  '+NAMES[i]+' — '+feet()[i]+' ft — '+fmt(q.net)+(q.on?' (with '+S.discLabel+')':'')); }); }
     L.push('');
-    L.push('Includes custom design, hardware, professional installation, app setup, and the manufacturer product warranty (5 yr lights/track/accessories, 3 yr controllers/power). '+(isVirtual()?'Estimate':'Quote')+' valid 14 days.');
+    L.push('Includes custom design, hardware, professional installation, app setup, and the manufacturer product warranty (5 yr lights/track/accessories, 3 yr controllers/power). '+(isVirtual()?'Estimate':'Quote')+' valid through '+validText()+' ('+VALID_DAYS+' days).');
     L.push('');
     L.push('Lumen 514 · Veteran-owned · (404) 436-0901 · josh@lumen514.com');
     return L.join('\n');
@@ -635,7 +640,7 @@ footer b{color:var(--ink)}
   $('newQ').addEventListener('click',function(){
     ['cName','cPhone','cAddr','cNotes'].forEach(function(id){ $(id).value=''; });
     $('ftA').value=80; $('ftB').value=140; $('ftC').value=210;
-    picked=-1; careOn=false; photoId=''; cardId=''; measure=''; lastLink=''; quoteId=newId(); show=[true,true,true]; discWhy=''; $('dWhy').value=''; videoCode=''; $('cVideo').value=''; $('videoMsg').textContent=''; finOn=true; $('cFin').checked=true;
+    picked=-1; careOn=false; photoId=''; cardId=''; measure=''; lastLink=''; quoteId=newId(); quoteAt=Date.now(); show=[true,true,true]; discWhy=''; $('dWhy').value=''; videoCode=''; $('cVideo').value=''; $('videoMsg').textContent=''; finOn=true; $('cFin').checked=true;
     $('cPhoto').value=''; $('photoPrev').hidden=true; $('photoPrev').removeAttribute('src');
     $('photoMsg').textContent='No photo yet. The quote page shows our default house until you add one.';
     [].forEach.call(document.querySelectorAll('#measure button'),function(x){x.classList.remove('on')});
@@ -658,11 +663,11 @@ footer b{color:var(--ink)}
   function buildLink(){
     var nm=($('cName').value||'').trim();
     var p=priceOf(picked);
-    /* #q3-<rec>-<shown mask 1|2|4>-<ftA.ftB.ftC>-<rates x100 A.B.C>-<disc mode>-<disc value: $ or rate x100>-<care/yr>-<dep %>-<name hex>-<virtual 0/1>-<reason hex>-<financing 0/1>-<quote id>~<photo id>~<video code> */
+    /* #q3-<rec>-<shown mask 1|2|4>-<ftA.ftB.ftC>-<rates x100 A.B.C>-<disc mode>-<disc value: $ or rate x100>-<care/yr>-<dep %>-<name hex>-<virtual 0/1>-<reason hex>-<financing 0/1>-<quote id>-<created, base36 minutes>~<photo id>~<video code> */
     var dv=(S.discMode>0)? (S.discMode===2? [0,1,2].map(function(i){return Math.round(dRate(i)*100)}).join('.') : Math.round(S.discAmt)) : 0;
     var mask=shown().reduce(function(m,i){ return m|(1<<i); },0)|(1<<picked);
     var f=feet(), r=rates();
-    var tok=['q3',picked,mask,f.join('.'),r.map(function(x){return Math.round(x*100)}).join('.'),S.discMode,dv,(careOn?S.care:0),S.dep,(nm?strToHex(nm):''),(measure==='Virtual'?1:0),(whyText()?strToHex(whyText()):''),(finOn?1:0),quoteId];
+    var tok=['q3',picked,mask,f.join('.'),r.map(function(x){return Math.round(x*100)}).join('.'),S.discMode,dv,(careOn?S.care:0),S.dep,(nm?strToHex(nm):''),(measure==='Virtual'?1:0),(whyText()?strToHex(whyText()):''),(finOn?1:0),quoteId,Math.floor(quoteAt/60000).toString(36)];
     return CLIENT_URL+(cardId?'?c='+cardId:'')+'#'+tok.join('-')+(photoId||videoCode?'~'+photoId:'')+(videoCode?'~'+videoCode:'');
   }
   $('linkQ').addEventListener('click',function(){
@@ -755,7 +760,7 @@ footer b{color:var(--ink)}
         doc.setFont('helvetica','normal'); doc.setFontSize(10); doc.setTextColor(60,50,30);
         doc.text(nl,M+14,y+12); y+=bh+10;
       }
-      var inc='Includes custom lighting design, hardware, professional installation, app setup and walkthrough, and the manufacturer product warranty: 5 years on lights, track and accessories; 3 years on controllers and power supplies. '+(isVirtual()?'Estimate':'Quote')+' valid for 14 days.';
+      var inc='Includes custom lighting design, hardware, professional installation, app setup and walkthrough, and the manufacturer product warranty: 5 years on lights, track and accessories; 3 years on controllers and power supplies. '+(isVirtual()?'Estimate':'Quote')+' valid through '+validText()+' ('+VALID_DAYS+' days).';
       var lines=doc.splitTextToSize(inc,W-2*M);
       doc.setFontSize(10); doc.setTextColor(120,130,145);
       doc.text(lines,M,y);
@@ -911,8 +916,12 @@ footer b{color:var(--ink)}
     measure=p[10]==='1'?'Virtual':'In person';
     discWhy=hexToStr(p[11]||'').replace(/^for\s+/i,''); $('dWhy').value=discWhy;
     finOn=p[12]!=='0'; $('cFin').checked=finOn;
+    var at=parseInt(p[14]||'',36); quoteAt=(at>0)?at*60000:Date.now();
     return true;
   }
+  function clockMsg(){ $('clockMsg').textContent='Good through '+validText()+'. Prices come off the customer\'s page after that.'; }
+  $('clockBtn').addEventListener('click',function(){ quoteAt=Date.now(); lastLink=''; clockMsg(); $('smsg').textContent='Clock restarted. Save quote (or copy the client link) to send the new date.'; });
+  $('gear').addEventListener('click',clockMsg);
   $('openBtn').addEventListener('click',function(){
     var id=$('openQ').value; if(!id){ $('openMsg').textContent='Pick a quote first.'; return; }
     $('openMsg').textContent='Opening…';
@@ -926,7 +935,7 @@ footer b{color:var(--ink)}
       $('cNotes').value=String(q.notes||'').split('\n').filter(function(l){ return !/^(Shown:|Video:|Financing: off|ACCEPTED ONLINE)/.test(l.trim()); }).join('\n').trim();
       $('cVideo').value=videoUrl(); $('videoMsg').textContent=videoCode?'Video attached.':'';
       if(q.photo){ $('photoPrev').src=q.photo; $('photoPrev').hidden=false; $('photoMsg').textContent='Photo attached.'; } else { $('photoPrev').hidden=true; $('photoPrev').removeAttribute('src'); $('photoMsg').textContent='No photo yet. The quote page shows our default house until you add one.'; }
-      saveS(); loadDeal(); calc();
+      saveS(); loadDeal(); calc(); clockMsg();
       $('openMsg').textContent='Editing '+q.id+(q.saved?' (saved '+q.saved+')':'')+(q.status?' · '+q.status:'')+'. Save quote updates it; the customer\'s link shows the new numbers on its own.';
       $('smsg').textContent='Editing '+q.id+'. Save quote updates the saved row.';
       document.getElementById('price').scrollIntoView({behavior:'smooth'});

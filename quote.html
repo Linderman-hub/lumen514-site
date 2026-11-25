@@ -52,7 +52,9 @@ header + section{border-top:0}
 h2{font-size:clamp(24px,5vw,34px);font-weight:900;margin:0 0 10px}
 .sub{color:var(--muted);max-width:36em;margin:0 0 24px}
 /* option picker (q3 links with more than one option) */
-.optgrid{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:12px;margin:0 0 16px}
+.optgrid{display:grid;}
+.optgrid[hidden]{display:none}
+.optgrid{grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:12px;margin:0 0 16px}
 .optcard{border:1px solid var(--line);background:var(--navy-2);border-radius:14px;padding:16px 16px 14px;cursor:pointer;text-align:left;color:var(--ink);font-family:'Manrope';position:relative}
 .optcard svg{display:block;width:100%;height:auto;margin-bottom:8px}
 .optcard .on{font-family:'Archivo';font-weight:900;font-size:16px}
@@ -94,6 +96,14 @@ h2{font-size:clamp(24px,5vw,34px);font-weight:900;margin:0 0 10px}
 .fin .fzero{display:inline-block;margin-top:6px;font-weight:700}
 .fin .fbtn{display:inline-block;margin-top:10px;background:var(--gold);color:#0b1d38;font-family:'Archivo';font-weight:900;text-decoration:none;border-radius:10px;padding:12px 18px;font-size:15px}
 .fin .fnote{margin:10px 0 0;font-size:12px;line-height:1.45;color:var(--muted)}
+.valid{margin-top:14px;border-top:1px solid var(--line);padding-top:12px;font-size:14px;color:var(--muted);display:flex;align-items:baseline;gap:10px;flex-wrap:wrap}
+.valid b{color:var(--ink);font-variant-numeric:tabular-nums;font-weight:800}
+.valid .vleft{margin-left:auto;font-size:13px;color:var(--gold);font-weight:800;letter-spacing:.04em;white-space:nowrap}
+.valid.soon .vleft{color:#F0B64A}
+.expired{background:var(--navy-2);border:1px solid var(--line);border-radius:16px;padding:26px 24px}
+.expired h3{font-family:'Archivo';font-weight:900;font-size:24px;margin:0 0 8px;line-height:1.15}
+.expired p{margin:0 0 10px;color:var(--muted);font-size:15.5px}
+.expired .num{font-family:'Archivo';font-weight:900;font-size:26px;color:var(--gold);margin:6px 0}
 .cta{margin-top:20px;background:var(--panel);border-radius:12px;padding:16px 18px;font-size:15.5px}
 .cta b{font-family:'Archivo'}
 /* accept this quote */
@@ -183,6 +193,13 @@ footer b{color:var(--ink)}
     <ul id="pfeats"></ul>
     <div class="dep" id="pdep"></div>
     <div class="fin" id="pfin" hidden></div>
+    <div class="valid" id="pvalid" hidden><span>Quote good through <b id="vdate"></b></span><span class="vleft" id="vleft"></span></div>
+  </div>
+  <div class="expired" id="expired" hidden>
+    <h3>This quote has expired.</h3>
+    <p id="exptext">Pricing is held for 7 days from the day we quote, because material costs and the install calendar move fast this time of year.</p>
+    <p>Want it refreshed? Call or text and we'll get you a current number the same day.</p>
+    <div class="num">(404) 436-0901</div>
   </div>
   <div class="vnote" id="pnote" hidden><b>Virtual estimate.</b> We priced this from photos and aerial imagery. We'll measure in person before any payment, and the final price may go up or down with the exact footage. Your per-foot rate is locked.</div>
   <div class="accept" id="accept" hidden>
@@ -362,6 +379,7 @@ footer b{color:var(--ink)}
       q.name=hexToStr(p[9]||''); q.virtual=p[10]==='1'; q.why=hexToStr(p[11]||'');
       q.fin=p[12]!=='0'; /* financing shown unless the quote tool turned it off */
       q.id=/^Q[A-Z0-9]{5,20}$/.test(p[13]||'')?p[13]:''; /* quote id: lets this page pull the latest version and accept by id */
+      var at=parseInt(p[14]||'',36); q.at=(at>0)?at*60000:0; /* created, base36 minutes; 0 on older links (no clock) */
       q.opts=[]; for(var i=0;i<3;i++){ if((mask&(1<<i)) && fts[i]>0 && rts[i]>0) q.opts.push(Object.assign({i:i},priceOpt(fts[i],rts[i],mode,valFor(i)))); }
       if(!q.opts.length) return null;
       var cur=q.opts.filter(function(x){return x.i===q.opt})[0]||q.opts[0]; q.opt=cur.i;
@@ -457,6 +475,27 @@ footer b{color:var(--ink)}
         });
       }
       if(Q.virtual){ $('planEyebrow').textContent='Your estimate'; $('pest').hidden=false; $('pnote').hidden=false; if(!(Q.opts&&Q.opts.length>1)) $('planSub').textContent='Your numbers, in writing.'; }
+      /* 7-day clock: a quiet line in the plan card, then the prices come off */
+      var VALID_DAYS=7, expiresAt=Q.at?Q.at+VALID_DAYS*864e5:0;
+      function expire(){
+        Q.expired=true;
+        $('optgrid').hidden=true; $('pickhint').hidden=true; $('pnote').hidden=true; $('accept').hidden=true; $('cta').hidden=true;
+        document.querySelector('.plan').hidden=true;
+        $('planTitle').textContent='Your home, lit.'; $('planSub').textContent=(Q.name?Q.name.split(' ')[0]+', your':'Your')+' quote from our visit.';
+        $('exptext').textContent='This one was good through '+new Date(expiresAt).toLocaleDateString('en-US',{weekday:'long',month:'long',day:'numeric'})+'. Pricing is held for '+VALID_DAYS+' days from the day we quote, because material costs and the install calendar move fast this time of year.';
+        $('expired').hidden=false;
+      }
+      function tick(){
+        var left=expiresAt-Date.now();
+        if(left<=0){ expire(); return; }
+        var d=Math.floor(left/864e5), h=Math.floor(left%864e5/36e5), m=Math.floor(left%36e5/6e4);
+        $('vleft').textContent = d>=1 ? d+' day'+(d===1?'':'s')+' '+h+' hr'+(h===1?'':'s')+' left' : h>=1 ? h+' hr'+(h===1?'':'s')+' '+m+' min left' : m+' min left';
+        $('pvalid').classList.toggle('soon',left<2*864e5);
+      }
+      if(expiresAt){
+        $('vdate').textContent=new Date(expiresAt).toLocaleDateString('en-US',{weekday:'short',month:'short',day:'numeric'});
+        $('pvalid').hidden=false; tick(); setInterval(tick,30000);
+      }
       /* accept this quote: in-person quotes only; virtual estimates still need a measure first */
       if(!Q.virtual){
         /* shown once the quote API answers (see live sync below), so an old script version never gets a tap it can't handle */
@@ -492,7 +531,7 @@ footer b{color:var(--ink)}
       var synced=''; try{ synced=sessionStorage.getItem('l514-sync')||''; }catch(e){}
       fetch(SCRIPT_URL+'?action=quote&id='+encodeURIComponent(Q.id||'none')).then(function(r){return r.json()}).then(function(j){
         if(!(j&&j.ok)) return;
-        if(!Q.virtual && $('acceptDone').hidden) $('accept').hidden=false;
+        if(!Q.virtual && !Q.expired && $('acceptDone').hidden) $('accept').hidden=false;
         var q=j.quote; if(!q) return;
         if(q.status==='Accepted'){ showAccepted(q.name||Q.name,q.pkg||NAMES[Q.opt],Number(q.total)||Q.net,0,''); $('doneText').innerHTML=(q.name?q.name.split(' ')[0]+', this':'This')+' quote is marked <b>accepted</b>. We\'re on it; expect a text to set up your deposit and install date.'; }
         var live=(q.link||'').split('#')[1]||'';
