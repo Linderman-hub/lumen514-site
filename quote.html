@@ -195,6 +195,12 @@ footer b{color:var(--ink)}
     <div class="fin" id="pfin" hidden></div>
     <div class="valid" id="pvalid" hidden><span>Quote good through <b id="vdate"></b></span><span class="vleft" id="vleft"></span></div>
   </div>
+  <div class="expired" id="complete" hidden>
+    <h3>This project is complete.</h3>
+    <p id="comptext">Pricing is custom to each home's roofline and the week it was quoted, so this one has been retired.</p>
+    <p>Want yours? Call or text and we'll come measure.</p>
+    <div class="num">(404) 436-0901</div>
+  </div>
   <div class="expired" id="expired" hidden>
     <h3>This quote has expired.</h3>
     <p id="exptext">Pricing is held for 7 days from the day we quote, because material costs and the install calendar move fast this time of year.</p>
@@ -533,6 +539,13 @@ footer b{color:var(--ink)}
         if(!(j&&j.ok)) return;
         if(!Q.virtual && !Q.expired && $('acceptDone').hidden) $('accept').hidden=false;
         var q=j.quote; if(!q) return;
+        if(/^(Sold|Materials ordered|Scheduled|Installed|Paid in full)$/.test(q.stage||'')){
+          Q.expired=true;
+          $('optgrid').hidden=true; $('pickhint').hidden=true; $('pnote').hidden=true; $('accept').hidden=true; $('cta').hidden=true; $('expired').hidden=true;
+          document.querySelector('.plan').hidden=true;
+          $('planTitle').textContent='Your home, lit.'; $('planSub').textContent=(q.name?q.name.split(' ')[0]+', thank':'Thank')+' you for choosing Lumen 514.';
+          $('complete').hidden=false; return;
+        }
         if(q.status==='Accepted'){ showAccepted(q.name||Q.name,q.pkg||NAMES[Q.opt],Number(q.total)||Q.net,0,''); $('doneText').innerHTML=(q.name?q.name.split(' ')[0]+', this':'This')+' quote is marked <b>accepted</b>. We\'re on it; expect a text to set up your deposit and install date.'; }
         var live=(q.link||'').split('#')[1]||'';
         var here=(location.hash||'').replace(/^#/,'');
