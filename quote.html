@@ -535,7 +535,8 @@ footer b{color:var(--ink)}
   try{
     if(Q&&Q.ft>0){
       var synced=''; try{ synced=sessionStorage.getItem('l514-sync')||''; }catch(e){}
-      fetch(SCRIPT_URL+'?action=quote&id='+encodeURIComponent(Q.id||'none')).then(function(r){return r.json()}).then(function(j){
+      var myTok=(location.hash||'').replace(/^#/,'').split('~')[0].slice(0,300);
+      fetch(SCRIPT_URL+'?action=quote&id='+encodeURIComponent(Q.id||'none')+'&tok='+encodeURIComponent(myTok)).then(function(r){return r.json()}).then(function(j){
         if(!(j&&j.ok)) return;
         if(!Q.virtual && !Q.expired && $('acceptDone').hidden) $('accept').hidden=false;
         var q=j.quote; if(!q) return;
